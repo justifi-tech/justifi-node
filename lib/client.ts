@@ -1,5 +1,4 @@
 import { AccessToken, Credential, getAccessToken } from "./auth";
-import { makeRequest } from "./http";
 import { InMemoryStore } from "./store";
 
 export class Justifi {

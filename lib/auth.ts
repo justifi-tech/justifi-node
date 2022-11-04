@@ -18,6 +18,9 @@ export const getAccessToken = (credential: Credential) => {
     RequestMethod.Post,
     "/oauth/token",
     {},
-    credential
+    {
+      client_id: credential.clientId,
+      client_secret: credential.clientSecret,
+    }
   );
 };

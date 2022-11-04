@@ -22,6 +22,10 @@ export const errorFromHttpStatus = (
     message,
   };
 
+  if (status === 404) {
+    return new NotFound(err);
+  }
+
   if (status >= 400 && status < 500) {
     return new InvalidParameters(err);
   }
