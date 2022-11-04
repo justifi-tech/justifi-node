@@ -1,1 +1,3 @@
-export default "Justifi NodeJS SDK";
+import { Justifi } from "./client";
+
+export default Justifi;
