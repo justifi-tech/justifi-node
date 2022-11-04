@@ -10,6 +10,7 @@ class BaseError {
 
 export class NotFound extends BaseError {}
 export class InvalidParameters extends BaseError {}
+export class Unauthorized extends BaseError {}
 export class InternalError extends BaseError {}
 export class StoreKeyExpired extends BaseError {}
 
@@ -22,13 +23,15 @@ export const errorFromHttpStatus = (
     message,
   };
 
-  if (status === 404) {
-    return new NotFound(err);
+  switch (status) {
+    case 404:
+      return new NotFound(err);
+    case 403:
+    case 401:
+      return new Unauthorized(err);
+    case 404:
+      return new NotFound(err);
+    default:
+      return new InternalError(err);
   }
-
-  if (status >= 400 && status < 500) {
-    return new InvalidParameters(err);
-  }
-
-  return new InternalError(err);
 };
