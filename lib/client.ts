@@ -1,7 +1,7 @@
-import { AccessToken, Credential, getAccessToken } from "./auth";
+import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { InMemoryStore } from "./store";
 
-export class Justifi {
+export class Justifi implements Authenticator {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -28,7 +28,7 @@ export class Justifi {
     return this;
   }
 
-  private async getToken(): Promise<AccessToken> {
+  async getToken(): Promise<AccessToken> {
     try {
       const cachedToken = this.store.get(this.ACCESS_TOKEN_STORE_KEY);
 
