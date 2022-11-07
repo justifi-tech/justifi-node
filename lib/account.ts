@@ -1,4 +1,5 @@
 import { toSnakeCase } from "./converter";
+import { JustifiRequest, RequestMethod } from "./httpnew";
 
 export enum AccountType {
   Live = "live",
@@ -62,28 +63,21 @@ export const createSellerAccount = (
   accountName: string
 ): Promise<SellerAccount> => {
   const payload: { name: string } = { name: accountName };
-  return makeRequest<SellerAccount>(
-    RequestMethod.Post,
-    "/v1/seller_accounts",
-    authHeader(token),
-    JSON.stringify(toSnakeCase(payload))
-  );
+
+  return new JustifiRequest(RequestMethod.Post, "/v1/seller_accounts")
+    .withAuth(token)
+    .withBody(payload)
+    .execute<SellerAccount>();
 };
 
 export const listSellerAccounts = (
   token: string,
   status?: AccountStatus
 ): Promise<SellerAccount[]> => {
-  let requestPath = "/v1/seller_accounts";
-  if (status) {
-    requestPath = `${requestPath}?status=${status}`;
-  }
-
-  return makeRequest<SellerAccount[]>(
-    RequestMethod.Get,
-    requestPath,
-    authHeader(token)
-  );
+  return new JustifiRequest(RequestMethod.Get, "/v1/seller_accounts")
+    .withAuth(token)
+    .withQueryParam("status", status || "")
+    .execute<SellerAccount[]>();
 };
 
 export const getSellerAccount = (
@@ -92,9 +86,7 @@ export const getSellerAccount = (
 ): Promise<SellerAccount> => {
   const requestPath = `/v1/seller_accounts/${id}`;
 
-  return makeRequest<SellerAccount>(
-    RequestMethod.Get,
-    requestPath,
-    authHeader(token)
-  );
+  return new JustifiRequest(RequestMethod.Get, requestPath)
+    .withAuth(token)
+    .execute<SellerAccount>();
 };

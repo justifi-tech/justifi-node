@@ -9,6 +9,8 @@ export enum RequestMethod {
 export type RequestHeaders = { [key: string]: string };
 
 export class JustifiRequest {
+  private maxRetries = 3;
+
   private requestUrl: URL;
   private method: RequestMethod;
   private headers: RequestHeaders;
@@ -30,6 +32,10 @@ export class JustifiRequest {
   }
 
   withQueryParam(key: string, value: string): JustifiRequest {
+    if (!value) {
+      return this;
+    }
+
     this.requestUrl.searchParams.append(key, value);
 
     return this;
@@ -39,6 +45,10 @@ export class JustifiRequest {
     this.body = body;
 
     return this;
+  }
+
+  withAuth(token: string): JustifiRequest {
+    return this.withHeader("Authorization", ` Bearer ${token}`)
   }
 
   async execute<T>(): Promise<T> {
@@ -60,6 +70,25 @@ export class JustifiRequest {
         code: 500,
         message: "Failed to request resource: " + e,
       }))
+    }
+  }
+
+  async executeWithRetry<T>(retries: number = this.maxRetries): Promise<T> {
+    return this.retryExecute(retries, [])
+  }
+
+  private retryExecute<T>(retries: number, errors: BaseError[]): Promise<T> {
+    if (retries === 0) {
+      return Promise.reject(errors)
+    }
+
+    try {
+      const result = await this.execute<T>();
+
+      return Promise.resolve(result);
+    } catch (e: BaseError) {
+      errors.push(e)
+      return this.retryExecute(retries--, errors);
     }
   }
 
