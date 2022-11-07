@@ -1,10 +1,5 @@
 import { errorFromHttpStatus, InternalError } from "./error";
 
-enum Environment {
-  Staging = "staging",
-  Production = "production",
-}
-
 export enum RequestMethod {
   Get = "GET",
   Post = "POST",
@@ -14,11 +9,11 @@ export enum RequestMethod {
 export type RequestHeaders = { [key: string]: string };
 
 const getApiHost = (): string => {
-  if (process.env.ENV === Environment.Production) {
-    return "https://api.justifi.ai";
+  if (process.env.JUSTIFI_STAGING_URL) {
+    return process.env.JUSTIFI_STAGING_URL;
   }
 
-  return "https://api.justifi-staging.com";
+  return "https://api.justifi.ai";
 };
 
 export const makeRequest = async <T>(
