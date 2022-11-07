@@ -11,6 +11,7 @@ class BaseError {
 export class NotFound extends BaseError {}
 export class InvalidParameters extends BaseError {}
 export class Unauthorized extends BaseError {}
+export class Unauthenticated extends BaseError {}
 export class InternalError extends BaseError {}
 export class StoreKeyExpired extends BaseError {}
 
@@ -27,10 +28,9 @@ export const errorFromHttpStatus = (
     case 404:
       return new NotFound(err);
     case 403:
-    case 401:
       return new Unauthorized(err);
-    case 404:
-      return new NotFound(err);
+    case 401:
+      return new Unauthenticated(err);
     default:
       return new InternalError(err);
   }
