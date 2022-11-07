@@ -1,5 +1,4 @@
-import { toSnakeCase } from "./converter";
-import { JustifiRequest, RequestMethod } from "./httpnew";
+import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 
 export enum AccountType {
   Live = "live",
@@ -13,7 +12,7 @@ export enum AccountStatus {
   Enabled = "enabled",
   Rejected = "rejected",
   Disabled = "disabled",
-  Archive = "archived",
+  Archived = "archived",
 }
 
 export enum RateType {
@@ -52,41 +51,41 @@ export interface SellerAccount {
   updatedAt: string;
 }
 
-export interface SellerApi {
+export interface SellerAccountApi {
   createSellerAccount(accountName: string): Promise<SellerAccount>;
   listSellerAccounts(status?: AccountStatus): Promise<SellerAccount[]>;
-  getSellerAccount(id: number): Promise<SellerAccount>;
+  getSellerAccount(id: string): Promise<SellerAccount>;
 }
 
 export const createSellerAccount = (
   token: string,
   accountName: string
-): Promise<SellerAccount> => {
+): Promise<ApiResponse<SellerAccount>> => {
   const payload: { name: string } = { name: accountName };
 
   return new JustifiRequest(RequestMethod.Post, "/v1/seller_accounts")
     .withAuth(token)
     .withBody(payload)
-    .execute<SellerAccount>();
+    .execute<ApiResponse<SellerAccount>>();
 };
 
 export const listSellerAccounts = (
   token: string,
   status?: AccountStatus
-): Promise<SellerAccount[]> => {
+): Promise<ApiResponse<SellerAccount[]>> => {
   return new JustifiRequest(RequestMethod.Get, "/v1/seller_accounts")
     .withAuth(token)
     .withQueryParam("status", status || "")
-    .execute<SellerAccount[]>();
+    .execute<ApiResponse<SellerAccount[]>>();
 };
 
 export const getSellerAccount = (
   token: string,
-  id: number
-): Promise<SellerAccount> => {
+  id: string
+): Promise<ApiResponse<SellerAccount>> => {
   const requestPath = `/v1/seller_accounts/${id}`;
 
   return new JustifiRequest(RequestMethod.Get, requestPath)
     .withAuth(token)
-    .execute<SellerAccount>();
+    .execute<ApiResponse<SellerAccount>>();
 };
