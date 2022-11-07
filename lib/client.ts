@@ -35,9 +35,19 @@ export class Justifi implements Authenticator {
       return Promise.resolve(cachedToken);
     } catch {
       const token = await getAccessToken(this.credential);
-      this.store.add(this.ACCESS_TOKEN_STORE_KEY, token);
+      this.store.add(
+        this.ACCESS_TOKEN_STORE_KEY,
+        token,
+        this.tokenExpiration()
+      );
 
       return Promise.resolve(token);
     }
+  }
+
+  private tokenExpiration(): Date {
+    const now = new Date();
+    const halfADay = 12 * 60 * 60 * 1000;
+    return new Date(now.getTime() + halfADay);
   }
 }
