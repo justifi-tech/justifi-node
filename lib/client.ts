@@ -8,9 +8,16 @@ import {
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { ApiResponse } from "./http";
+import {
+  getRefund,
+  listRefunds,
+  Refund,
+  RefundApi,
+  updateRefund,
+} from "./refund";
 import { InMemoryStore } from "./store";
 
-export class Justifi implements Authenticator, SellerAccountApi {
+export class Justifi implements Authenticator, SellerAccountApi, RefundApi {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -71,6 +78,27 @@ export class Justifi implements Authenticator, SellerAccountApi {
   async getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
     return getSellerAccount(token.accessToken, id);
+  }
+
+  async listRefunds(
+    sellerAccountId?: string | undefined
+  ): Promise<ApiResponse<Refund[]>> {
+    const token = await this.getToken();
+    return listRefunds(token.accessToken, sellerAccountId);
+  }
+
+  async getRefund(id: string): Promise<ApiResponse<Refund>> {
+    const token = await this.getToken();
+    return getRefund(token.accessToken, id);
+  }
+
+  async updateRefund(
+    id: string,
+    metadata: any,
+    idempotencyKey: string
+  ): Promise<ApiResponse<Refund>> {
+    const token = await this.getToken();
+    return updateRefund(token.accessToken, id, metadata, idempotencyKey);
   }
 
   private tokenExpiration(): Date {
