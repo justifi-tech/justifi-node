@@ -18,7 +18,9 @@ export interface Authenticator {
   getToken(): Promise<AccessToken>;
 }
 
-export const getAccessToken = (credential: Credential) => {
+export const getAccessToken = (
+  credential: Credential
+): Promise<AccessToken> => {
   return new JustifiRequest(RequestMethod.Post, "/oauth/token")
     .withBody(credential)
     .execute<AccessToken>();

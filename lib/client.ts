@@ -7,6 +7,7 @@ import {
   SellerAccountApi,
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
+import { ApiResponse } from "./http";
 import { InMemoryStore } from "./store";
 
 export class Justifi implements Authenticator, SellerAccountApi {
@@ -53,27 +54,23 @@ export class Justifi implements Authenticator, SellerAccountApi {
     }
   }
 
-  async createSellerAccount(accountName: string): Promise<SellerAccount> {
+  async createSellerAccount(
+    accountName: string
+  ): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
-    const res = await createSellerAccount(token.accessToken, accountName);
-
-    return Promise.resolve(res.data);
+    return createSellerAccount(token.accessToken, accountName);
   }
 
   async listSellerAccounts(
     status?: AccountStatus | undefined
-  ): Promise<SellerAccount[]> {
+  ): Promise<ApiResponse<SellerAccount[]>> {
     const token = await this.getToken();
-    const res = await listSellerAccounts(token.accessToken, status);
-
-    return Promise.resolve(res.data);
+    return listSellerAccounts(token.accessToken, status);
   }
 
-  async getSellerAccount(id: string): Promise<SellerAccount> {
+  async getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
-    const res = await getSellerAccount(token.accessToken, id);
-
-    return Promise.resolve(res.data);
+    return getSellerAccount(token.accessToken, id);
   }
 
   private tokenExpiration(): Date {

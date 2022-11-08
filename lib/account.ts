@@ -52,9 +52,11 @@ export interface SellerAccount {
 }
 
 export interface SellerAccountApi {
-  createSellerAccount(accountName: string): Promise<SellerAccount>;
-  listSellerAccounts(status?: AccountStatus): Promise<SellerAccount[]>;
-  getSellerAccount(id: string): Promise<SellerAccount>;
+  createSellerAccount(accountName: string): Promise<ApiResponse<SellerAccount>>;
+  listSellerAccounts(
+    status?: AccountStatus
+  ): Promise<ApiResponse<SellerAccount[]>>;
+  getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>>;
 }
 
 export const createSellerAccount = (
