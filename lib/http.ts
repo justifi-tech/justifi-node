@@ -114,8 +114,8 @@ export class JustifiRequest {
   }
 
   private getApiHost(): string {
-    if (process.env.JUSTIFI_STAGING_URL) {
-      return process.env.JUSTIFI_STAGING_URL;
+    if (process.env.JUSTIFI_API_URL) {
+      return process.env.JUSTIFI_API_URL;
     }
 
     return "https://api.justifi.ai";
