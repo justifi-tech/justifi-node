@@ -1,4 +1,4 @@
-import { makeRequest, RequestMethod } from "./http";
+import { JustifiRequest, RequestMethod } from "./http";
 
 export interface Credential {
   clientId: string;
@@ -18,14 +18,10 @@ export interface Authenticator {
   getToken(): Promise<AccessToken>;
 }
 
-export const getAccessToken = (credential: Credential) => {
-  return makeRequest<AccessToken>(
-    RequestMethod.Post,
-    "/oauth/token",
-    {},
-    {
-      client_id: credential.clientId,
-      client_secret: credential.clientSecret,
-    }
-  );
+export const getAccessToken = (
+  credential: Credential
+): Promise<AccessToken> => {
+  return new JustifiRequest(RequestMethod.Post, "/oauth/token")
+    .withBody(credential)
+    .execute<AccessToken>();
 };

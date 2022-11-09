@@ -1,4 +1,4 @@
-class BaseError {
+export class BaseError {
   code: number;
   message: string;
 
