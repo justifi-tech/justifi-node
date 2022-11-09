@@ -1,5 +1,10 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
-import { Payment, PaymentMethods, PaymentMethodUnion } from "./payment";
+import {
+  CreateCard,
+  Payment,
+  PaymentMethods,
+  PaymentMethodUnion,
+} from "./payment";
 
 export enum PaymentIntentStatus {
   RequiresPaymentMethod = "requires_payment_method",
@@ -22,12 +27,14 @@ export interface PaymentIntent {
   updatedAt: string;
 }
 
+export type PaymentIntentMethodUnion = { card: CreateCard } | { token: string };
+
 export interface PaymentIntentCreatePayload {
   amount: number;
   currency: string;
   description?: string;
   metadata?: any;
-  paymentMethod?: PaymentMethodUnion;
+  paymentMethod?: PaymentIntentMethodUnion;
 }
 
 export interface PaymentIntentUpdatePayload {
@@ -37,7 +44,7 @@ export interface PaymentIntentUpdatePayload {
 }
 
 export interface PaymentIntentCapturePayload {
-  paymentMethod: PaymentMethodUnion;
+  paymentMethod: PaymentIntentMethodUnion;
 }
 
 export interface PaymentIntentApi {
