@@ -18,7 +18,6 @@ switch (process.argv[2]) {
     break;
 
   case "listSellerAccountsNoFilter":
-    console.log("hello");
     client.listSellerAccounts().then(console.log).catch(console.log);
     break;
 
