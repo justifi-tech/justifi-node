@@ -56,6 +56,18 @@ export class JustifiRequest {
     return this;
   }
 
+  withQueryParams(params: any): JustifiRequest {
+    if (!params) {
+      return this;
+    }
+
+    Object.entries(toSnakeCase(params)).forEach(([key, value]) => {
+      this.withHeader(key, value as string);
+    });
+
+    return this;
+  }
+
   withBody(body: any): JustifiRequest {
     this.body = toSnakeCase(body);
 
