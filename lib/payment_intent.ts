@@ -1,5 +1,5 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
-import { CreateCard, Payment, PaymentMethod, PaymentMethods } from "./payment";
+import { CreateCard, Payment, PaymentMethods } from "./payment";
 
 export enum PaymentIntentStatus {
   RequiresPaymentMethod = "requires_payment_method",
@@ -38,11 +38,15 @@ export interface PaymentIntentUpdatePayload {
   paymentMethod: PaymentMethodUnion;
 }
 
+export interface PaymentIntentCapturePayload {
+  paymentMethod: PaymentMethodUnion;
+}
+
 export interface PaymentIntentApi {
   createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
-    sellerAccountId?: string
+    sellerAccountId: string
   ): Promise<ApiResponse<PaymentIntent>>;
 
   listPaymentIntents(
@@ -60,7 +64,7 @@ export interface PaymentIntentApi {
   capturePaymentIntent(
     id: string,
     idempotencyKey: string,
-    payload: PaymentMethodUnion
+    payload: PaymentIntentCapturePayload
   ): Promise<ApiResponse<PaymentIntent>>;
 
   listPaymentsForPaymentIntent(id: string): Promise<ApiResponse<Payment>>;
@@ -126,7 +130,7 @@ export const capturePaymentIntent = (
   token: string,
   id: string,
   idempotencyKey: string,
-  payload: PaymentMethodUnion
+  payload: PaymentIntentCapturePayload
 ): Promise<ApiResponse<PaymentIntent>> => {
   return new JustifiRequest(
     RequestMethod.Post,

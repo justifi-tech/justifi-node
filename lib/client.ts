@@ -17,9 +17,9 @@ import {
   listPaymentsForPaymentIntent,
   PaymentIntent,
   PaymentIntentApi,
+  PaymentIntentCapturePayload,
   PaymentIntentCreatePayload,
   PaymentIntentUpdatePayload,
-  PaymentMethodUnion,
   updatePaymentIntent,
 } from "./payment_intent";
 import {
@@ -120,7 +120,7 @@ export class Justifi
   async createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
-    sellerAccountId?: string | undefined
+    sellerAccountId?: string
   ): Promise<ApiResponse<PaymentIntent>> {
     const token = await this.getToken();
     return createPaymentIntent(
@@ -132,7 +132,7 @@ export class Justifi
   }
 
   async listPaymentIntents(
-    sellerAccountId?: string | undefined
+    sellerAccountId: string
   ): Promise<ApiResponse<PaymentIntent[]>> {
     const token = await this.getToken();
     return listPaymentIntents(token.accessToken, sellerAccountId);
@@ -155,7 +155,7 @@ export class Justifi
   async capturePaymentIntent(
     id: string,
     idempotencyKey: string,
-    payload: PaymentMethodUnion
+    payload: PaymentIntentCapturePayload
   ): Promise<ApiResponse<PaymentIntent>> {
     const token = await this.getToken();
     return capturePaymentIntent(token.accessToken, id, idempotencyKey, payload);
