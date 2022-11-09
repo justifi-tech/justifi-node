@@ -66,6 +66,10 @@ export class JustifiRequest {
     return this.withHeader("Authorization", ` Bearer ${token}`);
   }
 
+  withIdempotencyKey(idempotencyKey: string): JustifiRequest {
+    return this.withHeader("Idempotency-Key", idempotencyKey);
+  }
+
   async execute<T>(): Promise<T> {
     try {
       const res = await fetch(this.requestUrl, {
