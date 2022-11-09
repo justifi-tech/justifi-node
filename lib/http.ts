@@ -62,7 +62,7 @@ export class JustifiRequest {
     }
 
     Object.entries(toSnakeCase(params)).forEach(([key, value]) => {
-      this.withHeader(key, value as string);
+      this.withQueryParam(key, value as string);
     });
 
     return this;
