@@ -4,6 +4,7 @@ interface Store<T> {
   data: { [key: string]: { expiration: Date; value: T } };
   add(key: string, value: T, expiration: Date): void;
   get(key: string): T;
+  clear(): void;
 }
 
 export class InMemoryStore<T> implements Store<T> {
@@ -28,6 +29,10 @@ export class InMemoryStore<T> implements Store<T> {
     }
 
     return this.data[key].value;
+  }
+
+  clear(): void {
+    this.data = {};
   }
 
   private isExpired(key: string): boolean {
