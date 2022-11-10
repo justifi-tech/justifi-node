@@ -34,3 +34,6 @@ typings/
 .env
 .env.test
 .envrc
+
+# Jest coverage
+coverage
