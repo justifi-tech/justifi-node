@@ -10,11 +10,14 @@ if (process.argv.length < 3) {
 
 switch (process.argv[2]) {
   case "verifySignature":
-    client.verifySignature(
-      {},
-      "2022-11-09T22:51:53.616Z",
-      "<your_secret_key>",
-      "<received_signature>"
+    console.log(
+      "Signature Valid?: ",
+      client.verifySignature(
+        { id: "<event_id>", your: "... event info ..." },
+        "<timestamp>",
+        "<secret_key>",
+        "<received_signature>"
+      )
     );
     break;
 
