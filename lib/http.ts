@@ -56,7 +56,7 @@ export class JustifiRequest {
     return this;
   }
 
-  withQueryParams(params: any): JustifiRequest {
+  withQueryParams(params: object): JustifiRequest {
     if (!params) {
       return this;
     }
