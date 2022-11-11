@@ -8,7 +8,7 @@ import nock from "nock";
 describe("Auth", () => {
   const mockBaseUrl = process.env.JUSTIFI_API_URL;
   if (!mockBaseUrl) {
-    fail("JUSTIFI_API_URL must be set for testing");
+    throw new Error("JUSTIFI_API_URL must be set for testing");
   }
   const credentials = {
     clientId: "some_client_id",
