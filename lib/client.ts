@@ -132,7 +132,7 @@ export class Justifi
   }
 
   async listPaymentIntents(
-    sellerAccountId: string
+    sellerAccountId?: string
   ): Promise<ApiResponse<PaymentIntent[]>> {
     const token = await this.getToken();
     return listPaymentIntents(token.accessToken, sellerAccountId);
