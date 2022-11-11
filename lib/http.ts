@@ -94,7 +94,7 @@ export class JustifiRequest {
         (res) => {
           let body = "";
           res.on("data", (chunk) => (body += chunk));
-          res.on("close", () => {
+          res.on("end", () => {
             const status = res.statusCode || 500;
             if (status >= 300) {
               return reject(errorFromHttpStatus(status, body));
