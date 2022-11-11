@@ -45,6 +45,7 @@ import {
   updateRefund,
 } from "./refund";
 import { InMemoryStore } from "./store";
+import { verifySignature, WebhookVerifier } from "./webhook";
 
 export class Justifi
   implements
@@ -52,7 +53,8 @@ export class Justifi
     SellerAccountApi,
     RefundApi,
     PaymentIntentApi,
-    PaymentApi
+    PaymentApi,
+    WebhookVerifier
 {
   private static instance: Justifi;
 
@@ -207,7 +209,7 @@ export class Justifi
     filters?: PaymentListFilters | undefined
   ): Promise<ApiResponse<Payment[]>> {
     const token = await this.getToken();
-    return listPayments(token.accessToken, sellerAccountId, filters);
+    return listPayments(token.accessToken, filters, sellerAccountId);
   }
 
   async getPayment(id: string): Promise<ApiResponse<Payment>> {
@@ -246,6 +248,15 @@ export class Justifi
   ): Promise<ApiResponse<BalanceTransaction[]>> {
     const token = await this.getToken();
     return getBalanceTransactions(token.accessToken, id);
+  }
+
+  verifySignature(
+    receivedEvent: any,
+    timestamp: string,
+    secretKey: string,
+    signature: string
+  ): boolean {
+    return verifySignature(receivedEvent, timestamp, secretKey, signature);
   }
 
   private tokenExpiration(): Date {
