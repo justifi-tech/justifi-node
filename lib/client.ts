@@ -8,7 +8,22 @@ import {
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { ApiResponse } from "./http";
-import { Payment } from "./payment";
+import {
+  BalanceTransaction,
+  capturePayment,
+  createPayment,
+  CreatePaymentPayload,
+  getBalanceTransactions,
+  getPayment,
+  listPayments,
+  Payment,
+  PaymentApi,
+  PaymentListFilters,
+  refundPayment,
+  RefundPaymentPayload,
+  updatePayment,
+  UpdatePaymentPayload,
+} from "./payment";
 import {
   capturePaymentIntent,
   createPaymentIntent,
@@ -32,7 +47,12 @@ import {
 import { InMemoryStore } from "./store";
 
 export class Justifi
-  implements Authenticator, SellerAccountApi, RefundApi, PaymentIntentApi
+  implements
+    Authenticator,
+    SellerAccountApi,
+    RefundApi,
+    PaymentIntentApi,
+    PaymentApi
 {
   private static instance: Justifi;
 
@@ -166,6 +186,66 @@ export class Justifi
   ): Promise<ApiResponse<Payment>> {
     const token = await this.getToken();
     return listPaymentsForPaymentIntent(token.accessToken, id);
+  }
+
+  async createPayment(
+    idempotencyKey: string,
+    payload: CreatePaymentPayload,
+    sellerAccountId?: string | undefined
+  ): Promise<ApiResponse<Payment>> {
+    const token = await this.getToken();
+    return createPayment(
+      token.accessToken,
+      idempotencyKey,
+      payload,
+      sellerAccountId
+    );
+  }
+
+  async listPayments(
+    sellerAccountId?: string | undefined,
+    filters?: PaymentListFilters | undefined
+  ): Promise<ApiResponse<Payment[]>> {
+    const token = await this.getToken();
+    return listPayments(token.accessToken, sellerAccountId, filters);
+  }
+
+  async getPayment(id: string): Promise<ApiResponse<Payment>> {
+    const token = await this.getToken();
+    return getPayment(token.accessToken, id);
+  }
+
+  async updatePayment(
+    idempotencyKey: string,
+    id: string,
+    payload: UpdatePaymentPayload
+  ): Promise<ApiResponse<Payment>> {
+    const token = await this.getToken();
+    return updatePayment(token.accessToken, idempotencyKey, id, payload);
+  }
+
+  async capturePayment(
+    idempotencyKey: string,
+    id: string
+  ): Promise<ApiResponse<Payment>> {
+    const token = await this.getToken();
+    return capturePayment(token.accessToken, idempotencyKey, id);
+  }
+
+  async refundPayment(
+    idempotencyKey: string,
+    id: string,
+    payload: RefundPaymentPayload
+  ): Promise<ApiResponse<Refund>> {
+    const token = await this.getToken();
+    return refundPayment(token.accessToken, idempotencyKey, id, payload);
+  }
+
+  async getBalanceTransactions(
+    id: string
+  ): Promise<ApiResponse<BalanceTransaction[]>> {
+    const token = await this.getToken();
+    return getBalanceTransactions(token.accessToken, id);
   }
 
   private tokenExpiration(): Date {
