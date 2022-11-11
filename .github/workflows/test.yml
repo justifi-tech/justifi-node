@@ -5,7 +5,7 @@ jobs:
   lint_and_test:
     runs-on: ubuntu-latest
     env:
-      JUSTIFI_API_URL: http://localhost
+      JUSTIFI_API_URL: https://justifi-node-sdk.test
     strategy:
       fail-fast: true
       matrix:
