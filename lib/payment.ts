@@ -27,14 +27,14 @@ export interface CreateCard {
   verification: string;
   month: string;
   year: string;
-  addressLine1: string;
-  addressLine2: string;
-  addressCity: string;
-  addressState: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  addressCity?: string;
+  addressState?: string;
   addressPostalCode: string;
-  addressCountry: string;
+  addressCountry?: string;
   brand: string;
-  metadata: any;
+  metadata?: any;
 }
 
 export enum BankAccountType {
@@ -55,7 +55,7 @@ export interface CreateBankAccount {
   accountOwnerType: BankAccountOwnerType;
   country: string;
   currency: string;
-  metadata: any;
+  metadata?: any;
 }
 
 export type PaymentMethodUnion =
@@ -143,23 +143,23 @@ export interface CreatePaymentPayload {
   amount: number;
   currency: string;
   captureStrategy: PaymentCaptureStrategy;
-  email: string;
+  email?: string;
   paymentMethod: PaymentMethodUnion;
-  applicationFeeAmount: number;
-  description: string;
-  metadata: any;
+  applicationFeeAmount?: number;
+  description?: string;
+  metadata?: any;
 }
 
 export interface UpdatePaymentPayload {
-  description: string;
-  metadata: any;
+  description?: string;
+  metadata?: any;
 }
 
 export interface RefundPaymentPayload {
-  amount: number;
-  description: string;
-  reason: RefundReason;
-  metadata: any;
+  amount?: number;
+  description?: string;
+  reason?: RefundReason;
+  metadata?: any;
 }
 
 export interface PaymentListFilters {
@@ -224,8 +224,8 @@ export const createPayment = (
 
 export const listPayments = (
   token: string,
-  sellerAccountId?: string,
-  filters?: PaymentListFilters
+  filters?: PaymentListFilters,
+  sellerAccountId?: string
 ): Promise<ApiResponse<Payment[]>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/payments").withAuth(
     token
