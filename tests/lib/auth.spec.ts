@@ -2,8 +2,8 @@ import "jest";
 import Justifi from "../../lib";
 import { toSnakeCase } from "../../lib/converter";
 import { InternalError, NotFound } from "../../lib/error";
-import { DEFAULT_HEADERS, RequestMethod } from "../../lib/http";
-import { mockFetch } from "../mocks/http";
+import { DEFAULT_HEADERS } from "../../lib/http";
+import nock from "nock";
 
 describe("Auth", () => {
   const mockBaseUrl = process.env.JUSTIFI_API_URL;
@@ -17,9 +17,8 @@ describe("Auth", () => {
 
   const client = Justifi.client().withCredentials(credentials);
 
-  let jestMock: jest.SpyInstance;
   afterEach(() => {
-    jestMock.mockClear();
+    nock.cleanAll();
     client.clearCache();
   });
 
@@ -27,18 +26,14 @@ describe("Auth", () => {
     const token = { access_token: "some_access_token" };
 
     it("gets the access token", async () => {
-      jestMock = mockFetch(200, token);
+      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+        .post("/oauth/token", toSnakeCase(credentials))
+        .reply(200, token);
       const justifiToken = await client.getToken();
 
-      expect(jestMock).toHaveBeenCalledWith(
-        new URL(`${mockBaseUrl}/oauth/token`),
-        {
-          method: RequestMethod.Post,
-          headers: DEFAULT_HEADERS,
-          body: JSON.stringify(toSnakeCase(credentials)),
-        }
-      );
       expect(justifiToken.accessToken).toEqual(token.access_token);
+      expect(serverMock.isDone()).toEqual(true);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
 
@@ -46,17 +41,12 @@ describe("Auth", () => {
     const errorResponse = { error: "Resource not found" };
 
     it("responds with 404 not found", async () => {
-      jestMock = mockFetch(404, errorResponse);
+      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+        .post("/oauth/token", toSnakeCase(credentials))
+        .reply(404, errorResponse);
 
       await expect(client.getToken()).rejects.toBeInstanceOf(NotFound);
-      expect(jestMock).toHaveBeenCalledWith(
-        new URL(`${mockBaseUrl}/oauth/token`),
-        {
-          method: RequestMethod.Post,
-          headers: DEFAULT_HEADERS,
-          body: JSON.stringify(toSnakeCase(credentials)),
-        }
-      );
+      expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
 
@@ -64,17 +54,12 @@ describe("Auth", () => {
     const errorResponse = { error: "Resource not found" };
 
     it("responds with 500 internal server error", async () => {
-      jestMock = mockFetch(500, errorResponse);
+      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+        .post("/oauth/token", toSnakeCase(credentials))
+        .reply(500, errorResponse);
 
       await expect(client.getToken()).rejects.toBeInstanceOf(InternalError);
-      expect(jestMock).toHaveBeenCalledWith(
-        new URL(`${mockBaseUrl}/oauth/token`),
-        {
-          method: RequestMethod.Post,
-          headers: DEFAULT_HEADERS,
-          body: JSON.stringify(toSnakeCase(credentials)),
-        }
-      );
+      expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
 });
