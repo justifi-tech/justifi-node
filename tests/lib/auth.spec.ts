@@ -1,6 +1,6 @@
 import "jest";
 import Justifi from "../../lib";
-import { toSnakeCase } from "../../lib/converter";
+import { toCamelCase, toSnakeCase } from "../../lib/converter";
 import { InternalError, NotFound } from "../../lib/error";
 import { DEFAULT_HEADERS } from "../../lib/http";
 import nock from "nock";
@@ -28,6 +28,7 @@ describe("Auth", () => {
     it("gets the access token", async () => {
       const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
         .post("/oauth/token", toSnakeCase(credentials))
+        .once()
         .reply(200, token);
       const justifiToken = await client.getToken();
 
@@ -43,6 +44,7 @@ describe("Auth", () => {
     it("responds with 404 not found", async () => {
       const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
         .post("/oauth/token", toSnakeCase(credentials))
+        .once()
         .reply(404, errorResponse);
 
       await expect(client.getToken()).rejects.toBeInstanceOf(NotFound);
@@ -56,9 +58,27 @@ describe("Auth", () => {
     it("responds with 500 internal server error", async () => {
       const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
         .post("/oauth/token", toSnakeCase(credentials))
+        .once()
         .reply(500, errorResponse);
 
       await expect(client.getToken()).rejects.toBeInstanceOf(InternalError);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+  });
+
+  describe("when calling getToken multiple times", () => {
+    const token = { access_token: "some_access_token" };
+
+    it("calls the api only once", async () => {
+      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+        .post("/oauth/token", toSnakeCase(credentials))
+        .once()
+        .reply(200, token);
+
+      const firstToken = await client.getToken();
+      expect(firstToken.accessToken).toEqual(token.access_token);
+
+      await expect(client.getToken()).resolves.toEqual(toCamelCase(token));
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
