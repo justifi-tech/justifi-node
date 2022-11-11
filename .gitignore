@@ -35,5 +35,8 @@ typings/
 .env.test
 .envrc
 
+# asdf
+.tool-versions
+
 # Jest coverage
 coverage
