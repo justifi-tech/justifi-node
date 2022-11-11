@@ -1,3 +1,5 @@
+import { OutgoingHttpHeaders } from "http";
+import { request } from "https";
 import { toCamelCase, toSnakeCase } from "./converter";
 import { errorFromHttpStatus, InternalError, BaseError } from "./error";
 
@@ -28,7 +30,7 @@ export class JustifiRequest {
 
   private requestUrl: URL;
   private method: RequestMethod;
-  private headers: RequestHeaders;
+  private headers: OutgoingHttpHeaders;
   private body?: any;
 
   constructor(method: RequestMethod, path: string) {
@@ -83,28 +85,43 @@ export class JustifiRequest {
   }
 
   async execute<T>(): Promise<T> {
-    try {
-      const res = await fetch(this.requestUrl, {
-        method: this.method,
-        headers: this.headers,
-        body: this.body ? JSON.stringify(this.body) : undefined,
-      });
+    return new Promise((resolve, reject) => {
+      const req = request(
+        this.requestUrl,
+        { method: this.method, headers: this.headers },
+        (res) => {
+          let body = "";
+          res.on("data", (chunk) => (body += chunk));
+          res.on("close", () => {
+            const status = res.statusCode || 500;
+            if (status >= 300) {
+              return reject(errorFromHttpStatus(status, body));
+            }
 
-      if (res.status >= 300) {
-        const err = await res.text();
-        return Promise.reject(errorFromHttpStatus(res.status, err));
+            try {
+              return resolve(toCamelCase(JSON.parse(body)) as T);
+            } catch (e) {
+              return reject(
+                new InternalError({
+                  code: 500,
+                  message: "Failed to request resource: " + (e as string),
+                })
+              );
+            }
+          });
+        }
+      );
+
+      req.on("error", (err) =>
+        reject(new InternalError({ code: 500, message: err.message }))
+      );
+
+      if (this.body) {
+        req.write(JSON.stringify(this.body));
       }
 
-      const result = (await res.json()) as T;
-      return toCamelCase(result);
-    } catch (e: any) {
-      return Promise.reject(
-        new InternalError({
-          code: 500,
-          message: "Failed to request resource: " + e,
-        })
-      );
-    }
+      req.end();
+    });
   }
 
   async executeWithRetry<T>(retries: number = this.maxRetries): Promise<T> {
