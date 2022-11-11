@@ -4,6 +4,8 @@ on:
 jobs:
   lint_and_test:
     runs-on: ubuntu-latest
+    env:
+      JUSTIFI_API_URL: http://localhost
     strategy:
       fail-fast: true
       matrix:
