@@ -35,7 +35,7 @@ export interface PaymentIntentCreatePayload {
 export interface PaymentIntentUpdatePayload {
   description?: string;
   metadata?: any;
-  paymentMethod: PaymentMethodUnion;
+  paymentMethod?: PaymentMethodUnion;
 }
 
 export interface PaymentIntentCapturePayload {
