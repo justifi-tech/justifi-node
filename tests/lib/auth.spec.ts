@@ -1,21 +1,12 @@
 import "jest";
-import Justifi from "../../lib";
 import { toCamelCase, toSnakeCase } from "../../lib/converter";
 import { InternalError, NotFound } from "../../lib/error";
-import { DEFAULT_HEADERS } from "../../lib/http";
 import nock from "nock";
+import { getTestSetupData } from "../setup";
 
 describe("Auth", () => {
-  const mockBaseUrl = process.env.JUSTIFI_API_URL;
-  if (!mockBaseUrl) {
-    throw new Error("JUSTIFI_API_URL must be set for testing");
-  }
-  const credentials = {
-    clientId: "some_client_id",
-    clientSecret: "some_client_secret",
-  };
-
-  const client = Justifi.client().withCredentials(credentials);
+  const { mockBaseUrl, credentials, client, defaultHeaders } =
+    getTestSetupData();
 
   afterEach(() => {
     nock.cleanAll();
@@ -26,7 +17,7 @@ describe("Auth", () => {
     const token = { access_token: "some_access_token" };
 
     it("gets the access token", async () => {
-      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/oauth/token", toSnakeCase(credentials))
         .once()
         .reply(200, token);
@@ -42,7 +33,7 @@ describe("Auth", () => {
     const errorResponse = { error: "Resource not found" };
 
     it("responds with 404 not found", async () => {
-      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/oauth/token", toSnakeCase(credentials))
         .once()
         .reply(404, errorResponse);
@@ -56,7 +47,7 @@ describe("Auth", () => {
     const errorResponse = { error: "Resource not found" };
 
     it("responds with 500 internal server error", async () => {
-      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/oauth/token", toSnakeCase(credentials))
         .once()
         .reply(500, errorResponse);
@@ -70,7 +61,7 @@ describe("Auth", () => {
     const token = { access_token: "some_access_token" };
 
     it("calls the api only once", async () => {
-      const serverMock = nock(mockBaseUrl, { reqheaders: DEFAULT_HEADERS })
+      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/oauth/token", toSnakeCase(credentials))
         .once()
         .reply(200, token);
