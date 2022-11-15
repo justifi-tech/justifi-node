@@ -5,9 +5,9 @@ import { errorFromHttpStatus, InternalError, BaseError } from "./error";
 
 export interface PageInfo {
   endCursor: string;
+  startCursor: string;
   hasNext: boolean;
   hasPrevious: boolean;
-  startCursor: boolean;
 }
 
 export interface ApiResponse<T> {
