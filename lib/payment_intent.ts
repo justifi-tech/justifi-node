@@ -17,7 +17,7 @@ export enum PaymentIntentStatus {
 export interface PaymentIntent {
   id: string;
   accountId: string;
-  ammount: number;
+  amount: number;
   currency: string;
   description: string;
   metadata: any;
@@ -51,7 +51,7 @@ export interface PaymentIntentApi {
   createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
-    sellerAccountId: string
+    sellerAccountId?: string
   ): Promise<ApiResponse<PaymentIntent>>;
 
   listPaymentIntents(
@@ -72,7 +72,7 @@ export interface PaymentIntentApi {
     payload: PaymentIntentCapturePayload
   ): Promise<ApiResponse<PaymentIntent>>;
 
-  listPaymentsForPaymentIntent(id: string): Promise<ApiResponse<Payment>>;
+  listPaymentsForPaymentIntent(id: string): Promise<ApiResponse<Payment[]>>;
 }
 
 export const createPaymentIntent = (
@@ -150,11 +150,11 @@ export const capturePaymentIntent = (
 export const listPaymentsForPaymentIntent = (
   token: string,
   id: string
-): Promise<ApiResponse<Payment>> => {
+): Promise<ApiResponse<Payment[]>> => {
   return new JustifiRequest(
     RequestMethod.Get,
     `/v1/payment_intents/${id}/payments`
   )
     .withAuth(token)
-    .execute<ApiResponse<Payment>>();
+    .execute<ApiResponse<Payment[]>>();
 };
