@@ -1,34 +1,25 @@
 import "jest";
-import Justifi from "../../lib";
 import { toSnakeCase } from "../../lib/converter";
-import { DEFAULT_HEADERS } from "../../lib/http";
 import nock, { Scope } from "nock";
 import { sellerAccount1, sellerAccount2 } from "../data/account";
 import { AccountStatus } from "../../lib/account";
 import { withApiResponse } from "../data/http";
+import { getTestSetupData } from "../setup";
 
 describe("Account", () => {
-  const mockBaseUrl = process.env.JUSTIFI_API_URL;
-  if (!mockBaseUrl) {
-    throw new Error("JUSTIFI_API_URL must be set for testing");
-  }
-  const credentials = {
-    clientId: "some_client_id",
-    clientSecret: "some_client_secret",
-  };
-
-  const client = Justifi.client().withCredentials(credentials);
-
-  const token = { access_token: "some_access_token" };
-  const AUTH_HEADERS = {
-    Authorization: `Bearer ${token}`,
-    ...DEFAULT_HEADERS,
-  };
+  const {
+    mockBaseUrl,
+    credentials,
+    client,
+    token,
+    authHeaders,
+    defaultHeaders,
+  } = getTestSetupData();
 
   let serverMock: Scope;
   beforeEach(() => {
     serverMock = nock(mockBaseUrl, {
-      reqheaders: DEFAULT_HEADERS,
+      reqheaders: defaultHeaders,
     })
       .post("/oauth/token", toSnakeCase(credentials))
       .once()
@@ -46,7 +37,7 @@ describe("Account", () => {
         .post(
           "/v1/seller_accounts",
           toSnakeCase({ name: sellerAccount1.name }),
-          { reqheaders: AUTH_HEADERS }
+          { reqheaders: authHeaders }
         )
         .once()
         .reply(201, withApiResponse(sellerAccount1));
@@ -64,7 +55,7 @@ describe("Account", () => {
     describe("when not filtering by status", () => {
       it("lists the seller accounts", async () => {
         serverMock
-          .get("/v1/seller_accounts", undefined, { reqheaders: AUTH_HEADERS })
+          .get("/v1/seller_accounts", undefined, { reqheaders: authHeaders })
           .once()
           .reply(200, withApiResponse([sellerAccount1, sellerAccount2]));
 
@@ -78,7 +69,7 @@ describe("Account", () => {
     describe("when filtering by status", () => {
       it("lists the seller accounts filtered by status", async () => {
         serverMock
-          .get("/v1/seller_accounts", undefined, { reqheaders: AUTH_HEADERS })
+          .get("/v1/seller_accounts", undefined, { reqheaders: authHeaders })
           .query({ status: AccountStatus.Enabled })
           .once()
           .reply(200, withApiResponse([sellerAccount1]));
@@ -97,7 +88,7 @@ describe("Account", () => {
     it("gets the seller account", async () => {
       serverMock
         .get(`/v1/seller_accounts/${sellerAccount1.id}`, undefined, {
-          reqheaders: AUTH_HEADERS,
+          reqheaders: authHeaders,
         })
         .once()
         .reply(200, withApiResponse(sellerAccount1));
