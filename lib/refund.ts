@@ -15,7 +15,7 @@ export enum RefundStatus {
 
 export interface Refund {
   id: string;
-  payment_id: string;
+  paymentId: string;
   amount: number;
   description: string;
   reason: RefundReason;
