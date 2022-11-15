@@ -82,6 +82,10 @@ export class Justifi
     return this;
   }
 
+  clearCache() {
+    this.store.clear();
+  }
+
   async getToken(): Promise<AccessToken> {
     try {
       const cachedToken = this.store.get(this.ACCESS_TOKEN_STORE_KEY);

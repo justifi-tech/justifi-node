@@ -25,6 +25,11 @@ export enum RequestMethod {
 
 export type RequestHeaders = { [key: string]: string };
 
+export const DEFAULT_HEADERS = {
+  "Content-Type": "application/json",
+  Accept: "application/json",
+};
+
 export class JustifiRequest {
   private maxRetries = 3;
 
@@ -34,12 +39,9 @@ export class JustifiRequest {
   private body?: any;
 
   constructor(method: RequestMethod, path: string) {
-    this.requestUrl = new URL(`${this.getApiHost()}/${path}`);
+    this.requestUrl = new URL(this.getApiHost() + path);
     this.method = method;
-    this.headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    };
+    this.headers = DEFAULT_HEADERS;
   }
 
   withHeader(key: string, value: string): JustifiRequest {
@@ -92,7 +94,7 @@ export class JustifiRequest {
         (res) => {
           let body = "";
           res.on("data", (chunk) => (body += chunk));
-          res.on("close", () => {
+          res.on("end", () => {
             const status = res.statusCode || 500;
             if (status >= 300) {
               return reject(errorFromHttpStatus(status, body));
