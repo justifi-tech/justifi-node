@@ -1,14 +1,10 @@
 import "jest";
-import Justifi from "../../lib";
 import { webhookReceivedEvent } from "../data/webhook";
+import { getTestSetupData } from "../setup";
 
 describe("Webhook", () => {
-  const credentials = {
-    clientId: "some_client_id",
-    clientSecret: "some_client_secret",
-  };
+  const { client } = getTestSetupData();
 
-  const client = Justifi.client().withCredentials(credentials);
   describe("verify signature", () => {
     describe("when signature is valid", () => {
       it("allows", () => {
