@@ -144,7 +144,7 @@ export class JustifiRequest {
       return Promise.resolve(result);
     } catch (e: any) {
       errors.push(e);
-      return this.retryExecute(retries--, errors);
+      return this.retryExecute(retries - 1, errors);
     }
   }
 
