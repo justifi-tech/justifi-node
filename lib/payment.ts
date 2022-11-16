@@ -14,12 +14,19 @@ export interface PaymentMethod {
   addressPostalCodeCheck: string;
 }
 
-export interface PaymentMethods {
-  card: PaymentMethod;
+export interface PaymentMethodCard {
+  card?: PaymentMethod;
+  customerId: string;
+  signature: string;
+}
+
+export interface PaymentMethodBankAccount {
   bankAccount: PaymentMethod;
   customerId: string;
   signature: string;
 }
+
+export type PaymentMethods = PaymentMethodCard | PaymentMethodBankAccount;
 
 export interface CreateCard {
   name: string;

@@ -189,7 +189,7 @@ export class Justifi
 
   async listPaymentsForPaymentIntent(
     id: string
-  ): Promise<ApiResponse<Payment>> {
+  ): Promise<ApiResponse<Payment[]>> {
     const token = await this.getToken();
     return listPaymentsForPaymentIntent(token.accessToken, id);
   }
