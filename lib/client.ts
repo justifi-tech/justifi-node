@@ -209,8 +209,8 @@ export class Justifi
   }
 
   async listPayments(
-    sellerAccountId?: string | undefined,
-    filters?: PaymentListFilters | undefined
+    filters?: PaymentListFilters | undefined,
+    sellerAccountId?: string | undefined
   ): Promise<ApiResponse<Payment[]>> {
     const token = await this.getToken();
     return listPayments(token.accessToken, filters, sellerAccountId);

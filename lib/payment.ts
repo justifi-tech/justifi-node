@@ -40,7 +40,7 @@ export interface CreateCard {
   addressState?: string;
   addressPostalCode: string;
   addressCountry?: string;
-  brand: string;
+  brand?: string;
   metadata?: any;
 }
 
@@ -183,8 +183,8 @@ export interface PaymentApi {
   ): Promise<ApiResponse<Payment>>;
 
   listPayments(
-    sellerAccountId?: string,
-    filters?: PaymentListFilters
+    filters?: PaymentListFilters,
+    sellerAccountId?: string
   ): Promise<ApiResponse<Payment[]>>;
 
   getPayment(id: string): Promise<ApiResponse<Payment>>;
