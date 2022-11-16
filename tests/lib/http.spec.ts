@@ -72,6 +72,17 @@ describe("http", () => {
       expect(mockServer.isDone()).toEqual(true);
       expect(mockServer.pendingMocks()).toHaveLength(0);
     });
+
+    it("does not add if provided params is empty", async () => {
+      const mockServer = nock(baseUrl).get("/").once().reply(200, {});
+
+      await new JustifiRequest(RequestMethod.Get, "/")
+        .withQueryParams({})
+        .execute();
+
+      expect(mockServer.isDone()).toEqual(true);
+      expect(mockServer.pendingMocks()).toHaveLength(0);
+    });
   });
 
   describe("with body", () => {
