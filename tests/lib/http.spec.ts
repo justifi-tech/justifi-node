@@ -1,8 +1,10 @@
 import "jest";
 import nock from "nock";
 import { toSnakeCase } from "../../lib/converter";
-import { InternalError, NotFound } from "../../lib/error";
+import { InternalError, NotFound, PaginationError } from "../../lib/error";
 import { JustifiRequest, RequestMethod } from "../../lib/http";
+import { sellerAccount1 } from "../data/account";
+import { withApiResponse } from "../data/http";
 
 describe("http", () => {
   const baseUrl = process.env.JUSTIFI_API_URL;
@@ -189,7 +191,157 @@ describe("http", () => {
 
         await expect(
           new JustifiRequest(RequestMethod.Get, "/").executeWithRetry()
-        ).rejects.toEqual(new NotFound({ code: 404, message: "dont retry" }));
+        ).rejects.toEqual(new NotFound("dont retry"));
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("pagination", () => {
+    describe("when requesting next page", () => {
+      it("calls the api with the correct params", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }], "abc123"));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        mockServer
+          .get(`/?after_cursor=${result.pageInfo.endCursor}`)
+          .once()
+          .reply(200, withApiResponse([{ a: 2, b: 3 }]));
+
+        await result.nextPage();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+
+      it("rejects if next page is not present", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }]));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        await expect(result.nextPage()).rejects.toBeInstanceOf(PaginationError);
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+
+      it("adds the limit param if provided", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }], "abc123"));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        const limit = 10;
+        mockServer
+          .get(`/?after_cursor=${result.pageInfo.endCursor}&limit=${limit}`)
+          .once()
+          .reply(200, withApiResponse([{ a: 2, b: 3 }]));
+
+        await result.nextPage(limit);
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+    });
+
+    describe("when requesting previous page", () => {
+      it("calls the api with the correct params", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }], undefined, "abc123"));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        mockServer
+          .get(`/?before_cursor=${result.pageInfo.startCursor}`)
+          .once()
+          .reply(200, withApiResponse([{ a: 2, b: 3 }]));
+
+        await result.previousPage();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+
+      it("rejects if previous page is not present", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }]));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        await expect(result.previousPage()).rejects.toBeInstanceOf(
+          PaginationError
+        );
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+
+      it("adds the limit param if provided", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(200, withApiResponse([{ a: 1, b: 2 }], undefined, "abc123"));
+
+        const result = await new JustifiRequest(
+          RequestMethod.Get,
+          "/"
+        ).execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        const limit = 10;
+        mockServer
+          .get(`/?before_cursor=${result.pageInfo.startCursor}&limit=${limit}`)
+          .once()
+          .reply(200, withApiResponse([{ a: 2, b: 3 }]));
+
+        await result.previousPage(limit);
+
         expect(mockServer.isDone()).toEqual(true);
         expect(mockServer.pendingMocks()).toHaveLength(0);
       });

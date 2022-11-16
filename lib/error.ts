@@ -8,12 +8,33 @@ export class BaseError {
   }
 }
 
-export class NotFound extends BaseError {}
+export class NotFound extends BaseError {
+  constructor(message: string) {
+    super({ code: 404, message });
+  }
+}
 export class InvalidParameters extends BaseError {}
-export class Unauthorized extends BaseError {}
-export class Unauthenticated extends BaseError {}
+export class Unauthorized extends BaseError {
+  constructor(message: string) {
+    super({ code: 403, message });
+  }
+}
+export class Unauthenticated extends BaseError {
+  constructor(message: string) {
+    super({ code: 401, message });
+  }
+}
+export class PaginationError extends BaseError {
+  constructor(message: string) {
+    super({ code: 400, message });
+  }
+}
+export class StoreKeyExpired extends BaseError {
+  constructor(message: string) {
+    super({ code: 500, message });
+  }
+}
 export class InternalError extends BaseError {}
-export class StoreKeyExpired extends BaseError {}
 
 export const errorFromHttpStatus = (
   status: number,
@@ -26,11 +47,11 @@ export const errorFromHttpStatus = (
 
   switch (status) {
     case 404:
-      return new NotFound(err);
+      return new NotFound(err.message);
     case 403:
-      return new Unauthorized(err);
+      return new Unauthorized(err.message);
     case 401:
-      return new Unauthenticated(err);
+      return new Unauthenticated(err.message);
     default:
       return new InternalError(err);
   }
