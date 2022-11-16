@@ -6,10 +6,15 @@ export const withApiResponse = <T>(
   endCursor?: string,
   startCursor?: string
 ): ApiResponse<T> => {
-  return new ApiResponse<T>(randomInt(100), "any", data, {
-    endCursor: endCursor || "",
-    startCursor: startCursor || "",
-    hasPrevious: Boolean(startCursor),
-    hasNext: Boolean(endCursor),
+  return new ApiResponse<T>({
+    id: randomInt(100),
+    type: "any",
+    data,
+    pageInfo: {
+      endCursor: endCursor || "",
+      startCursor: startCursor || "",
+      hasPrevious: Boolean(startCursor),
+      hasNext: Boolean(endCursor),
+    },
   });
 };

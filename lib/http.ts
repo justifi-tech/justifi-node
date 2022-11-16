@@ -30,22 +30,11 @@ export class ApiResponse<T> implements ApiResponseSchema<T> {
 
   private request?: JustifiRequest;
 
-  constructor(id: number, type: string, data: T, pageInfo: PageInfo) {
-    this.id = id;
-    this.type = type;
-    this.data = data;
-    this.pageInfo = pageInfo;
-  }
-
-  static fromApiResponseSchema<T>(
-    schema: ApiResponseSchema<T>
-  ): ApiResponse<T> {
-    return new ApiResponse<T>(
-      schema.id,
-      schema.type,
-      schema.data,
-      schema.pageInfo
-    );
+  constructor(schema: ApiResponseSchema<T>) {
+    this.id = schema.id;
+    this.type = schema.type;
+    this.data = schema.data;
+    this.pageInfo = schema.pageInfo;
   }
 
   withRequest(request: JustifiRequest) {
@@ -185,9 +174,7 @@ export class JustifiRequest {
               };
 
               return resolve(
-                ApiResponse.fromApiResponseSchema(
-                  apiResponseSchema
-                ).withRequest(this)
+                new ApiResponse(apiResponseSchema).withRequest(this)
               );
             } catch (e) {
               return reject(
