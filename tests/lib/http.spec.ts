@@ -1,7 +1,7 @@
 import "jest";
 import nock from "nock";
 import { toSnakeCase } from "../../lib/converter";
-import { InternalError } from "../../lib/error";
+import { InternalError, NotFound } from "../../lib/error";
 import { JustifiRequest, RequestMethod } from "../../lib/http";
 
 describe("http", () => {
@@ -175,6 +175,21 @@ describe("http", () => {
           new InternalError({ code: 500, message: "retry" }),
           new InternalError({ code: 500, message: "retry" }),
         ]);
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      });
+    });
+
+    describe("when error is not internal error", () => {
+      it("does not retry", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/")
+          .once()
+          .reply(404, "dont retry");
+
+        await expect(
+          new JustifiRequest(RequestMethod.Get, "/").executeWithRetry()
+        ).rejects.toEqual(new NotFound({ code: 404, message: "dont retry" }));
         expect(mockServer.isDone()).toEqual(true);
         expect(mockServer.pendingMocks()).toHaveLength(0);
       });
