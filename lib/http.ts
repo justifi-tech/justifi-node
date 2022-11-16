@@ -143,8 +143,12 @@ export class JustifiRequest {
 
       return Promise.resolve(result);
     } catch (e: any) {
-      errors.push(e);
-      return this.retryExecute(retries--, errors);
+      if (e instanceof InternalError) {
+        errors.push(e);
+        return this.retryExecute(retries - 1, errors);
+      }
+
+      return Promise.reject(e);
     }
   }
 
