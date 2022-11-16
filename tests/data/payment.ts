@@ -1,8 +1,14 @@
 import {
+  BalanceTransaction,
+  CreatePaymentPayload,
   Payment,
+  PaymentBalanceTxnType,
   PaymentCaptureStrategy,
   PaymentStatus,
+  RefundPaymentPayload,
+  UpdatePaymentPayload,
 } from "../../lib/payment";
+import { RefundReason } from "../../lib/refund";
 
 export const payment1: Payment = {
   id: "py_abc",
@@ -98,6 +104,64 @@ export const payment2: Payment = {
   },
   refunded: false,
   status: PaymentStatus.Succeeded,
+  createdAt: "2022-01-01T12:00:00Z",
+  updatedAt: "2022-01-01T12:00:00Z",
+};
+
+export const paymentBalanceTransaction1: BalanceTransaction = {
+  id: "pbt_123abc",
+  amount: 40145,
+  balance: 53550,
+  currency: "usd",
+  financialTransactionId: "py_2644abc",
+  paymentId: "py_2644abc",
+  paymentBalanceTxnType: PaymentBalanceTxnType.Refund,
+  sourceId: "fee_6Vt2jlZZVh",
+  sourceType: "ApplicationFee",
   createdAt: "2021-01-01T12:00:00Z",
   updatedAt: "2021-01-01T12:00:00Z",
+};
+
+export const paymentBalanceTransaction2: BalanceTransaction = {
+  id: "pbt_123xyz",
+  amount: 1030,
+  balance: 10000,
+  currency: "usd",
+  financialTransactionId: "py_2644xyz",
+  paymentId: "py_2644xyz",
+  paymentBalanceTxnType: PaymentBalanceTxnType.Payment,
+  sourceId: "fee_6Vt2jlZZVh",
+  sourceType: "ApplicationFee",
+  createdAt: "2021-01-01T12:00:00Z",
+  updatedAt: "2021-01-01T12:00:00Z",
+};
+
+export const createPaymentPayload: CreatePaymentPayload = {
+  amount: 1000,
+  currency: "usd",
+  captureStrategy: PaymentCaptureStrategy.Automatic,
+  email: "example@test.com",
+  description: "Charging $10 to the test card",
+  paymentMethod: {
+    card: {
+      name: "Sylvia Fowles",
+      number: "4111111111111111",
+      verification: "123",
+      month: "3",
+      year: "2040",
+      addressPostalCode: "55555",
+    },
+  },
+};
+
+export const updatePaymentPayload: UpdatePaymentPayload = {
+  description: "order_xyz",
+  metadata: { some_extra: "data" },
+};
+
+export const refundPaymentPayload: RefundPaymentPayload = {
+  amount: 10000,
+  description: "string",
+  reason: RefundReason.Duplicate,
+  metadata: { some_extra: "data" },
 };

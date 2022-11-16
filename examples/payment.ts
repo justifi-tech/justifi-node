@@ -49,18 +49,21 @@ switch (process.argv[2]) {
 
   case "listPaymentsNoFilters":
     client
-      .listPayments("<seller_account_id>")
+      .listPayments(undefined, "<seller_account_id>")
       .then(console.log)
       .catch(console.log);
     break;
 
   case "listPaymentsWithFilters":
     client
-      .listPayments("<seller_account_id>", {
-        createdBefore: "2022-12-30T21:27:50.190Z",
-        createdAfter: "2022-01-01T00:00:00.000Z",
-        paymentStatus: PaymentStatus.Succeeded,
-      })
+      .listPayments(
+        {
+          createdBefore: "2022-12-30T21:27:50.190Z",
+          createdAfter: "2022-01-01T00:00:00.000Z",
+          paymentStatus: PaymentStatus.Succeeded,
+        },
+        "<seller_account_id>"
+      )
       .then(console.log)
       .catch(console.log);
     break;
