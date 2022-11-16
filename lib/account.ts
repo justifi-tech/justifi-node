@@ -68,7 +68,7 @@ export const createSellerAccount = (
   return new JustifiRequest(RequestMethod.Post, "/v1/seller_accounts")
     .withAuth(token)
     .withBody(payload)
-    .execute<ApiResponse<SellerAccount>>();
+    .execute<SellerAccount>();
 };
 
 export const listSellerAccounts = (
@@ -78,7 +78,7 @@ export const listSellerAccounts = (
   return new JustifiRequest(RequestMethod.Get, "/v1/seller_accounts")
     .withAuth(token)
     .withQueryParam("status", status || "")
-    .execute<ApiResponse<SellerAccount[]>>();
+    .execute<SellerAccount[]>();
 };
 
 export const getSellerAccount = (
@@ -89,5 +89,5 @@ export const getSellerAccount = (
 
   return new JustifiRequest(RequestMethod.Get, requestPath)
     .withAuth(token)
-    .execute<ApiResponse<SellerAccount>>();
+    .execute<SellerAccount>();
 };

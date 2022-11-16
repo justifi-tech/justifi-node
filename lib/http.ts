@@ -176,11 +176,19 @@ export class JustifiRequest {
             }
 
             try {
-              const result = ApiResponse.fromApiResponseSchema<T>(
-                toCamelCase(JSON.parse(body))
-              );
+              const result = toCamelCase(JSON.parse(body));
+              const apiResponseSchema: ApiResponseSchema<T> = {
+                id: result.id || -1,
+                type: result.type || "any",
+                data: result.data || result,
+                pageInfo: result.pageInfo || {},
+              };
 
-              return resolve(result.withRequest(this));
+              return resolve(
+                ApiResponse.fromApiResponseSchema(
+                  apiResponseSchema
+                ).withRequest(this)
+              );
             } catch (e) {
               return reject(
                 new InternalError({

@@ -18,10 +18,12 @@ export interface Authenticator {
   getToken(): Promise<AccessToken>;
 }
 
-export const getAccessToken = (
+export const getAccessToken = async (
   credential: Credential
 ): Promise<AccessToken> => {
-  return new JustifiRequest(RequestMethod.Post, "/oauth/token")
+  const response = await new JustifiRequest(RequestMethod.Post, "/oauth/token")
     .withBody(credential)
     .execute<AccessToken>();
+
+  return Promise.resolve(response.data);
 };

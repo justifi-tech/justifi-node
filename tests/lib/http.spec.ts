@@ -2,8 +2,7 @@ import "jest";
 import nock from "nock";
 import { toSnakeCase } from "../../lib/converter";
 import { InternalError, NotFound, PaginationError } from "../../lib/error";
-import { JustifiRequest, RequestMethod } from "../../lib/http";
-import { sellerAccount1 } from "../data/account";
+import { ApiResponse, JustifiRequest, RequestMethod } from "../../lib/http";
 import { withApiResponse } from "../data/http";
 
 describe("http", () => {
@@ -199,6 +198,8 @@ describe("http", () => {
   });
 
   describe("pagination", () => {
+    type MockResponse = { a: number; b: number };
+
     describe("when requesting next page", () => {
       it("calls the api with the correct params", async () => {
         const mockServer = nock(baseUrl)
@@ -206,10 +207,9 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }], "abc123"));
 
-        const result = await new JustifiRequest(
-          RequestMethod.Get,
-          "/"
-        ).execute();
+        const result = await new JustifiRequest(RequestMethod.Get, "/").execute<
+          ApiResponse<MockResponse>
+        >();
 
         expect(mockServer.isDone()).toEqual(true);
         expect(mockServer.pendingMocks()).toHaveLength(0);
@@ -231,7 +231,7 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }]));
 
-        const result = await new JustifiRequest(
+        const result: ApiResponse<MockResponse> = await new JustifiRequest(
           RequestMethod.Get,
           "/"
         ).execute();
@@ -251,7 +251,7 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }], "abc123"));
 
-        const result = await new JustifiRequest(
+        const result: ApiResponse<MockResponse> = await new JustifiRequest(
           RequestMethod.Get,
           "/"
         ).execute();
@@ -279,7 +279,7 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }], undefined, "abc123"));
 
-        const result = await new JustifiRequest(
+        const result: ApiResponse<MockResponse> = await new JustifiRequest(
           RequestMethod.Get,
           "/"
         ).execute();
@@ -304,7 +304,7 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }]));
 
-        const result = await new JustifiRequest(
+        const result: ApiResponse<MockResponse> = await new JustifiRequest(
           RequestMethod.Get,
           "/"
         ).execute();
@@ -326,7 +326,7 @@ describe("http", () => {
           .once()
           .reply(200, withApiResponse([{ a: 1, b: 2 }], undefined, "abc123"));
 
-        const result = await new JustifiRequest(
+        const result: ApiResponse<MockResponse> = await new JustifiRequest(
           RequestMethod.Get,
           "/"
         ).execute();

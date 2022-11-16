@@ -226,7 +226,7 @@ export const createPayment = (
     req.withHeader("Seller-Account", sellerAccountId);
   }
 
-  return req.execute<ApiResponse<Payment>>();
+  return req.execute<Payment>();
 };
 
 export const listPayments = (
@@ -246,7 +246,7 @@ export const listPayments = (
     req.withHeader("Seller-Account", sellerAccountId);
   }
 
-  return req.execute<ApiResponse<Payment[]>>();
+  return req.execute<Payment[]>();
 };
 
 export const getPayment = (
@@ -255,7 +255,7 @@ export const getPayment = (
 ): Promise<ApiResponse<Payment>> => {
   return new JustifiRequest(RequestMethod.Get, `/v1/payments/${id}`)
     .withAuth(token)
-    .execute<ApiResponse<Payment>>();
+    .execute<Payment>();
 };
 
 export const updatePayment = (
@@ -268,7 +268,7 @@ export const updatePayment = (
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload)
-    .execute<ApiResponse<Payment>>();
+    .execute<Payment>();
 };
 
 export const capturePayment = (
@@ -279,7 +279,7 @@ export const capturePayment = (
   return new JustifiRequest(RequestMethod.Post, `/v1/payments/${id}/capture`)
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
-    .execute<ApiResponse<Payment>>();
+    .execute<Payment>();
 };
 
 export const refundPayment = (
@@ -292,7 +292,7 @@ export const refundPayment = (
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload)
-    .execute<ApiResponse<Refund>>();
+    .execute<Refund>();
 };
 
 export const getBalanceTransactions = (
@@ -304,5 +304,5 @@ export const getBalanceTransactions = (
     `/v1/payments/${id}/payment_balance_transactions`
   )
     .withAuth(token)
-    .execute<ApiResponse<BalanceTransaction[]>>();
+    .execute<BalanceTransaction[]>();
 };
