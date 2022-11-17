@@ -1,5 +1,5 @@
 {
-  "name": "justifi-node",
+  "name": "@justifi/justifi-node",
   "version": "0.1.0",
   "description": "JustiFi Node SDK",
   "main": "dist/index.js",
