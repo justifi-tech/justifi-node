@@ -86,7 +86,7 @@ describe("Refund", () => {
     const idempotencyKey = "abcxyz123";
     it("updates the refund with the provided information", async () => {
       serverMock
-        .patch(`/v1/refunds/${refund1.id}`, toSnakeCase(metadata), {
+        .patch(`/v1/refunds/${refund1.id}`, toSnakeCase({ metadata }), {
           reqheaders: { ...authHeaders, "Idempotency-Key": idempotencyKey },
         })
         .once()
