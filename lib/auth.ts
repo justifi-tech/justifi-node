@@ -23,7 +23,7 @@ export const getAccessToken = async (
 ): Promise<AccessToken> => {
   const response = await new JustifiRequest(RequestMethod.Post, "/oauth/token")
     .withBody(credential)
-    .execute<AccessToken>();
+    .execute<AccessToken>(false);
 
-  return Promise.resolve(response.data);
+  return Promise.resolve(response);
 };

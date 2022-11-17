@@ -47,7 +47,7 @@ export const listRefunds = (
     req.withHeader("Seller-Account", sellerAccountId);
   }
 
-  return req.execute<Refund[]>();
+  return req.execute<ApiResponse<Refund[]>>();
 };
 
 export const getRefund = (
@@ -56,7 +56,7 @@ export const getRefund = (
 ): Promise<ApiResponse<Refund>> => {
   return new JustifiRequest(RequestMethod.Get, `/v1/refunds/${id}`)
     .withAuth(token)
-    .execute<Refund>();
+    .execute<ApiResponse<Refund>>();
 };
 
 export const updateRefund = (
@@ -69,5 +69,5 @@ export const updateRefund = (
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody({ metadata })
-    .execute<Refund>();
+    .execute<ApiResponse<Refund>>();
 };

@@ -15,14 +15,7 @@ export interface PageInfo {
   hasPrevious: boolean;
 }
 
-export interface ApiResponseSchema<T> {
-  id: number;
-  type: string;
-  data: T;
-  pageInfo: PageInfo;
-}
-
-export class ApiResponse<T> implements ApiResponseSchema<T> {
+export class ApiResponse<T> {
   id: number;
   type: string;
   data: T;
@@ -30,11 +23,11 @@ export class ApiResponse<T> implements ApiResponseSchema<T> {
 
   private request?: JustifiRequest;
 
-  constructor(schema: ApiResponseSchema<T>) {
-    this.id = schema.id;
-    this.type = schema.type;
-    this.data = schema.data;
-    this.pageInfo = schema.pageInfo;
+  constructor(id: number, type: string, data: T, pageInfo: PageInfo) {
+    this.id = id;
+    this.type = type;
+    this.data = data;
+    this.pageInfo = pageInfo;
   }
 
   withRequest(request: JustifiRequest) {
@@ -43,7 +36,7 @@ export class ApiResponse<T> implements ApiResponseSchema<T> {
     return this;
   }
 
-  async nextPage(limit?: number): Promise<ApiResponse<T>> {
+  async nextPage(limit?: number): Promise<T> {
     if (!this.pageInfo.hasNext || !this.request) {
       return Promise.reject(
         new PaginationError("This is the last page, next page unavailable")
@@ -61,7 +54,7 @@ export class ApiResponse<T> implements ApiResponseSchema<T> {
     return Promise.resolve(res);
   }
 
-  async previousPage(limit?: number): Promise<ApiResponse<T>> {
+  async previousPage(limit?: number): Promise<T> {
     if (!this.pageInfo.hasPrevious || !this.request) {
       return Promise.reject(
         new PaginationError("This is the last page, previous page unavailable")
@@ -150,7 +143,7 @@ export class JustifiRequest {
     return this.withHeader("Idempotency-Key", idempotencyKey);
   }
 
-  async execute<T>(): Promise<ApiResponse<T>> {
+  async execute<T>(isDefaultResponse = true): Promise<T> {
     return new Promise((resolve, reject) => {
       const req = request(
         this.requestUrl,
@@ -166,16 +159,17 @@ export class JustifiRequest {
 
             try {
               const result = toCamelCase(JSON.parse(body));
-              const apiResponseSchema: ApiResponseSchema<T> = {
-                id: result.id || -1,
-                type: result.type || "any",
-                data: result.data || result,
-                pageInfo: result.pageInfo || {},
-              };
+              if (!isDefaultResponse) {
+                return resolve(result as T);
+              }
 
-              return resolve(
-                new ApiResponse(apiResponseSchema).withRequest(this)
-              );
+              const apiResponse = new ApiResponse(
+                result.id,
+                result.type,
+                result.data,
+                result.pageInfo
+              ).withRequest(this);
+              return resolve(apiResponse as T);
             } catch (e) {
               return reject(
                 new InternalError({
@@ -209,7 +203,7 @@ export class JustifiRequest {
   private async retryExecute<T>(
     retries: number,
     errors: BaseError[]
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     if (retries === 0) {
       return Promise.reject(errors);
     }

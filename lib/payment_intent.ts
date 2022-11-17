@@ -90,7 +90,7 @@ export const createPaymentIntent = (
     req.withHeader("Seller-Account", sellerAccountId);
   }
 
-  return req.execute<PaymentIntent>();
+  return req.execute<ApiResponse<PaymentIntent>>();
 };
 
 export const listPaymentIntents = (
@@ -106,7 +106,7 @@ export const listPaymentIntents = (
     req.withHeader("Seller-Account", sellerAccountId);
   }
 
-  return req.execute<PaymentIntent[]>();
+  return req.execute<ApiResponse<PaymentIntent[]>>();
 };
 
 export const getPaymentIntent = (
@@ -115,7 +115,7 @@ export const getPaymentIntent = (
 ): Promise<ApiResponse<PaymentIntent>> => {
   return new JustifiRequest(RequestMethod.Get, `/v1/payment_intents/${id}`)
     .withAuth(token)
-    .execute<PaymentIntent>();
+    .execute<ApiResponse<PaymentIntent>>();
 };
 
 export const updatePaymentIntent = (
@@ -128,7 +128,7 @@ export const updatePaymentIntent = (
     .withAuth(token)
     .withBody(payload)
     .withIdempotencyKey(idempotencyKey)
-    .execute<PaymentIntent>();
+    .execute<ApiResponse<PaymentIntent>>();
 };
 
 export const capturePaymentIntent = (
@@ -144,7 +144,7 @@ export const capturePaymentIntent = (
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload)
-    .execute<PaymentIntent>();
+    .execute<ApiResponse<PaymentIntent>>();
 };
 
 export const listPaymentsForPaymentIntent = (
@@ -156,5 +156,5 @@ export const listPaymentsForPaymentIntent = (
     `/v1/payment_intents/${id}/payments`
   )
     .withAuth(token)
-    .execute<Payment[]>();
+    .execute<ApiResponse<Payment[]>>();
 };
