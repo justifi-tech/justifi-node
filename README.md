@@ -23,8 +23,8 @@ const client = Justifi.client().withCredentials({
 });
 ```
 
-After that is done you can call any of the api methods provided as needed, you can take a look at the `examples` directory in this repository
-to see in more detail how to use the different methods.
+After that is done you can call any of the api methods provided as needed, you can take a look at the [examples](https://github.com/justifi-tech/justifi-node/tree/main/examples) directory to see in more detail 
+how to use the different methods.
 
 ## Recommendations
 **Don't use this sdk directly in your front-end**
