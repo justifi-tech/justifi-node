@@ -68,6 +68,6 @@ export const updateRefund = (
   return new JustifiRequest(RequestMethod.Patch, `/v1/refunds/${id}`)
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
-    .withBody(metadata)
+    .withBody({ metadata })
     .execute<ApiResponse<Refund>>();
 };

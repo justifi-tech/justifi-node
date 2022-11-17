@@ -15,7 +15,7 @@ export interface PaymentMethod {
 }
 
 export interface PaymentMethodCard {
-  card?: PaymentMethod;
+  card: PaymentMethod;
   customerId: string;
   signature: string;
 }
