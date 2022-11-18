@@ -1,8 +1,8 @@
 import "jest";
-import { toSnakeCase } from "../../lib/converter";
+import { toSnakeCase } from "../../lib/internal/converter";
 import nock, { Scope } from "nock";
 import { sellerAccount1, sellerAccount2 } from "../data/account";
-import { AccountStatus } from "../../lib/account";
+import { AccountStatus } from "../../lib/internal/account";
 import { withApiResponse } from "../data/http";
 import { getTestSetupData } from "../setup";
 

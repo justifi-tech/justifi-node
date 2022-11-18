@@ -1,5 +1,5 @@
 import Justifi from "../lib";
-import { DEFAULT_HEADERS } from "../lib/http";
+import { DEFAULT_HEADERS } from "../lib/internal/http";
 
 export const getTestSetupData = () => {
   const mockBaseUrl = process.env.JUSTIFI_API_URL;

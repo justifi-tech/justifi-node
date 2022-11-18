@@ -1,8 +1,8 @@
 import "jest";
 import nock from "nock";
 import { Scope } from "nock/types";
-import { toSnakeCase } from "../../lib/converter";
-import { PaymentStatus } from "../../lib/payment";
+import { toSnakeCase } from "../../lib/internal/converter";
+import { PaymentStatus } from "../../lib/internal/payment";
 import { withApiResponse } from "../data/http";
 import {
   createPaymentPayload,

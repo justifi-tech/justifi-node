@@ -1,4 +1,4 @@
-import { Justifi } from "../lib/client";
+import Justifi from "../lib";
 import { getCredentials } from "./auth_token";
 
 const client = Justifi.client().withCredentials(getCredentials());

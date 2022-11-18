@@ -1,4 +1,4 @@
-import { AccountStatus, AccountType, SellerAccount } from "../../lib/account";
+import { AccountStatus, AccountType, SellerAccount } from "../../lib/internal/account";
 
 export const sellerAccount1: SellerAccount = {
   id: "acc_abc",

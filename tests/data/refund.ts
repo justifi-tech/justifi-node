@@ -1,4 +1,4 @@
-import { Refund, RefundReason, RefundStatus } from "../../lib/refund";
+import { Refund, RefundReason, RefundStatus } from "../../lib/internal/refund";
 
 export const refund1: Refund = {
   id: "re_abc",

@@ -1,5 +1,5 @@
 import "jest";
-import { toCamelCase, toSnakeCase } from "../../lib/converter";
+import { toCamelCase, toSnakeCase } from "../../lib/internal/converter";
 
 describe("Converters", () => {
   const simpleSnakeCase = {

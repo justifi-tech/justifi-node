@@ -5,7 +5,7 @@ import {
   NotFound,
   Unauthenticated,
   Unauthorized,
-} from "../../lib/error";
+} from "../../lib/internal/error";
 
 describe("errors", () => {
   describe("when mapping http status to error", () => {
