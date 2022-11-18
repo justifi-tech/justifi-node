@@ -5,17 +5,17 @@ The JustiFi Node SDK provides a simple way to access JustiFi API for apps writte
 ## Installation
 ```bash
 # using npm
-npm install @justifi-tech/node-sdk
+npm install @justifi/justifi-node
 
 # using yarn
-yarn add @justifi-tech/node-sdk
+yarn add @justifi/justifi-node
 ```
 
 ## Using the SDK
 To get started all you need to do is instantiate the JustiFi client providing your credentials
 
 ```javascript
-import { Justifi } from "@justifi-tech/client"
+import Justifi from "@justifi/justifi-node"
 
 const client = Justifi.client().withCredentials({
   clientId: "<your_client_id>",
