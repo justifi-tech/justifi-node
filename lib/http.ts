@@ -1,7 +1,12 @@
 import { OutgoingHttpHeaders } from "http";
 import { request } from "https";
 import { toCamelCase, toSnakeCase } from "./converter";
-import { errorFromHttpStatus, InternalError, BaseError } from "./error";
+import {
+  errorFromHttpStatus,
+  InternalError,
+  BaseError,
+  PaginationError,
+} from "./error";
 
 export interface PageInfo {
   endCursor: string;
@@ -10,11 +15,63 @@ export interface PageInfo {
   hasPrevious: boolean;
 }
 
-export interface ApiResponse<T> {
+export class ApiResponse<T> {
   id: number;
   type: string;
   data: T;
   pageInfo: PageInfo;
+
+  private request?: JustifiRequest;
+
+  constructor(id: number, type: string, data: T, pageInfo: PageInfo) {
+    this.id = id;
+    this.type = type;
+    this.data = data;
+    this.pageInfo = pageInfo;
+  }
+
+  withRequest(request: JustifiRequest) {
+    this.request = request;
+
+    return this;
+  }
+
+  async nextPage(limit?: number): Promise<T> {
+    if (!this.pageInfo.hasNext || !this.request) {
+      return Promise.reject(
+        new PaginationError("This is the last page, next page unavailable")
+      );
+    }
+
+    let params: { after_cursor: string; limit?: number } = {
+      after_cursor: this.pageInfo.endCursor,
+    };
+    if (limit) {
+      params = { ...params, limit };
+    }
+
+    const res = this.request.withQueryParams(params).execute<T>();
+    return Promise.resolve(res);
+  }
+
+  async previousPage(limit?: number): Promise<T> {
+    if (!this.pageInfo.hasPrevious || !this.request) {
+      return Promise.reject(
+        new PaginationError("This is the last page, previous page unavailable")
+      );
+    }
+
+    let params: { before_cursor: string; limit?: number } = {
+      before_cursor: this.pageInfo.startCursor,
+    };
+    if (limit) {
+      params = { ...params, limit };
+    }
+
+    const res = this.request.withQueryParams(params).execute<T>();
+
+    return Promise.resolve(res);
+  }
 }
 
 export enum RequestMethod {
@@ -86,7 +143,7 @@ export class JustifiRequest {
     return this.withHeader("Idempotency-Key", idempotencyKey);
   }
 
-  async execute<T>(): Promise<T> {
+  async execute<T>(isDefaultResponse = true): Promise<T> {
     return new Promise((resolve, reject) => {
       const req = request(
         this.requestUrl,
@@ -101,7 +158,18 @@ export class JustifiRequest {
             }
 
             try {
-              return resolve(toCamelCase(JSON.parse(body)) as T);
+              const result = toCamelCase(JSON.parse(body));
+              if (!isDefaultResponse) {
+                return resolve(result as T);
+              }
+
+              const apiResponse = new ApiResponse(
+                result.id,
+                result.type,
+                result.data,
+                result.pageInfo
+              ).withRequest(this);
+              return resolve(apiResponse as T);
             } catch (e) {
               return reject(
                 new InternalError({
@@ -126,7 +194,9 @@ export class JustifiRequest {
     });
   }
 
-  async executeWithRetry<T>(retries: number = this.maxRetries): Promise<T> {
+  async executeWithRetry<T>(
+    retries: number = this.maxRetries
+  ): Promise<ApiResponse<T>> {
     return this.retryExecute(retries, []);
   }
 

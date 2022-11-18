@@ -21,11 +21,11 @@ export class InMemoryStore<T> implements Store<T> {
   get(key: string): T {
     if (this.isExpired(key)) {
       delete this.data[key];
-      throw new StoreKeyExpired({ code: 500, message: "Store key expired" });
+      throw new StoreKeyExpired("Store key expired");
     }
 
     if (!this.data[key]) {
-      throw new NotFound({ code: 404, message: "Store key not found" });
+      throw new NotFound("Store key not found");
     }
 
     return this.data[key].value;

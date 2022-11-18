@@ -10,20 +10,17 @@ import {
 describe("errors", () => {
   describe("when mapping http status to error", () => {
     it("returns not found error when status is 404", () => {
-      const err = new NotFound({ code: 404, message: "resource not found" });
+      const err = new NotFound("resource not found");
       expect(errorFromHttpStatus(err.code, err.message)).toEqual(err);
     });
 
     it("returns unauthrorized when status is 403", () => {
-      const err = new Unauthorized({ code: 403, message: "unauthrorized" });
+      const err = new Unauthorized("unauthrorized");
       expect(errorFromHttpStatus(err.code, err.message)).toEqual(err);
     });
 
     it("returns unauthenticated when status is 401", () => {
-      const err = new Unauthenticated({
-        code: 401,
-        message: "unauthenticated",
-      });
+      const err = new Unauthenticated("unauthenticated");
       expect(errorFromHttpStatus(err.code, err.message)).toEqual(err);
     });
 
