@@ -1,6 +1,6 @@
 import "jest";
-import { toCamelCase, toSnakeCase } from "../../lib/converter";
-import { InternalError, NotFound } from "../../lib/error";
+import { toCamelCase, toSnakeCase } from "../../lib/internal/converter";
+import { InternalError, NotFound } from "../../lib/internal/error";
 import nock from "nock";
 import { getTestSetupData } from "../setup";
 

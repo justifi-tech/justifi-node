@@ -1,6 +1,6 @@
-import { Justifi } from "../lib/client";
-import { PaymentCaptureStrategy, PaymentStatus } from "../lib/payment";
-import { RefundReason } from "../lib/refund";
+import Justifi from "../lib";
+import { PaymentCaptureStrategy, PaymentStatus } from "../lib/internal/payment";
+import { RefundReason } from "../lib/internal/refund";
 import { getCredentials } from "./auth_token";
 
 const client = Justifi.client().withCredentials(getCredentials());

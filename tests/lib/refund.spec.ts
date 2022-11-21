@@ -1,7 +1,7 @@
 import "jest";
 import nock from "nock";
 import { Scope } from "nock/types";
-import { toSnakeCase } from "../../lib/converter";
+import { toSnakeCase } from "../../lib/internal/converter";
 import { withApiResponse } from "../data/http";
 import { refund1, refund2 } from "../data/refund";
 import { getTestSetupData } from "../setup";

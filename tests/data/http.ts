@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { ApiResponse } from "../../lib/http";
+import { ApiResponse } from "../../lib/internal/http";
 
 export const withApiResponse = <T>(
   data: T,

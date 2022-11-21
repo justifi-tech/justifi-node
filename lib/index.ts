@@ -1,3 +1,3 @@
-import { Justifi } from "./client";
+import { Justifi } from "./internal/client";
 
 export default Justifi;

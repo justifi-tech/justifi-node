@@ -7,8 +7,8 @@ import {
   PaymentStatus,
   RefundPaymentPayload,
   UpdatePaymentPayload,
-} from "../../lib/payment";
-import { RefundReason } from "../../lib/refund";
+} from "../../lib/internal/payment";
+import { RefundReason } from "../../lib/internal/refund";
 
 export const payment1: Payment = {
   id: "py_abc",

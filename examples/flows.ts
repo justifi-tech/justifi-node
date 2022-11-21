@@ -1,8 +1,8 @@
-import { randomUUID } from "crypto";
 import Justifi from "../lib";
-import { SellerAccount } from "../lib/account";
-import { PaymentCaptureStrategy, PaymentMethodCard } from "../lib/payment";
-import { RefundReason } from "../lib/refund";
+import { randomUUID } from "crypto";
+import { SellerAccount } from "../lib/internal/account";
+import { PaymentCaptureStrategy, PaymentMethodCard } from "../lib/internal/payment";
+import { RefundReason } from "../lib/internal/refund";
 
 if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
   throw new Error("CLIENT_ID or CLIENT_SECRET missing");

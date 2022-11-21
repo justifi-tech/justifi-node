@@ -4,7 +4,7 @@ import {
   PaymentIntentCreatePayload,
   PaymentIntentStatus,
   PaymentIntentUpdatePayload,
-} from "../../lib/payment_intent";
+} from "../../lib/internal/payment_intent";
 
 export const paymentIntent1: PaymentIntent = {
   id: "pi_abc",

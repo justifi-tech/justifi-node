@@ -1,5 +1,5 @@
 import Justifi from "../lib";
-import { Credential } from "../lib/auth";
+import { Credential } from "../lib/internal/auth";
 
 export const getCredentials = (): Credential => {
   const clientId = process.env.CLIENT_ID;

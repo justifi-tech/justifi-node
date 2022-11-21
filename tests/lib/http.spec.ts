@@ -1,8 +1,8 @@
 import "jest";
 import nock from "nock";
-import { toSnakeCase } from "../../lib/converter";
-import { InternalError, NotFound, PaginationError } from "../../lib/error";
-import { ApiResponse, JustifiRequest, RequestMethod } from "../../lib/http";
+import { toSnakeCase } from "../../lib/internal/converter";
+import { InternalError, NotFound, PaginationError } from "../../lib/internal/error";
+import { ApiResponse, JustifiRequest, RequestMethod } from "../../lib/internal/http";
 import { withApiResponse } from "../data/http";
 
 describe("http", () => {
