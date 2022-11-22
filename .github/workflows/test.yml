@@ -1,7 +1,5 @@
 on:
   pull_request:
-    paths:
-      - 'lib/**'
 
 jobs:
   lint_and_test:
