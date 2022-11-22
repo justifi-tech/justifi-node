@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'lib/**'
 
 jobs:
   build_and_publish:
