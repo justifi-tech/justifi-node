@@ -1,5 +1,4 @@
-import { OutgoingHttpHeaders } from "http";
-import { request } from "https";
+import { IncomingMessage, OutgoingHttpHeaders } from "http";
 import { toCamelCase, toSnakeCase } from "./converter";
 import {
   errorFromHttpStatus,
@@ -144,11 +143,14 @@ export class JustifiRequest {
   }
 
   async execute<T>(isDefaultResponse = true): Promise<T> {
+    const protocol = this.requestUrl.protocol.replace(":", "");
+    const http = await import(protocol);
+
     return new Promise((resolve, reject) => {
-      const req = request(
+      const req = http.request(
         this.requestUrl,
         { method: this.method, headers: this.headers },
-        (res) => {
+        (res: IncomingMessage) => {
           let body = "";
           res.on("data", (chunk) => (body += chunk));
           res.on("end", () => {
@@ -182,7 +184,7 @@ export class JustifiRequest {
         }
       );
 
-      req.on("error", (err) =>
+      req.on("error", (err: { message: string }) =>
         reject(new InternalError({ code: 500, message: err.message }))
       );
 
