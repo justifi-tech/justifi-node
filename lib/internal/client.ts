@@ -266,10 +266,10 @@ export class Justifi
   }
 
   async getBalanceTransactions(
-    id: string
+    paymentId: string
   ): Promise<ApiResponse<PaymentBalanceTransaction[]>> {
     const token = await this.getToken();
-    return getBalanceTransactions(token.accessToken, id);
+    return getBalanceTransactions(token.accessToken, paymentId);
   }
 
   async createPaymentMethod(

@@ -139,7 +139,7 @@ export interface PaymentApi {
   ): Promise<ApiResponse<Refund>>;
 
   getBalanceTransactions(
-    id: string
+    paymentId: string
   ): Promise<ApiResponse<PaymentBalanceTransaction[]>>;
 }
 
@@ -229,11 +229,11 @@ export const refundPayment = (
 
 export const getBalanceTransactions = (
   token: string,
-  id: string
+  paymentId: string
 ): Promise<ApiResponse<PaymentBalanceTransaction[]>> => {
   return new JustifiRequest(
     RequestMethod.Get,
-    `/v1/payments/${id}/payment_balance_transactions`
+    `/v1/payments/${paymentId}/payment_balance_transactions`
   )
     .withAuth(token)
     .execute<ApiResponse<PaymentBalanceTransaction[]>>();
