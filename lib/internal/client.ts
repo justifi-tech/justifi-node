@@ -7,6 +7,7 @@ import {
   SellerAccountApi,
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
+import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
 import { ApiResponse } from "./http";
 import {
   BalanceTransaction,
@@ -65,6 +66,7 @@ export class Justifi
   PaymentMethodApi,
   PaymentIntentApi,
   PaymentApi,
+  DisputeApi,
   WebhookVerifier {
   private static instance: Justifi;
 
@@ -295,6 +297,21 @@ export class Justifi
   ): Promise<ApiResponse<PaymentMethods>> {
     const token = await this.getToken();
     return updatePaymentMethod(token.accessToken, payload, paymentMethodToken, idempotencyKey)
+  }
+
+  async listDisputes(sellerAccountId?: string): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return listDisputes(token.accessToken, sellerAccountId);
+  }
+
+  async getDispute(id: string): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return getDispute(token.accessToken, id);
+  }
+
+  async updateDispute(id: string, idempotencyKey: string, payload: UpdateDispute): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return updateDispute(token.accessToken, id, idempotencyKey, payload);
   }
 
   verifySignature(
