@@ -38,6 +38,7 @@ import {
   PaymentIntentUpdatePayload,
   updatePaymentIntent,
 } from "./payment_intent";
+import { getPayout, listPayouts, Payout, PayoutApi, PayoutFilter, updatePayout, UpdatePayout } from "./payout";
 import {
   CreatePaymentMethod,
   createPaymentMethod,
@@ -67,6 +68,7 @@ export class Justifi
   PaymentIntentApi,
   PaymentApi,
   DisputeApi,
+  PayoutApi,
   WebhookVerifier {
   private static instance: Justifi;
 
@@ -312,6 +314,24 @@ export class Justifi
   async updateDispute(id: string, idempotencyKey: string, payload: UpdateDispute): Promise<ApiResponse<Dispute>> {
     const token = await this.getToken();
     return updateDispute(token.accessToken, id, idempotencyKey, payload);
+  }
+  async listPayouts(filters?: PayoutFilter): Promise<ApiResponse<Payout[]>> {
+    const token = await this.getToken();
+    return listPayouts(token.accessToken, filters);
+  }
+
+  async getPayout(id: string): Promise<ApiResponse<Payout>> {
+    const token = await this.getToken();
+    return getPayout(token.accessToken, id);
+  }
+
+  async updatePayout(
+    id: string,
+    idempotencyKey: string,
+    payload: UpdatePayout
+  ): Promise<ApiResponse<Payout>> {
+    const token = await this.getToken();
+    return updatePayout(token.accessToken, id, idempotencyKey, payload);
   }
 
   verifySignature(
