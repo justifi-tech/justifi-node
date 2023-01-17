@@ -38,6 +38,16 @@ import {
   updatePaymentIntent,
 } from "./payment_intent";
 import {
+  CreatePaymentMethod,
+  createPaymentMethod,
+  getPaymentMethod,
+  listPaymentMethods,
+  PaymentMethodApi,
+  PaymentMethods,
+  updatePaymentMethod,
+  UpdatePaymentMethod,
+} from "./payment_method";
+import {
   getRefund,
   listRefunds,
   Refund,
@@ -49,13 +59,13 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 
 export class Justifi
   implements
-    Authenticator,
-    SellerAccountApi,
-    RefundApi,
-    PaymentIntentApi,
-    PaymentApi,
-    WebhookVerifier
-{
+  Authenticator,
+  SellerAccountApi,
+  RefundApi,
+  PaymentMethodApi,
+  PaymentIntentApi,
+  PaymentApi,
+  WebhookVerifier {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -252,6 +262,39 @@ export class Justifi
   ): Promise<ApiResponse<BalanceTransaction[]>> {
     const token = await this.getToken();
     return getBalanceTransactions(token.accessToken, id);
+  }
+
+  async createPaymentMethod(
+    payload: CreatePaymentMethod,
+    idempotencyKey: string,
+    sellerAccountId?: string
+  ): Promise<ApiResponse<PaymentMethods>> {
+    const token = await this.getToken();
+    return createPaymentMethod(token.accessToken, payload, idempotencyKey, sellerAccountId);
+  }
+
+  async listPaymentMethods(
+    sellerAccountId?: string,
+    customerId?: string,
+  ): Promise<ApiResponse<PaymentMethods[]>> {
+    const token = await this.getToken();
+    return listPaymentMethods(token.accessToken, sellerAccountId, customerId);
+  }
+
+  async getPaymentMethod(
+    paymentMethodToken: string
+  ): Promise<ApiResponse<PaymentMethods>> {
+    const token = await this.getToken();
+    return getPaymentMethod(token.accessToken, paymentMethodToken);
+  }
+
+  async updatePaymentMethod(
+    payload: UpdatePaymentMethod,
+    paymentMethodToken: string,
+    idempotencyKey: string
+  ): Promise<ApiResponse<PaymentMethods>> {
+    const token = await this.getToken();
+    return updatePaymentMethod(token.accessToken, payload, paymentMethodToken, idempotencyKey)
   }
 
   verifySignature(

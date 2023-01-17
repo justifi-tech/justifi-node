@@ -1,10 +1,8 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 import {
-  CreateCard,
   Payment,
-  PaymentMethods,
-  PaymentMethodUnion,
 } from "./payment";
+import { CreateCard, PaymentMethods, PaymentMethodUnion } from "./payment_method";
 
 export enum PaymentIntentStatus {
   RequiresPaymentMethod = "requires_payment_method",
