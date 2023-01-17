@@ -102,6 +102,20 @@ describe("Payout", () => {
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
+
+    describe("when filtering by multiple filters", () => {
+      it("lists all payoutes created after date and deposited before date", async () => {
+        serverMock
+          .get(`/v1/payouts?created_after=${payout1.createdAt}&deposits_before=${payout1.createdAt}`, undefined, { reqheaders: authHeaders })
+          .once()
+          .reply(200, withApiResponse([payout1]));
+
+        const payouts = await client.listPayouts({ createdAfter: payout1.createdAt, depositsBefore: payout1.createdAt });
+        expect(payouts.data).toEqual([payout1]);
+        expect(serverMock.isDone()).toEqual(true);
+        expect(serverMock.pendingMocks()).toHaveLength(0);
+      })
+    })
   });
 
   describe("get payout", () => {
