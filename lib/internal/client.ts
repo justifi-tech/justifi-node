@@ -8,9 +8,10 @@ import {
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
+import { BalanceTransaction, BalanceTransactionApi, getBalanceTransaction, listBalanceTransactions } from "./balance_transactions";
 import { ApiResponse } from "./http";
 import {
-  BalanceTransaction,
+  PaymentBalanceTransaction,
   capturePayment,
   createPayment,
   CreatePaymentPayload,
@@ -69,6 +70,9 @@ export class Justifi
   PaymentApi,
   DisputeApi,
   PayoutApi,
+  BalanceTransactionApi,
+  PaymentIntentApi,
+  PaymentApi,
   WebhookVerifier {
   private static instance: Justifi;
 
@@ -262,10 +266,10 @@ export class Justifi
   }
 
   async getBalanceTransactions(
-    id: string
-  ): Promise<ApiResponse<BalanceTransaction[]>> {
+    paymentId: string
+  ): Promise<ApiResponse<PaymentBalanceTransaction[]>> {
     const token = await this.getToken();
-    return getBalanceTransactions(token.accessToken, id);
+    return getBalanceTransactions(token.accessToken, paymentId);
   }
 
   async createPaymentMethod(
@@ -332,6 +336,15 @@ export class Justifi
   ): Promise<ApiResponse<Payout>> {
     const token = await this.getToken();
     return updatePayout(token.accessToken, id, idempotencyKey, payload);
+  }
+  async listBalanceTransactions(payoutId?: string): Promise<ApiResponse<BalanceTransaction[]>> {
+    const token = await this.getToken();
+    return listBalanceTransactions(token.accessToken, payoutId)
+  }
+
+  async getBalanceTransaction(id: string): Promise<ApiResponse<BalanceTransaction>> {
+    const token = await this.getToken();
+    return getBalanceTransaction(token.accessToken, id);
   }
 
   verifySignature(
