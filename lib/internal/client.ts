@@ -59,6 +59,7 @@ import {
 } from "./refund";
 import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
+import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 
 export class Justifi
   implements
@@ -73,6 +74,7 @@ export class Justifi
   BalanceTransactionApi,
   PaymentIntentApi,
   PaymentApi,
+  CheckoutSessionApi,
   WebhookVerifier {
   private static instance: Justifi;
 
@@ -345,6 +347,11 @@ export class Justifi
   async getBalanceTransaction(id: string): Promise<ApiResponse<BalanceTransaction>> {
     const token = await this.getToken();
     return getBalanceTransaction(token.accessToken, id);
+  }
+
+  async createCheckoutSession(payload: CreateCheckoutSession): Promise<ApiResponse<CreateCheckoutSessionResponse>> {
+    const token = await this.getToken();
+    return createCheckoutSession(token.accessToken, payload);
   }
 
   verifySignature(
