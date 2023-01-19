@@ -97,7 +97,7 @@ export class JustifiRequest {
   constructor(method: RequestMethod, path: string) {
     this.requestUrl = new URL(this.getApiHost() + path);
     this.method = method;
-    this.headers = DEFAULT_HEADERS;
+    this.headers = { ...DEFAULT_HEADERS };
   }
 
   withHeader(key: string, value: string): JustifiRequest {
