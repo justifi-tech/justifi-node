@@ -347,4 +347,34 @@ describe("http", () => {
       });
     });
   });
+
+  describe("when executing multiple requests", () => {
+    describe("when setting headers", () => {
+      it("execute the requests correctly", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/first", undefined, { reqheaders: { First: "Request" } })
+          .once()
+          .reply(200, { ok: 200 });
+
+        await new JustifiRequest(RequestMethod.Get, "/first")
+          .withHeader("First", "Request")
+          .execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        mockServer
+          .get(`/second`, undefined, { reqheaders: { Second: "Request" } })
+          .once()
+          .reply(200, { ok: 200 }),
+
+          await new JustifiRequest(RequestMethod.Get, "/second")
+            .withHeader("Second", "Request")
+            .execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      })
+    })
+  })
 });
