@@ -1,7 +1,8 @@
 import Justifi from "../lib";
 import { randomUUID } from "crypto";
 import { SellerAccount } from "../lib/internal/account";
-import { PaymentCaptureStrategy, PaymentMethodCard } from "../lib/internal/payment";
+import { PaymentCaptureStrategy } from "../lib/internal/payment";
+import { PaymentMethodCard } from "../lib/internal/payment_method"
 import { RefundReason } from "../lib/internal/refund";
 
 if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
