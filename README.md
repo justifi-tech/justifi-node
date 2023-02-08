@@ -28,9 +28,11 @@ how to use the different methods.
 
 ## Examples
 
+_Note: the term seller account has been deprecated and will be removed in future versions. Please use sub account instead._
+
 **Creating a payment**
 ```javascript
-const sellerAccountId = "your_seller_account_id";
+const subAccountId = "your_sub_account_id";
 const paymentParams = {
   amount: 1000,
   currency: "usd",
@@ -49,25 +51,25 @@ const paymentParams = {
   }
 };
 
-client.createPayment(randomUUID(), paymentParams, sellerAccountId)
+client.createPayment(randomUUID(), paymentParams, subAccountId)
 ```
 
 **Listing Payments**
 ```javascript
-const sellerAccountId = "your_seller_account_id";
+const subAccountId = "your_sub_account_id";
 // Without filters
-client.listPayments(undefined, sellerAccountId)
+client.listPayments(undefined, subAccountId)
 
 // With filters
 client.listPayments({
   paymentStatus: PaymentStatus.pending,
   createdAfter: "2022-01-01T10:00:00.000Z"
-}, sellerAccountId)
+}, subAccountId)
 ```
 
 **Refund Payment**
 ```javascript
-const sellerAccountId = "your_seller_account_id";
+const subAccountId = "your_sub_account_id";
 const paymentId = "your_payment_id";
 
 client.refundPayment(randomUUID(), paymentId, {
