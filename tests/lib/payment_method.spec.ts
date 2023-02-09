@@ -16,7 +16,7 @@ describe("Payment Method", () => {
     authHeaders,
   } = getTestSetupData();
   const idempotencyKey = "1234567890abcdefg";
-  const sellerAccountId = "acc_abc123";
+  const subAccountId = "acc_abc123";
 
   let serverMock: Scope;
   beforeEach(() => {
@@ -34,8 +34,8 @@ describe("Payment Method", () => {
   });
 
   describe("create payment method", () => {
-    describe("when seller account id is provided", () => {
-      it("creates the payment method for the seller id", async () => {
+    describe("when sub account id is provided", () => {
+      it("creates the payment method for the sub id", async () => {
         serverMock
           .post(
             "/v1/payment_methods",
@@ -44,7 +44,7 @@ describe("Payment Method", () => {
               reqheaders: {
                 ...authHeaders,
                 "Idempotency-Key": idempotencyKey,
-                "Seller-Account": sellerAccountId,
+                "Sub-Account": subAccountId,
               },
             }
           )
@@ -54,7 +54,7 @@ describe("Payment Method", () => {
         const paymentMethod = await client.createPaymentMethod(
           createPaymentMethod,
           idempotencyKey,
-          sellerAccountId
+          subAccountId
         );
         expect(paymentMethod.data).toEqual(paymentMethod1);
         expect(serverMock.isDone()).toEqual(true);
@@ -62,8 +62,8 @@ describe("Payment Method", () => {
       });
     });
 
-    describe("when seller account id is not provided", () => {
-      it("creates the payment method for direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("creates the payment method for direct sub", async () => {
         serverMock
           .post(
             "/v1/payment_methods",
@@ -95,7 +95,7 @@ describe("Payment Method", () => {
         const customerId = "cust_xyz";
         serverMock
           .get(`/v1/payment_methods?customer_id=${customerId}`, undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId },
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId },
           })
           .once()
           .reply(200, withApiResponse([paymentMethod1]));
@@ -107,23 +107,23 @@ describe("Payment Method", () => {
       });
     });
 
-    describe("when seller account id is provided", () => {
-      it("lists payment intents for the seller account", async () => {
+    describe("when sub account id is provided", () => {
+      it("lists payment intents for the sub account", async () => {
         serverMock
           .get("/v1/payment_methods", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId }
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId }
           })
           .once()
           .reply(200, withApiResponse([paymentMethod1]));
 
-        const paymentMethods = await client.listPaymentMethods(sellerAccountId);
+        const paymentMethods = await client.listPaymentMethods(subAccountId);
         expect(paymentMethods.data).toEqual([paymentMethod1]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
 
-    describe("when seller account is not provided", () => {
+    describe("when sub account is not provided", () => {
       it("lists payment intents for the platform", async () => {
         serverMock
           .get("/v1/payment_methods", undefined, {

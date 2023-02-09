@@ -7,7 +7,7 @@ import { dispute1, dispute2, updateDispute } from "../data/dispute";
 
 describe("Dispute", () => {
   const idempotencyKey = "1234567890abcdefg";
-  const sellerAccountId = "acc_abc123";
+  const subAccountId = "acc_abc123";
   const {
     mockBaseUrl,
     credentials,
@@ -33,8 +33,8 @@ describe("Dispute", () => {
   });
 
   describe("list disputes", () => {
-    describe("when not filtering by seller account", () => {
-      it("lists the disputes for direct seller", async () => {
+    describe("when not filtering by sub account", () => {
+      it("lists the disputes for direct sub", async () => {
         serverMock
           .get("/v1/disputes", undefined, { reqheaders: authHeaders })
           .once()
@@ -47,16 +47,16 @@ describe("Dispute", () => {
       });
     });
 
-    describe("when filtering by seller account", () => {
-      it("lists the disputes for the seller account", async () => {
+    describe("when filtering by sub account", () => {
+      it("lists the disputes for the sub account", async () => {
         serverMock
           .get("/v1/disputes", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId }
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId }
           })
           .once()
           .reply(200, withApiResponse([dispute1]));
 
-        const dispute = await client.listDisputes(sellerAccountId);
+        const dispute = await client.listDisputes(subAccountId);
         expect(dispute.data).toEqual([dispute1]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);

@@ -23,7 +23,7 @@ describe("Payment Intent", () => {
     authHeaders,
   } = getTestSetupData();
   const idempotencyKey = "1234567890abcdefg";
-  const sellerAccountId = "acc_abc123";
+  const subAccountId = "acc_abc123";
 
   let serverMock: Scope;
   beforeEach(() => {
@@ -41,8 +41,8 @@ describe("Payment Intent", () => {
   });
 
   describe("create payment intent", () => {
-    describe("when seller account id is provided", () => {
-      it("creates the payment intent for the seller id", async () => {
+    describe("when sub account id is provided", () => {
+      it("creates the payment intent for the sub id", async () => {
         serverMock
           .post(
             "/v1/payment_intents",
@@ -51,7 +51,7 @@ describe("Payment Intent", () => {
               reqheaders: {
                 ...authHeaders,
                 "Idempotency-Key": idempotencyKey,
-                "Seller-Account": sellerAccountId,
+                "Sub-Account": subAccountId,
               },
             }
           )
@@ -61,7 +61,7 @@ describe("Payment Intent", () => {
         const paymentIntent = await client.createPaymentIntent(
           idempotencyKey,
           createPaymentIntentPayload,
-          sellerAccountId
+          subAccountId
         );
         expect(paymentIntent.data).toEqual(paymentIntent1);
         expect(serverMock.isDone()).toEqual(true);
@@ -69,8 +69,8 @@ describe("Payment Intent", () => {
       });
     });
 
-    describe("when seller account id is not provided", () => {
-      it("creates the payment id for direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("creates the payment id for direct sub", async () => {
         serverMock
           .post(
             "/v1/payment_intents",
@@ -97,24 +97,24 @@ describe("Payment Intent", () => {
   });
 
   describe("list payment intents", () => {
-    describe("when seller account id is provided", () => {
-      it("lists payment intents for the seller id", async () => {
+    describe("when sub account id is provided", () => {
+      it("lists payment intents for the sub id", async () => {
         serverMock
           .get("/v1/payment_intents", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId },
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId },
           })
           .once()
           .reply(200, withApiResponse([paymentIntent1, paymentIntent2]));
 
-        const paymentIntents = await client.listPaymentIntents(sellerAccountId);
+        const paymentIntents = await client.listPaymentIntents(subAccountId);
         expect(paymentIntents.data).toEqual([paymentIntent1, paymentIntent2]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
 
-    describe("when seller account id is not provided", () => {
-      it("lists payment intents for the direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("lists payment intents for the direct sub", async () => {
         serverMock
           .get("/v1/payment_intents", undefined, { reqheaders: authHeaders })
           .once()
