@@ -66,6 +66,8 @@ import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 
+import util from "node:util";
+
 export class Justifi
   implements
   Authenticator,
@@ -129,7 +131,9 @@ export class Justifi
     }
   }
 
-  // deprecated
+  /**
+   * @deprecated seller account has been deprecated, please use sub account
+   */
   async createSellerAccount(
     accountName: string
   ): Promise<ApiResponse<SellerAccount>> {
@@ -144,7 +148,9 @@ export class Justifi
     return createSubAccount(token.accessToken, accountName);
   }
 
-  // deprecated
+  /**
+  * @deprecated seller account has been deprecated, please use sub account
+  */
   async listSellerAccounts(
     status?: AccountStatus | undefined
   ): Promise<ApiResponse<SellerAccount[]>> {
@@ -159,7 +165,9 @@ export class Justifi
     return listSubAccounts(token.accessToken, status);
   }
 
-  // deprecated
+  /**
+  * @deprecated seller account has been deprecated, please use sub account
+  */
   async getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
     return getSellerAccount(token.accessToken, id);

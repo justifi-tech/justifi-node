@@ -36,7 +36,9 @@ export interface RelatedAccounts {
   testAccountId: string;
 }
 
-// deprecated
+/**
+ * @deprecated seller account has been deprecated, please use sub account
+ */
 export interface SellerAccount {
   id: string;
   name: string;
@@ -67,7 +69,9 @@ export interface SubAccount {
   updatedAt: string;
 }
 
-// deprecated
+/**
+ * @deprecated seller account has been deprecated, please use sub account
+ */
 export interface SellerAccountApi {
   createSellerAccount(accountName: string): Promise<ApiResponse<SellerAccount>>;
   listSellerAccounts(
@@ -84,7 +88,9 @@ export interface SubAccountApi {
   getSubAccount(id: string): Promise<ApiResponse<SubAccount>>;
 }
 
-// deprecated
+/**
+ * @deprecated seller account has been deprecated, please use sub account
+ */
 export const createSellerAccount = (
   token: string,
   accountName: string
@@ -109,7 +115,9 @@ export const createSubAccount = (
     .execute<ApiResponse<SubAccount>>();
 };
 
-// deprecated
+/**
+ * @deprecated seller account has been deprecated, please use sub account
+ */
 export const listSellerAccounts = (
   token: string,
   status?: AccountStatus
@@ -130,7 +138,9 @@ export const listSubAccounts = (
     .execute<ApiResponse<SubAccount[]>>();
 };
 
-// deprecated
+/**
+ * @deprecated seller account has been deprecated, please use sub account
+ */
 export const getSellerAccount = (
   token: string,
   id: string
