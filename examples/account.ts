@@ -10,27 +10,27 @@ if (process.argv.length < 3) {
 }
 
 switch (process.argv[2]) {
-  case "createSellerAccount":
+  case "createSubAccount":
     client
-      .createSellerAccount("justifi node sdk")
+      .createSubAccount("justifi node sdk")
       .then(console.log)
       .catch(console.log);
     break;
 
-  case "listSellerAccountsNoFilter":
-    client.listSellerAccounts().then(console.log).catch(console.log);
+  case "listSubAccountsNoFilter":
+    client.listSubAccounts().then(console.log).catch(console.log);
     break;
 
-  case "listSellerAccountsWithFilter":
+  case "listSubAccountsWithFilter":
     client
-      .listSellerAccounts(AccountStatus.Archived)
+      .listSubAccounts(AccountStatus.Archived)
       .then(console.log)
       .catch(console.log);
     break;
 
-  case "getSellerAccount":
+  case "getSubAccount":
     client
-      .getSellerAccount("<seller_account_id>")
+      .getSubAccount("<sub_account_id>")
       .then(console.log)
       .catch(console.log);
     break;

@@ -9,13 +9,13 @@ if (process.argv.length < 3) {
 }
 
 switch (process.argv[2]) {
-  case "listRefundsNoSellerAccount":
+  case "listRefundsNoSubAccount":
     client.listRefunds().then(console.log).catch(console.log);
     break;
 
-  case "listRefundsWithSellerAccount":
+  case "listRefundsWithSubAccount":
     client
-      .listRefunds("<seller_account_id>")
+      .listRefunds("<sub_account_id>")
       .then(console.log)
       .catch(console.log);
     break;

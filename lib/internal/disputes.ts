@@ -24,16 +24,16 @@ export interface UpdateDispute {
 }
 
 export interface DisputeApi {
-  listDisputes(sellerAccountId?: string): Promise<ApiResponse<Dispute>>;
+  listDisputes(subAccountId?: string): Promise<ApiResponse<Dispute>>;
   getDispute(id: string): Promise<ApiResponse<Dispute>>;
   updateDispute(id: string, idempotencyKey: string, payload: UpdateDispute): Promise<ApiResponse<Dispute>>;
 }
 
-export const listDisputes = (token: string, sellerAccountId?: string): Promise<ApiResponse<Dispute>> => {
+export const listDisputes = (token: string, subAccountId?: string): Promise<ApiResponse<Dispute>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/disputes").withAuth(token);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId)
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId)
   }
 
   return req.execute<ApiResponse<Dispute>>();

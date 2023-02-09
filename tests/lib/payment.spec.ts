@@ -26,7 +26,7 @@ describe("Payment", () => {
     authHeaders,
   } = getTestSetupData();
   const idempotencyKey = "1234567890abcdefg";
-  const sellerAccountId = "acc_abc123";
+  const subAccountId = "acc_abc123";
 
   let serverMock: Scope;
   beforeEach(() => {
@@ -44,14 +44,14 @@ describe("Payment", () => {
   });
 
   describe("create payment", () => {
-    describe("when seller account id is provided", () => {
-      it("creates the payment for the seller id", async () => {
+    describe("when sub account id is provided", () => {
+      it("creates the payment for the sub id", async () => {
         serverMock
           .post("/v1/payments", toSnakeCase(createPaymentPayload), {
             reqheaders: {
               ...authHeaders,
               "Idempotency-Key": idempotencyKey,
-              "Seller-Account": sellerAccountId,
+              "Sub-Account": subAccountId,
             },
           })
           .once()
@@ -60,7 +60,7 @@ describe("Payment", () => {
         const payment = await client.createPayment(
           idempotencyKey,
           createPaymentPayload,
-          sellerAccountId
+          subAccountId
         );
         expect(payment.data).toEqual(payment1);
         expect(serverMock.isDone()).toEqual(true);
@@ -68,8 +68,8 @@ describe("Payment", () => {
       });
     });
 
-    describe("when seller account id is not provided", () => {
-      it("creates the payment for the direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("creates the payment for the direct sub", async () => {
         serverMock
           .post("/v1/payments", toSnakeCase(createPaymentPayload), {
             reqheaders: { ...authHeaders, "Idempotency-Key": idempotencyKey },
@@ -89,24 +89,24 @@ describe("Payment", () => {
   });
 
   describe("list payments", () => {
-    describe("when seller account id is provided", () => {
-      it("lists all payments for the seller id", async () => {
+    describe("when sub account id is provided", () => {
+      it("lists all payments for the sub id", async () => {
         serverMock
           .get("/v1/payments", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId },
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId },
           })
           .once()
           .reply(200, withApiResponse([payment1, payment2]));
 
-        const payment = await client.listPayments({}, sellerAccountId);
+        const payment = await client.listPayments({}, subAccountId);
         expect(payment.data).toEqual([payment1, payment2]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
 
-    describe("when seller account id is not provided", () => {
-      it("lists all payments for the direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("lists all payments for the direct sub", async () => {
         serverMock
           .get("/v1/payments", undefined, { reqheaders: authHeaders })
           .once()

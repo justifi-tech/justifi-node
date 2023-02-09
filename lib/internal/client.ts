@@ -5,6 +5,11 @@ import {
   listSellerAccounts,
   SellerAccount,
   SellerAccountApi,
+  createSubAccount,
+  getSubAccount,
+  listSubAccounts,
+  SubAccount,
+  SubAccountApi,
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
@@ -65,6 +70,7 @@ export class Justifi
   implements
   Authenticator,
   SellerAccountApi,
+  SubAccountApi,
   RefundApi,
   PaymentMethodApi,
   PaymentIntentApi,
@@ -123,6 +129,9 @@ export class Justifi
     }
   }
 
+  /**
+   * @deprecated seller account has been deprecated, please use sub account
+   */
   async createSellerAccount(
     accountName: string
   ): Promise<ApiResponse<SellerAccount>> {
@@ -130,6 +139,16 @@ export class Justifi
     return createSellerAccount(token.accessToken, accountName);
   }
 
+  async createSubAccount(
+    accountName: string
+  ): Promise<ApiResponse<SubAccount>> {
+    const token = await this.getToken();
+    return createSubAccount(token.accessToken, accountName);
+  }
+
+  /**
+  * @deprecated seller account has been deprecated, please use sub account
+  */
   async listSellerAccounts(
     status?: AccountStatus | undefined
   ): Promise<ApiResponse<SellerAccount[]>> {
@@ -137,16 +156,31 @@ export class Justifi
     return listSellerAccounts(token.accessToken, status);
   }
 
+  async listSubAccounts(
+    status?: AccountStatus | undefined
+  ): Promise<ApiResponse<SubAccount[]>> {
+    const token = await this.getToken();
+    return listSubAccounts(token.accessToken, status);
+  }
+
+  /**
+  * @deprecated seller account has been deprecated, please use sub account
+  */
   async getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
     return getSellerAccount(token.accessToken, id);
   }
 
+  async getSubAccount(id: string): Promise<ApiResponse<SubAccount>> {
+    const token = await this.getToken();
+    return getSubAccount(token.accessToken, id);
+  }
+
   async listRefunds(
-    sellerAccountId?: string | undefined
+    subAccountId?: string | undefined
   ): Promise<ApiResponse<Refund[]>> {
     const token = await this.getToken();
-    return listRefunds(token.accessToken, sellerAccountId);
+    return listRefunds(token.accessToken, subAccountId);
   }
 
   async getRefund(id: string): Promise<ApiResponse<Refund>> {
@@ -166,22 +200,22 @@ export class Justifi
   async createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<PaymentIntent>> {
     const token = await this.getToken();
     return createPaymentIntent(
       token.accessToken,
       idempotencyKey,
       payload,
-      sellerAccountId
+      subAccountId
     );
   }
 
   async listPaymentIntents(
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<PaymentIntent[]>> {
     const token = await this.getToken();
-    return listPaymentIntents(token.accessToken, sellerAccountId);
+    return listPaymentIntents(token.accessToken, subAccountId);
   }
 
   async getPaymentIntent(id: string): Promise<ApiResponse<PaymentIntent>> {
@@ -217,23 +251,23 @@ export class Justifi
   async createPayment(
     idempotencyKey: string,
     payload: CreatePaymentPayload,
-    sellerAccountId?: string | undefined
+    subAccountId?: string | undefined
   ): Promise<ApiResponse<Payment>> {
     const token = await this.getToken();
     return createPayment(
       token.accessToken,
       idempotencyKey,
       payload,
-      sellerAccountId
+      subAccountId
     );
   }
 
   async listPayments(
     filters?: PaymentListFilters | undefined,
-    sellerAccountId?: string | undefined
+    subAccountId?: string | undefined
   ): Promise<ApiResponse<Payment[]>> {
     const token = await this.getToken();
-    return listPayments(token.accessToken, filters, sellerAccountId);
+    return listPayments(token.accessToken, filters, subAccountId);
   }
 
   async getPayment(id: string): Promise<ApiResponse<Payment>> {
@@ -277,18 +311,18 @@ export class Justifi
   async createPaymentMethod(
     payload: CreatePaymentMethod,
     idempotencyKey: string,
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<PaymentMethods>> {
     const token = await this.getToken();
-    return createPaymentMethod(token.accessToken, payload, idempotencyKey, sellerAccountId);
+    return createPaymentMethod(token.accessToken, payload, idempotencyKey, subAccountId);
   }
 
   async listPaymentMethods(
-    sellerAccountId?: string,
+    subAccountId?: string,
     customerId?: string,
   ): Promise<ApiResponse<PaymentMethods[]>> {
     const token = await this.getToken();
-    return listPaymentMethods(token.accessToken, sellerAccountId, customerId);
+    return listPaymentMethods(token.accessToken, subAccountId, customerId);
   }
 
   async getPaymentMethod(
@@ -307,9 +341,9 @@ export class Justifi
     return updatePaymentMethod(token.accessToken, payload, paymentMethodToken, idempotencyKey)
   }
 
-  async listDisputes(sellerAccountId?: string): Promise<ApiResponse<Dispute>> {
+  async listDisputes(subAccountId?: string): Promise<ApiResponse<Dispute>> {
     const token = await this.getToken();
-    return listDisputes(token.accessToken, sellerAccountId);
+    return listDisputes(token.accessToken, subAccountId);
   }
 
   async getDispute(id: string): Promise<ApiResponse<Dispute>> {

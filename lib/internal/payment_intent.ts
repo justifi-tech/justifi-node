@@ -49,11 +49,11 @@ export interface PaymentIntentApi {
   createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<PaymentIntent>>;
 
   listPaymentIntents(
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<PaymentIntent[]>>;
 
   getPaymentIntent(id: string): Promise<ApiResponse<PaymentIntent>>;
@@ -77,15 +77,15 @@ export const createPaymentIntent = (
   token: string,
   idempotencyKey: string,
   payload: PaymentIntentCreatePayload,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<PaymentIntent>> => {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/payment_intents")
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<PaymentIntent>>();
@@ -93,15 +93,15 @@ export const createPaymentIntent = (
 
 export const listPaymentIntents = (
   token: string,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<PaymentIntent[]>> => {
   const req = new JustifiRequest(
     RequestMethod.Get,
     "/v1/payment_intents"
   ).withAuth(token);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<PaymentIntent[]>>();

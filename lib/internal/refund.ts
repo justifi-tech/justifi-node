@@ -26,7 +26,7 @@ export interface Refund {
 }
 
 export interface RefundApi {
-  listRefunds(sellerAccountId?: string): Promise<ApiResponse<Refund[]>>;
+  listRefunds(subAccountId?: string): Promise<ApiResponse<Refund[]>>;
   getRefund(id: string): Promise<ApiResponse<Refund>>;
   updateRefund(
     id: string,
@@ -37,14 +37,14 @@ export interface RefundApi {
 
 export const listRefunds = (
   token: string,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<Refund[]>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/refunds").withAuth(
     token
   );
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<Refund[]>>();
