@@ -36,6 +36,7 @@ export interface RelatedAccounts {
   testAccountId: string;
 }
 
+// deprecated
 export interface SellerAccount {
   id: string;
   name: string;
@@ -51,6 +52,22 @@ export interface SellerAccount {
   updatedAt: string;
 }
 
+export interface SubAccount {
+  id: string;
+  name: string;
+  accountType: AccountType;
+  status: AccountStatus;
+  currency: string;
+  platformAccountId: string;
+  applicationFeeRates: ApplicationFeeRate[];
+  processingReady: boolean;
+  payoutReady: boolean;
+  relatedAccounts: RelatedAccounts;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// deprecated
 export interface SellerAccountApi {
   createSellerAccount(accountName: string): Promise<ApiResponse<SellerAccount>>;
   listSellerAccounts(
@@ -59,6 +76,15 @@ export interface SellerAccountApi {
   getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>>;
 }
 
+export interface SubAccountApi {
+  createSubAccount(accountName: string): Promise<ApiResponse<SubAccount>>;
+  listSubAccounts(
+    status?: AccountStatus
+  ): Promise<ApiResponse<SubAccount[]>>;
+  getSubAccount(id: string): Promise<ApiResponse<SubAccount>>;
+}
+
+// deprecated
 export const createSellerAccount = (
   token: string,
   accountName: string
@@ -71,6 +97,19 @@ export const createSellerAccount = (
     .execute<ApiResponse<SellerAccount>>();
 };
 
+export const createSubAccount = (
+  token: string,
+  accountName: string
+): Promise<ApiResponse<SubAccount>> => {
+  const payload: { name: string } = { name: accountName };
+
+  return new JustifiRequest(RequestMethod.Post, "/v1/sub_accounts")
+    .withAuth(token)
+    .withBody(payload)
+    .execute<ApiResponse<SubAccount>>();
+};
+
+// deprecated
 export const listSellerAccounts = (
   token: string,
   status?: AccountStatus
@@ -81,6 +120,17 @@ export const listSellerAccounts = (
     .execute<ApiResponse<SellerAccount[]>>();
 };
 
+export const listSubAccounts = (
+  token: string,
+  status?: AccountStatus
+): Promise<ApiResponse<SubAccount[]>> => {
+  return new JustifiRequest(RequestMethod.Get, "/v1/sub_accounts")
+    .withAuth(token)
+    .withQueryParam("status", status || "")
+    .execute<ApiResponse<SubAccount[]>>();
+};
+
+// deprecated
 export const getSellerAccount = (
   token: string,
   id: string
@@ -90,4 +140,15 @@ export const getSellerAccount = (
   return new JustifiRequest(RequestMethod.Get, requestPath)
     .withAuth(token)
     .execute<ApiResponse<SellerAccount>>();
+};
+
+export const getSubAccount = (
+  token: string,
+  id: string
+): Promise<ApiResponse<SubAccount>> => {
+  const requestPath = `/v1/sub_accounts/${id}`;
+
+  return new JustifiRequest(RequestMethod.Get, requestPath)
+    .withAuth(token)
+    .execute<ApiResponse<SubAccount>>();
 };

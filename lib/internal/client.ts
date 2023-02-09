@@ -5,6 +5,11 @@ import {
   listSellerAccounts,
   SellerAccount,
   SellerAccountApi,
+  createSubAccount,
+  getSubAccount,
+  listSubAccounts,
+  SubAccount,
+  SubAccountApi,
 } from "./account";
 import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
 import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
@@ -65,6 +70,7 @@ export class Justifi
   implements
   Authenticator,
   SellerAccountApi,
+  SubAccountApi,
   RefundApi,
   PaymentMethodApi,
   PaymentIntentApi,
@@ -123,6 +129,7 @@ export class Justifi
     }
   }
 
+  // deprecated
   async createSellerAccount(
     accountName: string
   ): Promise<ApiResponse<SellerAccount>> {
@@ -130,6 +137,14 @@ export class Justifi
     return createSellerAccount(token.accessToken, accountName);
   }
 
+  async createSubAccount(
+    accountName: string
+  ): Promise<ApiResponse<SubAccount>> {
+    const token = await this.getToken();
+    return createSubAccount(token.accessToken, accountName);
+  }
+
+  // deprecated
   async listSellerAccounts(
     status?: AccountStatus | undefined
   ): Promise<ApiResponse<SellerAccount[]>> {
@@ -137,9 +152,22 @@ export class Justifi
     return listSellerAccounts(token.accessToken, status);
   }
 
+  async listSubAccounts(
+    status?: AccountStatus | undefined
+  ): Promise<ApiResponse<SubAccount[]>> {
+    const token = await this.getToken();
+    return listSubAccounts(token.accessToken, status);
+  }
+
+  // deprecated
   async getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>> {
     const token = await this.getToken();
     return getSellerAccount(token.accessToken, id);
+  }
+
+  async getSubAccount(id: string): Promise<ApiResponse<SubAccount>> {
+    const token = await this.getToken();
+    return getSubAccount(token.accessToken, id);
   }
 
   async listRefunds(
