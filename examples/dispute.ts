@@ -11,7 +11,7 @@ if (process.argv.length < 3) {
 
 switch (process.argv[2]) {
   case "listDisputes":
-    client.listDisputes("<sellerAccountId>").then(console.log).catch(console.log);
+    client.listDisputes("<subAccountId>").then(console.log).catch(console.log);
     break;
 
   case "getDispute":

@@ -41,7 +41,7 @@ switch (process.argv[2]) {
             },
           },
         },
-        "<seller_account_id>"
+        "<sub_account_id>"
       )
       .then(console.log)
       .catch(console.log);
@@ -49,7 +49,7 @@ switch (process.argv[2]) {
 
   case "listPaymentsNoFilters":
     client
-      .listPayments(undefined, "<seller_account_id>")
+      .listPayments(undefined, "<sub_account_id>")
       .then(console.log)
       .catch(console.log);
     break;
@@ -62,7 +62,7 @@ switch (process.argv[2]) {
           createdAfter: "2022-01-01T00:00:00.000Z",
           paymentStatus: PaymentStatus.Succeeded,
         },
-        "<seller_account_id>"
+        "<sub_account_id>"
       )
       .then(console.log)
       .catch(console.log);
