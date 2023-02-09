@@ -95,6 +95,7 @@ export const createSellerAccount = (
   token: string,
   accountName: string
 ): Promise<ApiResponse<SellerAccount>> => {
+  console.warn("[DEPRECATED] seller account has been deprecated, please use sub account");
   const payload: { name: string } = { name: accountName };
 
   return new JustifiRequest(RequestMethod.Post, "/v1/seller_accounts")
@@ -122,6 +123,8 @@ export const listSellerAccounts = (
   token: string,
   status?: AccountStatus
 ): Promise<ApiResponse<SellerAccount[]>> => {
+  console.warn("[DEPRECATED] seller account has been deprecated, please use sub account");
+
   return new JustifiRequest(RequestMethod.Get, "/v1/seller_accounts")
     .withAuth(token)
     .withQueryParam("status", status || "")
@@ -145,6 +148,7 @@ export const getSellerAccount = (
   token: string,
   id: string
 ): Promise<ApiResponse<SellerAccount>> => {
+  console.warn("[DEPRECATED] seller account has been deprecated, please use sub account");
   const requestPath = `/v1/seller_accounts/${id}`;
 
   return new JustifiRequest(RequestMethod.Get, requestPath)
