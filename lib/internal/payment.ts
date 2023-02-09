@@ -111,12 +111,12 @@ export interface PaymentApi {
   createPayment(
     idempotencyKey: string,
     payload: CreatePaymentPayload,
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<Payment>>;
 
   listPayments(
     filters?: PaymentListFilters,
-    sellerAccountId?: string
+    subAccountId?: string
   ): Promise<ApiResponse<Payment[]>>;
 
   getPayment(id: string): Promise<ApiResponse<Payment>>;
@@ -147,15 +147,15 @@ export const createPayment = (
   token: string,
   idempotencyKey: string,
   payload: CreatePaymentPayload,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<Payment>> => {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/payments")
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<Payment>>();
@@ -164,7 +164,7 @@ export const createPayment = (
 export const listPayments = (
   token: string,
   filters?: PaymentListFilters,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<Payment[]>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/payments").withAuth(
     token
@@ -174,8 +174,8 @@ export const listPayments = (
     req.withQueryParams(filters);
   }
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<Payment[]>>();

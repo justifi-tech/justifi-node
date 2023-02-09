@@ -96,31 +96,31 @@ export interface UpdatePaymentMethod {
 }
 
 export interface PaymentMethodApi {
-  createPaymentMethod(payload: CreatePaymentMethod, idempotencyKey: string, sellerAccountId?: string): Promise<ApiResponse<PaymentMethods>>;
-  listPaymentMethods(sellerAccountId?: string, customerId?: string): Promise<ApiResponse<PaymentMethods[]>>;
+  createPaymentMethod(payload: CreatePaymentMethod, idempotencyKey: string, subAccountId?: string): Promise<ApiResponse<PaymentMethods>>;
+  listPaymentMethods(subAccountId?: string, customerId?: string): Promise<ApiResponse<PaymentMethods[]>>;
   getPaymentMethod(paymentMethodToken: string): Promise<ApiResponse<PaymentMethods>>;
   updatePaymentMethod(payload: UpdatePaymentMethod, paymentMethodToken: string, idempotencyKey: string): Promise<ApiResponse<PaymentMethods>>;
 }
 
-export const createPaymentMethod = (token: string, payload: CreatePaymentMethod, idempotencyKey: string, sellerAccountId?: string): Promise<ApiResponse<PaymentMethods>> => {
+export const createPaymentMethod = (token: string, payload: CreatePaymentMethod, idempotencyKey: string, subAccountId?: string): Promise<ApiResponse<PaymentMethods>> => {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/payment_methods")
     .withAuth(token)
     .withIdempotencyKey(idempotencyKey)
     .withBody(payload);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<PaymentMethods>>();
 }
 
-export const listPaymentMethods = (token: string, sellerAccountId?: string, customerId?: string): Promise<ApiResponse<PaymentMethods[]>> => {
+export const listPaymentMethods = (token: string, subAccountId?: string, customerId?: string): Promise<ApiResponse<PaymentMethods[]>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/payment_methods")
     .withAuth(token);
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   if (customerId) {
