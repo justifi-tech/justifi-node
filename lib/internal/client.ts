@@ -66,8 +66,6 @@ import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 
-import util from "node:util";
-
 export class Justifi
   implements
   Authenticator,

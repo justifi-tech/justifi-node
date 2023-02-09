@@ -2,7 +2,6 @@ import Justifi from "../lib";
 import { randomUUID } from "crypto";
 import { SellerAccount } from "../lib/internal/account";
 import { PaymentCaptureStrategy } from "../lib/internal/payment";
-import { PaymentMethodCard } from "../lib/internal/payment_method"
 import { RefundReason } from "../lib/internal/refund";
 
 if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
@@ -30,7 +29,7 @@ const runSellerAccountTest = async (): Promise<SellerAccount> => {
   console.log("seller account found");
 
   const getEnabledAccount = await client.getSellerAccount(
-    "acc_33O9DIgIeS391LILHER1ff"
+    "<seller_account_id>"
   );
   console.log("enabled seller account found");
 
