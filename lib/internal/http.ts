@@ -6,6 +6,7 @@ import {
   BaseError,
   PaginationError,
 } from "./error";
+import { version } from "../../package.json";
 
 export interface PageInfo {
   endCursor: string;
@@ -83,7 +84,8 @@ export type RequestHeaders = { [key: string]: string };
 
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
-  Accept: "application/json",
+  "Accept": "application/json",
+  "User-Agent": `justifi-node-${version}`
 };
 
 export class JustifiRequest {
