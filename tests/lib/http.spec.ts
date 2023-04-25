@@ -141,6 +141,23 @@ describe("http", () => {
       expect(mockServer.isDone()).toEqual(true);
       expect(mockServer.pendingMocks()).toHaveLength(0);
     });
+
+    it("returns the idempotency key value in the response", async () => {
+      const key = "my_key";
+      const idempotencyHeader = { "Idempotency-Key": key };
+      const mockServer = nock(baseUrl)
+        .get("/", undefined, { reqheaders: idempotencyHeader })
+        .once()
+        .reply(200, withApiResponse({}));
+
+      const res = await new JustifiRequest(RequestMethod.Get, "/")
+        .withIdempotencyKey(key)
+        .execute<ApiResponse<any>>();
+
+      expect(mockServer.isDone()).toEqual(true);
+      expect(mockServer.pendingMocks()).toHaveLength(0);
+      expect(res.idempotencyKey).toEqual(key)
+    })
   });
 
   describe("execute with retry", () => {
