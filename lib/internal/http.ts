@@ -7,6 +7,7 @@ import {
   PaginationError,
 } from "./error";
 import { version } from "../../package.json";
+import { randomUUID } from "crypto";
 
 export interface PageInfo {
   endCursor: string;
@@ -141,7 +142,7 @@ export class JustifiRequest {
   }
 
   withIdempotencyKey(idempotencyKey: string): JustifiRequest {
-    return this.withHeader("Idempotency-Key", idempotencyKey);
+    return this.withHeader("Idempotency-Key", idempotencyKey || randomUUID());
   }
 
   async execute<T>(isDefaultResponse = true): Promise<T> {
