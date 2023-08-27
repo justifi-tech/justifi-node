@@ -1,14 +1,14 @@
 {
   "name": "@justifi/justifi-node",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "JustiFi Node SDK",
   "repository": {
     "type": "git",
     "url": "https://github.com/justifi-tech/justifi-node.git"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "module": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "files": ["dist/"],
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
