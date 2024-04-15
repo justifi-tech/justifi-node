@@ -133,6 +133,7 @@ export class Justifi
 
   /**
    * @deprecated seller account has been deprecated, please use sub account
+   * @deprecated createSellerAccount has been deprecated. please use provision product
    */
   async createSellerAccount(
     accountName: string
