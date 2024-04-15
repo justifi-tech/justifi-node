@@ -142,6 +142,9 @@ export class Justifi
     return createSellerAccount(token.accessToken, accountName);
   }
 
+  /**
+   * @deprecated createSubAccount has been deprecated. please use provision product
+   */
   async createSubAccount(
     accountName: string
   ): Promise<ApiResponse<SubAccount>> {

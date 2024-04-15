@@ -83,6 +83,9 @@ export interface SellerAccountApi {
   getSellerAccount(id: string): Promise<ApiResponse<SellerAccount>>;
 }
 
+/**
+  * @deprecated createSubAccount has been deprecated, please use provision product
+  */
 export interface SubAccountApi {
   createSubAccount(accountName: string): Promise<ApiResponse<SubAccount>>;
   listSubAccounts(
