@@ -65,6 +65,7 @@ import {
 import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
+import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 
 export class Justifi
   implements
@@ -81,7 +82,8 @@ export class Justifi
   PaymentIntentApi,
   PaymentApi,
   CheckoutSessionApi,
-  WebhookVerifier {
+  WebhookVerifier,
+  ProvisioningApi {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -131,6 +133,7 @@ export class Justifi
 
   /**
    * @deprecated seller account has been deprecated, please use sub account
+   * @deprecated createSellerAccount has been deprecated. please use provision product
    */
   async createSellerAccount(
     accountName: string
@@ -139,6 +142,9 @@ export class Justifi
     return createSellerAccount(token.accessToken, accountName);
   }
 
+  /**
+   * @deprecated createSubAccount has been deprecated. please use provision product
+   */
   async createSubAccount(
     accountName: string
   ): Promise<ApiResponse<SubAccount>> {
@@ -386,6 +392,11 @@ export class Justifi
   async createCheckoutSession(payload: CreateCheckoutSession): Promise<ApiResponse<CreateCheckoutSessionResponse>> {
     const token = await this.getToken();
     return createCheckoutSession(token.accessToken, payload);
+  }
+
+  async provisionProduct(payload: ProvisionProductPayload): Promise<ApiResponse<ProvisionProductResponse>> {
+    const token = await this.getToken();
+    return provisionProduct(token.accessToken, payload);
   }
 
   verifySignature(
