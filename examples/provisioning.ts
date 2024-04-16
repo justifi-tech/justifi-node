@@ -14,7 +14,7 @@ switch (process.argv[2]) {
     client
       .provisionProduct({
         newAccountName: "justifi node sdk provision",
-        businessId: "biz_6NDtoJENACpX45nozmRBRE",
+        businessId: "biz_FGGxR1u7Z2qUeFwtzIZmH",
         productCategory: ProductCategory.Insurance
       })
       .then(console.log)
