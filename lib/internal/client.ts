@@ -66,6 +66,7 @@ import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
+import { Business, BusinessApi, createBusiness } from "./business";
 
 export class Justifi
   implements
@@ -83,7 +84,8 @@ export class Justifi
   PaymentApi,
   CheckoutSessionApi,
   WebhookVerifier,
-  ProvisioningApi {
+  ProvisioningApi,
+  BusinessApi {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -397,6 +399,12 @@ export class Justifi
   async provisionProduct(payload: ProvisionProductPayload): Promise<ApiResponse<ProvisionProductResponse>> {
     const token = await this.getToken();
     return provisionProduct(token.accessToken, payload);
+  }
+
+  async createBusiness(legalName: string): Promise<ApiResponse<Business>> {
+    const token = await this.getToken();
+
+    return createBusiness(token.accessToken, legalName);
   }
 
   verifySignature(
