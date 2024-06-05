@@ -67,7 +67,7 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 import { Business, BusinessApi, createBusiness } from "./business";
-
+import { CheckoutApi, Checkout, getCheckout, listCheckouts, updateCheckout } from "./checkout"
 export class Justifi
   implements
   Authenticator,
@@ -85,6 +85,7 @@ export class Justifi
   CheckoutSessionApi,
   WebhookVerifier,
   ProvisioningApi,
+  CheckoutApi,
   BusinessApi {
   private static instance: Justifi;
 
@@ -405,6 +406,27 @@ export class Justifi
     const token = await this.getToken();
 
     return createBusiness(token.accessToken, legalName);
+  }
+
+  async listCheckouts(
+    sellerAccountId?: string | undefined
+  ): Promise<ApiResponse<Checkout[]>> {
+    const token = await this.getToken();
+    return listCheckouts(token.accessToken, sellerAccountId);
+  }
+
+  async getCheckout(id: string): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+    return getCheckout(token.accessToken, id);
+  }
+
+  async updateCheckout(
+    id: string,
+    amount: number,
+    description: string
+  ): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+    return updateCheckout(token.accessToken, id, amount, description);
   }
 
   verifySignature(
