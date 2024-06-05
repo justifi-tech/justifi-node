@@ -1,4 +1,4 @@
-import { JustifiRequest, RequestMethod } from "./http";
+import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 
 export interface Credential {
   clientId: string;
@@ -23,6 +23,19 @@ export const getAccessToken = async (
 ): Promise<AccessToken> => {
   const response = await new JustifiRequest(RequestMethod.Post, "/oauth/token")
     .withBody(credential)
+    .execute<AccessToken>(false);
+
+  return Promise.resolve(response);
+};
+
+export const getWebComponentToken = async (
+  token: string,
+  checkoutId: string,
+  accountId: string
+): Promise<AccessToken> => {
+  const response = await new JustifiRequest(RequestMethod.Post, "/v1/web_component_tokens")
+    .withAuth(token)
+    .withBody({resources: [`write:checkout:${checkoutId}`, `write:tokenize:${accountId}`]})
     .execute<AccessToken>(false);
 
   return Promise.resolve(response);

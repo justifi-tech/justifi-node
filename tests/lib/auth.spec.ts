@@ -73,4 +73,25 @@ describe("Auth", () => {
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
+
+  describe("when calling getWebComponentToken multiple times", () => {
+    const wcToken = { access_token: "some_wc_access_token" };
+    const token = "some_access_token";
+    const checkoutId = "chc_xyz";
+    const accountId = "acct_xyz";
+    const resources = [`write:checkout:${checkoutId}`, `write:tokenize:${accountId}`]
+
+    it("calls the api only once", async () => {
+      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
+        .post("/v1/web_component_tokens", toSnakeCase({ resources }))
+        .once()
+        .reply(200, wcToken);
+
+      const firstToken = await client.getWCToken(token, checkoutId, accountId);
+      expect(firstToken.accessToken).toEqual(wcToken.access_token);
+
+      await expect(client.getWCToken(token, checkoutId, accountId)).resolves.toEqual(toCamelCase(wcToken));
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+  });
 });

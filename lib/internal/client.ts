@@ -11,7 +11,7 @@ import {
   SubAccount,
   SubAccountApi,
 } from "./account";
-import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
+import { AccessToken, Authenticator, Credential, getAccessToken, getWebComponentToken } from "./auth";
 import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
 import { BalanceTransaction, BalanceTransactionApi, getBalanceTransaction, listBalanceTransactions } from "./balance_transactions";
 import { ApiResponse } from "./http";
@@ -93,6 +93,7 @@ export class Justifi
   private store: InMemoryStore<AccessToken>;
 
   private ACCESS_TOKEN_STORE_KEY = "access_token";
+  private WEB_COMPONENT_TOKEN_STORE_KEY = "web_component_token";
 
   private constructor() {
     this.credential = { clientId: "", clientSecret: "" };
@@ -131,6 +132,23 @@ export class Justifi
       );
 
       return Promise.resolve(token);
+    }
+  }
+
+  async getWCToken(token: string, checkoutId: string, accountId: string): Promise<AccessToken> {
+    try {
+      const cachedToken = this.store.get(this.WEB_COMPONENT_TOKEN_STORE_KEY);
+
+      return Promise.resolve(cachedToken);
+    } catch {
+      const wcToken = await getWebComponentToken(token, checkoutId, accountId);
+      this.store.add(
+        this.WEB_COMPONENT_TOKEN_STORE_KEY,
+        wcToken,
+        this.tokenExpiration()
+      );
+
+      return Promise.resolve(wcToken);
     }
   }
 
