@@ -30,12 +30,11 @@ export const getAccessToken = async (
 
 export const getWebComponentToken = async (
   token: string,
-  checkoutId: string,
-  accountId: string
+  resources: string[]
 ): Promise<AccessToken> => {
   const response = await new JustifiRequest(RequestMethod.Post, "/v1/web_component_tokens")
     .withAuth(token)
-    .withBody({resources: [`write:checkout:${checkoutId}`, `write:tokenize:${accountId}`]})
+    .withBody({resources: resources})
     .execute<AccessToken>(false);
 
   return Promise.resolve(response);

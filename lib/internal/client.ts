@@ -135,8 +135,13 @@ export class Justifi
     }
   }
 
-  async getWebComponentToken(token: string, checkoutId: string, accountId: string): Promise<AccessToken> {
-    return getWebComponentToken(token, checkoutId, accountId);
+
+  /*8
+   * resources: Check https://docs.justifi.tech/infrastructure/webComponentTokens
+   * for a list of possible resources
+   **/
+  async getWebComponentToken(token: string, resources: string[]): Promise<AccessToken> {
+    return getWebComponentToken(token, resources);
   }
 
   /**
