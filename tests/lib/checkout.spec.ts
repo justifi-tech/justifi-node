@@ -3,7 +3,7 @@ import nock from "nock";
 import { Scope } from "nock/types";
 import { toSnakeCase } from "../../lib/internal/converter";
 import { withApiResponse } from "../data/http";
-import { checkout1, checkout2 } from "../data/checkout";
+import { createCheckoutPayload, checkout1, checkout2 } from "../data/checkout";
 import { getTestSetupData } from "../setup";
 
 describe("Checkout", () => {
@@ -15,6 +15,7 @@ describe("Checkout", () => {
     defaultHeaders,
     authHeaders,
   } = getTestSetupData();
+  const subAccountId = "acc_abc123";
 
   let serverMock: Scope;
   beforeEach(() => {
@@ -29,6 +30,30 @@ describe("Checkout", () => {
   afterEach(() => {
     nock.cleanAll();
     client.clearCache();
+  });
+
+  describe("create checkout", () => {
+    describe("when sub account id is provided", () => {
+      it("creates the checkout for the sub id", async () => {
+        serverMock
+          .post("/v1/checkouts", toSnakeCase(createCheckoutPayload), {
+            reqheaders: {
+              ...authHeaders,
+              "Sub-Account": subAccountId,
+            },
+          })
+          .once()
+          .reply(201, withApiResponse(checkout1));
+
+        const checkout = await client.createCheckout(
+          createCheckoutPayload,
+          subAccountId
+        );
+        expect(checkout.data).toEqual(checkout1);
+        expect(serverMock.isDone()).toEqual(true);
+        expect(serverMock.pendingMocks()).toHaveLength(0);
+      });
+    });
   });
 
   describe("list checkouts", () => {

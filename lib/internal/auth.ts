@@ -1,4 +1,4 @@
-import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
+import { JustifiRequest, RequestMethod } from "./http";
 
 export interface Credential {
   clientId: string;
