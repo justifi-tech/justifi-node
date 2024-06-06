@@ -57,7 +57,7 @@ describe("Checkout", () => {
   });
 
   describe("list checkouts", () => {
-    describe("when seller account id is not provided", () => {
+    describe("when sub account id is not provided", () => {
       it("lists checkouts for direct seller", async () => {
         serverMock
           .get("/v1/checkouts", undefined, { reqheaders: authHeaders })
@@ -72,17 +72,17 @@ describe("Checkout", () => {
     });
 
     describe("when seller account id is provided", () => {
-      const sellerAccountId = "acc_abc";
+      const subAccountId = "acc_abc";
 
-      it("lists checkouts for the platform's seller id", async () => {
+      it("lists checkouts for the platform's sub account id", async () => {
         serverMock
           .get("/v1/checkouts", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId },
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId },
           })
           .once()
           .reply(200, withApiResponse([checkout1]));
 
-        const checkouts = await client.listCheckouts(sellerAccountId);
+        const checkouts = await client.listCheckouts(subAccountId);
         expect(checkouts.data).toEqual([checkout1]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);

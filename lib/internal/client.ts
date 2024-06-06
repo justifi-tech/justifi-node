@@ -420,10 +420,10 @@ export class Justifi
   }
 
   async listCheckouts(
-    sellerAccountId?: string | undefined
+    subAccountId?: string | undefined
   ): Promise<ApiResponse<Checkout[]>> {
     const token = await this.getToken();
-    return listCheckouts(token.accessToken, sellerAccountId);
+    return listCheckouts(token.accessToken, subAccountId);
   }
 
   async getCheckout(id: string): Promise<ApiResponse<Checkout>> {

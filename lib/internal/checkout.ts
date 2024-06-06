@@ -30,7 +30,7 @@ export interface CreateCheckoutPayload {
 }
 
 export interface CheckoutApi {
-  listCheckouts(sellerAccountId?: string): Promise<ApiResponse<Checkout[]>>;
+  listCheckouts(subAccountId?: string): Promise<ApiResponse<Checkout[]>>;
   getCheckout(id: string): Promise<ApiResponse<Checkout>>;
   updateCheckout(
     id: string,
@@ -45,14 +45,14 @@ export interface CheckoutApi {
 
 export const listCheckouts = (
   token: string,
-  sellerAccountId?: string
+  subAccountId?: string
 ): Promise<ApiResponse<Checkout[]>> => {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/checkouts").withAuth(
     token
   );
 
-  if (sellerAccountId) {
-    req.withHeader("Seller-Account", sellerAccountId);
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
   }
 
   return req.execute<ApiResponse<Checkout[]>>();
