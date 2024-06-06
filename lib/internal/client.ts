@@ -140,8 +140,9 @@ export class Justifi
    * resources: Check https://docs.justifi.tech/infrastructure/webComponentTokens
    * for a list of possible resources
    **/
-  async getWebComponentToken(token: string, resources: string[]): Promise<AccessToken> {
-    return getWebComponentToken(token, resources);
+  async getWebComponentToken(resources: string[]): Promise<AccessToken> {
+    const token = await this.getToken();
+    return getWebComponentToken(token.accessToken, resources);
   }
 
   /**

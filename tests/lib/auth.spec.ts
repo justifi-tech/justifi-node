@@ -1,11 +1,12 @@
 import "jest";
+import { Scope } from "nock/types";
 import { toCamelCase, toSnakeCase } from "../../lib/internal/converter";
 import { InternalError, NotFound } from "../../lib/internal/error";
 import nock from "nock";
 import { getTestSetupData } from "../setup";
 
 describe("Auth", () => {
-  const { mockBaseUrl, credentials, client, defaultHeaders } =
+  const { mockBaseUrl, token, credentials, client, defaultHeaders } =
     getTestSetupData();
 
   afterEach(() => {
@@ -76,19 +77,28 @@ describe("Auth", () => {
 
   describe("when calling getWebComponentToken", () => {
     const wcToken = { access_token: "some_wc_access_token" };
-    const token = "some_access_token";
     const resources = [`write:checkout:chc_xyz`, `write:tokenize:acct_xyz`]
+    let serverMock: Scope;
+
+    beforeEach(() => {
+      serverMock = nock(mockBaseUrl, {
+        reqheaders: defaultHeaders,
+      })
+      .post("/oauth/token", toSnakeCase(credentials))
+      .once()
+      .reply(200, token);
+    })
 
     it("responds with multiple tokens", async () => {
-      const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
+      serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/v1/web_component_tokens", toSnakeCase({ resources }))
         .twice()
         .reply(200, wcToken);
 
-      const firstToken = await client.getWebComponentToken(token, resources);
+      const firstToken = await client.getWebComponentToken(resources);
       expect(firstToken.accessToken).toEqual(wcToken.access_token);
 
-      await expect(client.getWebComponentToken(token, resources)).resolves.toEqual(toCamelCase(wcToken));
+      await expect(client.getWebComponentToken(resources)).resolves.toEqual(toCamelCase(wcToken));
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
