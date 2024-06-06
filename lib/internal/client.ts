@@ -135,21 +135,8 @@ export class Justifi
     }
   }
 
-  async getWCToken(token: string, checkoutId: string, accountId: string): Promise<AccessToken> {
-    try {
-      const cachedToken = this.store.get(this.WEB_COMPONENT_TOKEN_STORE_KEY);
-
-      return Promise.resolve(cachedToken);
-    } catch {
-      const wcToken = await getWebComponentToken(token, checkoutId, accountId);
-      this.store.add(
-        this.WEB_COMPONENT_TOKEN_STORE_KEY,
-        wcToken,
-        this.tokenExpiration()
-      );
-
-      return Promise.resolve(wcToken);
-    }
+  async getWebComponentToken(token: string, checkoutId: string, accountId: string): Promise<AccessToken> {
+    return getWebComponentToken(token, checkoutId, accountId);
   }
 
   /**

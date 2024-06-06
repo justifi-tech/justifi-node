@@ -74,23 +74,23 @@ describe("Auth", () => {
     });
   });
 
-  describe("when calling getWebComponentToken multiple times", () => {
+  describe("when calling getWebComponentToken", () => {
     const wcToken = { access_token: "some_wc_access_token" };
     const token = "some_access_token";
     const checkoutId = "chc_xyz";
     const accountId = "acct_xyz";
     const resources = [`write:checkout:${checkoutId}`, `write:tokenize:${accountId}`]
 
-    it("calls the api only once", async () => {
+    it("responds with multiple tokens", async () => {
       const serverMock = nock(mockBaseUrl, { reqheaders: defaultHeaders })
         .post("/v1/web_component_tokens", toSnakeCase({ resources }))
-        .once()
+        .twice()
         .reply(200, wcToken);
 
-      const firstToken = await client.getWCToken(token, checkoutId, accountId);
+      const firstToken = await client.getWebComponentToken(token, checkoutId, accountId);
       expect(firstToken.accessToken).toEqual(wcToken.access_token);
 
-      await expect(client.getWCToken(token, checkoutId, accountId)).resolves.toEqual(toCamelCase(wcToken));
+      await expect(client.getWebComponentToken(token, checkoutId, accountId)).resolves.toEqual(toCamelCase(wcToken));
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
