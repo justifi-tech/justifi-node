@@ -34,8 +34,8 @@ export interface CheckoutApi {
   getCheckout(id: string): Promise<ApiResponse<Checkout>>;
   updateCheckout(
     id: string,
-    amount: number,
-    description: string
+    amount?: number,
+    description?: string
   ): Promise<ApiResponse<Checkout>>;
   createCheckout(
     payload: CreateCheckoutPayload,
@@ -70,8 +70,8 @@ export const getCheckout = (
 export const updateCheckout = (
   token: string,
   id: string,
-  amount: number,
-  description: string
+  amount?: number,
+  description?: string
 ): Promise<ApiResponse<Checkout>> => {
   return new JustifiRequest(RequestMethod.Patch, `/v1/checkouts/${id}`)
     .withAuth(token)

@@ -438,8 +438,8 @@ export class Justifi
 
   async updateCheckout(
     id: string,
-    amount: number,
-    description: string
+    amount?: number,
+    description?: string
   ): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
     return updateCheckout(token.accessToken, id, amount, description);

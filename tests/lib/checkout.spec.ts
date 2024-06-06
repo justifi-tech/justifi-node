@@ -109,6 +109,7 @@ describe("Checkout", () => {
   describe("update checkout", () => {
     const amount = 1200;
     const description = "updated desc";
+
     it("updates the checkout with the provided information", async () => {
       serverMock
         .patch(`/v1/checkouts/${checkout1.id}`, toSnakeCase({ amount, description }), {
@@ -122,6 +123,20 @@ describe("Checkout", () => {
         amount,
         description
       );
+      expect(checkout.data).toEqual(checkout1);
+      expect(serverMock.isDone()).toEqual(true);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+
+    it("should not update empty description", async () => {
+      serverMock
+        .patch(`/v1/checkouts/${checkout1.id}`, toSnakeCase({ amount }), {
+          reqheaders: { ...authHeaders },
+        })
+        .once()
+        .reply(200, withApiResponse(checkout1));
+
+      const checkout = await client.updateCheckout(checkout1.id, amount);
       expect(checkout.data).toEqual(checkout1);
       expect(serverMock.isDone()).toEqual(true);
       expect(serverMock.pendingMocks()).toHaveLength(0);
