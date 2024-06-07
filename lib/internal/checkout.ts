@@ -49,7 +49,7 @@ export interface CheckoutApi {
     id: string,
     idempotencyKey: string,
     payload: CompleteCheckoutPayload,
-    subAccountId: string
+    subAccountId?: string
   ): Promise<ApiResponse<Checkout>>;
 }
 
@@ -114,9 +114,12 @@ export const completeCheckout = (
 ): Promise<ApiResponse<Checkout>> => {
   const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/complete`)
                                  .withAuth(token)
-                                 .withHeader("Sub-Account", subAccountId)
                                  .withIdempotencyKey(idempotencyKey)
                                  .withBody(payload);
+
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
+  }
 
   return req.execute<ApiResponse<Checkout>>();
 };
