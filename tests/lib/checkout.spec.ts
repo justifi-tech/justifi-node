@@ -3,7 +3,7 @@ import nock from "nock";
 import { Scope } from "nock/types";
 import { toSnakeCase } from "../../lib/internal/converter";
 import { withApiResponse } from "../data/http";
-import { createCheckoutPayload, checkout1, checkout2 } from "../data/checkout";
+import { completeCheckoutPayload, createCheckoutPayload, checkout1, checkout2 } from "../data/checkout";
 import { getTestSetupData } from "../setup";
 
 describe("Checkout", () => {
@@ -15,6 +15,7 @@ describe("Checkout", () => {
     defaultHeaders,
     authHeaders,
   } = getTestSetupData();
+  const idempotencyKey = "1234567890abcdefg";
   const subAccountId = "acc_abc123";
 
   let serverMock: Scope;
@@ -137,6 +138,31 @@ describe("Checkout", () => {
         .reply(200, withApiResponse(checkout1));
 
       const checkout = await client.updateCheckout(checkout1.id, amount);
+      expect(checkout.data).toEqual(checkout1);
+      expect(serverMock.isDone()).toEqual(true);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+  });
+
+  describe("complete checkout", () => {
+    it("with the subAccountId", async () => {
+      serverMock
+      .post(`/v1/checkouts/${checkout1.id}/complete`, toSnakeCase(completeCheckoutPayload), {
+        reqheaders: {
+          ...authHeaders,
+          "Idempotency-Key": idempotencyKey,
+          "Sub-Account": subAccountId,
+        },
+      })
+      .once()
+      .reply(201, withApiResponse(checkout1));
+
+      const checkout = await client.completeCheckout(
+        checkout1.id,
+        idempotencyKey,
+        completeCheckoutPayload,
+        subAccountId
+      );
       expect(checkout.data).toEqual(checkout1);
       expect(serverMock.isDone()).toEqual(true);
       expect(serverMock.pendingMocks()).toHaveLength(0);

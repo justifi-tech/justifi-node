@@ -1,4 +1,4 @@
-import { Checkout, CheckoutStatus, CreateCheckoutPayload } from "../../lib/internal/checkout";
+import { Checkout, CheckoutStatus, CompleteCheckoutPayload, CreateCheckoutPayload } from "../../lib/internal/checkout";
 
 export const checkout1: Checkout = {
   id: "cho_xyz",
@@ -37,5 +37,9 @@ export const createCheckoutPayload: CreateCheckoutPayload = {
   currency: "usd",
   description: "ORDER 1235ABC: Charging $10 to the test card",
   paymentMethodGroupId: "pmg_xyz" 
+};
+
+export const completeCheckoutPayload: CompleteCheckoutPayload = {
+  paymentToken: "pm_asdfakjsd23"
 };
 

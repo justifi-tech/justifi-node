@@ -29,6 +29,10 @@ export interface CreateCheckoutPayload {
   paymentMethodGroupId?: string;
 }
 
+export interface CompleteCheckoutPayload {
+  paymentToken: string;
+}
+
 export interface CheckoutApi {
   listCheckouts(subAccountId?: string): Promise<ApiResponse<Checkout[]>>;
   getCheckout(id: string): Promise<ApiResponse<Checkout>>;
@@ -40,6 +44,12 @@ export interface CheckoutApi {
   createCheckout(
     payload: CreateCheckoutPayload,
     subAccountId?: string
+  ): Promise<ApiResponse<Checkout>>;
+  completeCheckout(
+    id: string,
+    idempotencyKey: string,
+    payload: CompleteCheckoutPayload,
+    subAccountId: string
   ): Promise<ApiResponse<Checkout>>;
 }
 
@@ -91,6 +101,22 @@ export const createCheckout = (
   if (subAccountId) {
     req.withHeader("Sub-Account", subAccountId);
   }
+
+  return req.execute<ApiResponse<Checkout>>();
+};
+
+export const completeCheckout = (
+  token: string,
+  id: string,
+  idempotencyKey: string,
+  payload: CompleteCheckoutPayload,
+  subAccountId: string
+): Promise<ApiResponse<Checkout>> => {
+  const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/complete`)
+                                 .withAuth(token)
+                                 .withHeader("Sub-Account", subAccountId)
+                                 .withIdempotencyKey(idempotencyKey)
+                                 .withBody(payload);
 
   return req.execute<ApiResponse<Checkout>>();
 };
