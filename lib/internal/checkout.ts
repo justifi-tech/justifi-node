@@ -110,7 +110,7 @@ export const completeCheckout = (
   id: string,
   idempotencyKey: string,
   payload: CompleteCheckoutPayload,
-  subAccountId: string
+  subAccountId?: string
 ): Promise<ApiResponse<Checkout>> => {
   const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/complete`)
                                  .withAuth(token)
