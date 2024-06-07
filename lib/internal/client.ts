@@ -11,7 +11,7 @@ import {
   SubAccount,
   SubAccountApi,
 } from "./account";
-import { AccessToken, Authenticator, Credential, getAccessToken } from "./auth";
+import { AccessToken, Authenticator, Credential, getAccessToken, getWebComponentToken } from "./auth";
 import { Dispute, DisputeApi, getDispute, listDisputes, updateDispute, UpdateDispute } from "./disputes";
 import { BalanceTransaction, BalanceTransactionApi, getBalanceTransaction, listBalanceTransactions } from "./balance_transactions";
 import { ApiResponse } from "./http";
@@ -67,7 +67,7 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 import { Business, BusinessApi, createBusiness } from "./business";
-
+import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout"
 export class Justifi
   implements
   Authenticator,
@@ -85,6 +85,7 @@ export class Justifi
   CheckoutSessionApi,
   WebhookVerifier,
   ProvisioningApi,
+  CheckoutApi,
   BusinessApi {
   private static instance: Justifi;
 
@@ -92,6 +93,7 @@ export class Justifi
   private store: InMemoryStore<AccessToken>;
 
   private ACCESS_TOKEN_STORE_KEY = "access_token";
+  private WEB_COMPONENT_TOKEN_STORE_KEY = "web_component_token";
 
   private constructor() {
     this.credential = { clientId: "", clientSecret: "" };
@@ -131,6 +133,16 @@ export class Justifi
 
       return Promise.resolve(token);
     }
+  }
+
+
+  /*8
+   * resources: Check https://docs.justifi.tech/infrastructure/webComponentTokens
+   * for a list of possible resources
+   **/
+  async getWebComponentToken(resources: string[]): Promise<AccessToken> {
+    const token = await this.getToken();
+    return getWebComponentToken(token.accessToken, resources);
   }
 
   /**
@@ -405,6 +417,47 @@ export class Justifi
     const token = await this.getToken();
 
     return createBusiness(token.accessToken, legalName);
+  }
+
+  async createCheckout(payload: CreateCheckoutPayload, subAccountId?: string): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+
+    return createCheckout(token.accessToken, payload, subAccountId);
+  }
+
+  async listCheckouts(
+    subAccountId?: string | undefined
+  ): Promise<ApiResponse<Checkout[]>> {
+    const token = await this.getToken();
+    return listCheckouts(token.accessToken, subAccountId);
+  }
+
+  async getCheckout(id: string): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+    return getCheckout(token.accessToken, id);
+  }
+
+  async updateCheckout(
+    id: string,
+    amount?: number,
+    description?: string
+  ): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+    return updateCheckout(token.accessToken, id, amount, description);
+  }
+
+  async completeCheckout(
+    id: string,
+    idempotencyKey: string,
+    payload: CompleteCheckoutPayload,
+  ): Promise<ApiResponse<Checkout>> {
+    const token = await this.getToken();
+    return completeCheckout(
+      token.accessToken,
+      id,
+      idempotencyKey,
+      payload
+    );
   }
 
   verifySignature(

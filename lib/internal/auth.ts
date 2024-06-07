@@ -27,3 +27,15 @@ export const getAccessToken = async (
 
   return Promise.resolve(response);
 };
+
+export const getWebComponentToken = async (
+  token: string,
+  resources: string[]
+): Promise<AccessToken> => {
+  const response = await new JustifiRequest(RequestMethod.Post, "/v1/web_component_tokens")
+    .withAuth(token)
+    .withBody({resources: resources})
+    .execute<AccessToken>(false);
+
+  return Promise.resolve(response);
+};
