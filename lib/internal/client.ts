@@ -450,15 +450,13 @@ export class Justifi
     id: string,
     idempotencyKey: string,
     payload: CompleteCheckoutPayload,
-    subAccountId?: string
   ): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
     return completeCheckout(
       token.accessToken,
       id,
       idempotencyKey,
-      payload,
-      subAccountId
+      payload
     );
   }
 

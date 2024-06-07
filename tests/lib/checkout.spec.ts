@@ -150,8 +150,7 @@ describe("Checkout", () => {
       .post(`/v1/checkouts/${checkout1.id}/complete`, toSnakeCase(completeCheckoutPayload), {
         reqheaders: {
           ...authHeaders,
-          "Idempotency-Key": idempotencyKey,
-          "Sub-Account": subAccountId,
+          "Idempotency-Key": idempotencyKey
         },
       })
       .once()
@@ -160,8 +159,7 @@ describe("Checkout", () => {
       const checkout = await client.completeCheckout(
         checkout1.id,
         idempotencyKey,
-        completeCheckoutPayload,
-        subAccountId
+        completeCheckoutPayload
       );
       expect(checkout.data).toEqual(checkout1);
       expect(serverMock.isDone()).toEqual(true);
