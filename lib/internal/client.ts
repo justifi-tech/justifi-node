@@ -136,10 +136,14 @@ export class Justifi
   }
 
 
-  /*8
-   * resources: Check https://docs.justifi.tech/infrastructure/webComponentTokens
-   * for a list of possible resources
-   **/
+  /**
+   * Generates a web component token for client-side operations.
+   * 
+   * @endpoint POST /v1/web_component_tokens
+   * @param resources - List of resources the token should have access to
+   * @returns Promise resolving to the web component token
+   * @see https://docs.justifi.tech/infrastructure/webComponentTokens
+   */
   async getWebComponentToken(resources: string[]): Promise<AccessToken> {
     const token = await this.getToken();
     return getWebComponentToken(token.accessToken, resources);
@@ -176,6 +180,13 @@ export class Justifi
     return listSellerAccounts(token.accessToken, status);
   }
 
+  /**
+   * Lists sub-accounts with optional status filtering.
+   * 
+   * @endpoint GET /v1/sub_accounts
+   * @param status - Optional status filter: "created", "submitted", "information_needed", "enabled", "rejected", "disabled", "archived"
+   * @returns Promise resolving to array of sub-accounts
+   */
   async listSubAccounts(
     status?: AccountStatus | undefined
   ): Promise<ApiResponse<SubAccount[]>> {
@@ -191,11 +202,25 @@ export class Justifi
     return getSellerAccount(token.accessToken, id);
   }
 
+  /**
+   * Retrieves a sub-account by its ID.
+   * 
+   * @endpoint GET /v1/sub_accounts/{id}
+   * @param id - The sub-account ID to retrieve
+   * @returns Promise resolving to the sub-account details
+   */
   async getSubAccount(id: string): Promise<ApiResponse<SubAccount>> {
     const token = await this.getToken();
     return getSubAccount(token.accessToken, id);
   }
 
+  /**
+   * Lists refunds with optional sub-account filtering.
+   * 
+   * @endpoint GET /v1/refunds
+   * @param subAccountId - Optional sub-account to scope the refunds to
+   * @returns Promise resolving to array of refunds
+   */
   async listRefunds(
     subAccountId?: string | undefined
   ): Promise<ApiResponse<Refund[]>> {
@@ -203,11 +228,27 @@ export class Justifi
     return listRefunds(token.accessToken, subAccountId);
   }
 
+  /**
+   * Retrieves a refund by its ID.
+   * 
+   * @endpoint GET /v1/refunds/{id}
+   * @param id - The refund ID to retrieve
+   * @returns Promise resolving to the refund details
+   */
   async getRefund(id: string): Promise<ApiResponse<Refund>> {
     const token = await this.getToken();
     return getRefund(token.accessToken, id);
   }
 
+  /**
+   * Updates a refund with metadata.
+   * 
+   * @endpoint PATCH /v1/refunds/{id}
+   * @param id - The refund ID to update
+   * @param metadata - Metadata to attach to the refund
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @returns Promise resolving to the updated refund
+   */
   async updateRefund(
     id: string,
     metadata: any,
@@ -217,6 +258,15 @@ export class Justifi
     return updateRefund(token.accessToken, id, metadata, idempotencyKey);
   }
 
+  /**
+   * Creates a payment intent for deferred payment processing.
+   * 
+   * @endpoint POST /v1/payment_intents
+   * @param idempotencyKey - Unique key to prevent duplicate payment intents
+   * @param payload - Payment intent creation data
+   * @param subAccountId - Optional sub-account to scope the payment intent to
+   * @returns Promise resolving to the created payment intent
+   */
   async createPaymentIntent(
     idempotencyKey: string,
     payload: PaymentIntentCreatePayload,
@@ -231,6 +281,13 @@ export class Justifi
     );
   }
 
+  /**
+   * Lists payment intents with optional sub-account filtering.
+   * 
+   * @endpoint GET /v1/payment_intents
+   * @param subAccountId - Optional sub-account to scope the payment intents to
+   * @returns Promise resolving to array of payment intents
+   */
   async listPaymentIntents(
     subAccountId?: string
   ): Promise<ApiResponse<PaymentIntent[]>> {
@@ -238,11 +295,27 @@ export class Justifi
     return listPaymentIntents(token.accessToken, subAccountId);
   }
 
+  /**
+   * Retrieves a payment intent by its ID.
+   * 
+   * @endpoint GET /v1/payment_intents/{id}
+   * @param id - The payment intent ID to retrieve
+   * @returns Promise resolving to the payment intent details
+   */
   async getPaymentIntent(id: string): Promise<ApiResponse<PaymentIntent>> {
     const token = await this.getToken();
     return getPaymentIntent(token.accessToken, id);
   }
 
+  /**
+   * Updates a payment intent with new information.
+   * 
+   * @endpoint PATCH /v1/payment_intents/{id}
+   * @param id - The payment intent ID to update
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @param payload - Payment intent update data
+   * @returns Promise resolving to the updated payment intent
+   */
   async updatePaymentIntent(
     id: string,
     idempotencyKey: string,
@@ -252,6 +325,15 @@ export class Justifi
     return updatePaymentIntent(token.accessToken, id, idempotencyKey, payload);
   }
 
+  /**
+   * Captures a payment intent to complete the payment.
+   * 
+   * @endpoint POST /v1/payment_intents/{id}/capture
+   * @param id - The payment intent ID to capture
+   * @param idempotencyKey - Unique key to prevent duplicate captures
+   * @param payload - Payment capture data
+   * @returns Promise resolving to the captured payment intent
+   */
   async capturePaymentIntent(
     id: string,
     idempotencyKey: string,
@@ -261,6 +343,13 @@ export class Justifi
     return capturePaymentIntent(token.accessToken, id, idempotencyKey, payload);
   }
 
+  /**
+   * Lists payments associated with a payment intent.
+   * 
+   * @endpoint GET /v1/payment_intents/{id}/payments
+   * @param id - The payment intent ID to get payments for
+   * @returns Promise resolving to array of payments
+   */
   async listPaymentsForPaymentIntent(
     id: string
   ): Promise<ApiResponse<Payment[]>> {
@@ -268,6 +357,15 @@ export class Justifi
     return listPaymentsForPaymentIntent(token.accessToken, id);
   }
 
+  /**
+   * Creates a new payment with the specified amount and payment method.
+   * 
+   * @endpoint POST /v1/payments
+   * @param idempotencyKey - Unique key to prevent duplicate payments
+   * @param payload - Payment details including amount and payment method
+   * @param subAccountId - Optional sub-account to scope the payment to
+   * @returns Promise resolving to the created payment
+   */
   async createPayment(
     idempotencyKey: string,
     payload: CreatePaymentPayload,
@@ -282,6 +380,14 @@ export class Justifi
     );
   }
 
+  /**
+   * Lists payments with optional filtering.
+   * 
+   * @endpoint GET /v1/payments
+   * @param filters - Optional filters for payment list
+   * @param subAccountId - Optional sub-account to scope the payments to
+   * @returns Promise resolving to array of payments
+   */
   async listPayments(
     filters?: PaymentListFilters | undefined,
     subAccountId?: string | undefined
@@ -290,11 +396,27 @@ export class Justifi
     return listPayments(token.accessToken, filters, subAccountId);
   }
 
+  /**
+   * Retrieves a payment by its ID.
+   * 
+   * @endpoint GET /v1/payments/{id}
+   * @param id - The payment ID to retrieve
+   * @returns Promise resolving to the payment details
+   */
   async getPayment(id: string): Promise<ApiResponse<Payment>> {
     const token = await this.getToken();
     return getPayment(token.accessToken, id);
   }
 
+  /**
+   * Updates a payment with new information.
+   * 
+   * @endpoint PATCH /v1/payments/{id}
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @param id - The payment ID to update
+   * @param payload - Payment update data
+   * @returns Promise resolving to the updated payment
+   */
   async updatePayment(
     idempotencyKey: string,
     id: string,
@@ -304,6 +426,14 @@ export class Justifi
     return updatePayment(token.accessToken, idempotencyKey, id, payload);
   }
 
+  /**
+   * Captures an authorized payment.
+   * 
+   * @endpoint POST /v1/payments/{id}/capture
+   * @param idempotencyKey - Unique key to prevent duplicate captures
+   * @param id - The payment ID to capture
+   * @returns Promise resolving to the captured payment
+   */
   async capturePayment(
     idempotencyKey: string,
     id: string
@@ -312,6 +442,15 @@ export class Justifi
     return capturePayment(token.accessToken, idempotencyKey, id);
   }
 
+  /**
+   * Creates a refund for a payment.
+   * 
+   * @endpoint POST /v1/payments/{id}/refunds
+   * @param idempotencyKey - Unique key to prevent duplicate refunds
+   * @param id - The payment ID to refund
+   * @param payload - Refund details including amount and reason
+   * @returns Promise resolving to the created refund
+   */
   async refundPayment(
     idempotencyKey: string,
     id: string,
@@ -321,6 +460,13 @@ export class Justifi
     return refundPayment(token.accessToken, idempotencyKey, id, payload);
   }
 
+  /**
+   * Retrieves balance transactions for a specific payment.
+   * 
+   * @endpoint GET /v1/payments/{payment_id}/payment_balance_transactions
+   * @param paymentId - The payment ID to get balance transactions for
+   * @returns Promise resolving to array of balance transactions
+   */
   async getBalanceTransactions(
     paymentId: string
   ): Promise<ApiResponse<PaymentBalanceTransaction[]>> {
@@ -328,6 +474,15 @@ export class Justifi
     return getBalanceTransactions(token.accessToken, paymentId);
   }
 
+  /**
+   * Creates a new payment method for storing customer payment information.
+   * 
+   * @endpoint POST /v1/payment_methods
+   * @param payload - Payment method details (card, bank account, etc.)
+   * @param idempotencyKey - Unique key to prevent duplicate payment methods
+   * @param subAccountId - Optional sub-account to scope the payment method to
+   * @returns Promise resolving to the created payment method
+   */
   async createPaymentMethod(
     payload: CreatePaymentMethod,
     idempotencyKey: string,
@@ -337,6 +492,14 @@ export class Justifi
     return createPaymentMethod(token.accessToken, payload, idempotencyKey, subAccountId);
   }
 
+  /**
+   * Lists payment methods with optional filtering.
+   * 
+   * @endpoint GET /v1/payment_methods
+   * @param subAccountId - Optional sub-account to scope the payment methods to
+   * @param customerId - Optional customer ID to filter payment methods
+   * @returns Promise resolving to array of payment methods
+   */
   async listPaymentMethods(
     subAccountId?: string,
     customerId?: string,
@@ -345,6 +508,13 @@ export class Justifi
     return listPaymentMethods(token.accessToken, subAccountId, customerId);
   }
 
+  /**
+   * Retrieves a payment method by its token.
+   * 
+   * @endpoint GET /v1/payment_methods/{token}
+   * @param paymentMethodToken - The payment method token to retrieve
+   * @returns Promise resolving to the payment method details
+   */
   async getPaymentMethod(
     paymentMethodToken: string
   ): Promise<ApiResponse<PaymentMethods>> {
@@ -352,6 +522,15 @@ export class Justifi
     return getPaymentMethod(token.accessToken, paymentMethodToken);
   }
 
+  /**
+   * Updates a payment method with new information.
+   * 
+   * @endpoint PATCH /v1/payment_methods/{token}
+   * @param payload - Updated payment method data
+   * @param paymentMethodToken - The payment method token to update
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @returns Promise resolving to the updated payment method
+   */
   async updatePaymentMethod(
     payload: UpdatePaymentMethod,
     paymentMethodToken: string,
@@ -361,30 +540,76 @@ export class Justifi
     return updatePaymentMethod(token.accessToken, payload, paymentMethodToken, idempotencyKey)
   }
 
+  /**
+   * Lists disputes with optional sub-account filtering.
+   * 
+   * @endpoint GET /v1/disputes
+   * @param subAccountId - Optional sub-account to scope the disputes to
+   * @returns Promise resolving to array of disputes
+   */
   async listDisputes(subAccountId?: string): Promise<ApiResponse<Dispute>> {
     const token = await this.getToken();
     return listDisputes(token.accessToken, subAccountId);
   }
 
+  /**
+   * Retrieves a dispute by its ID.
+   * 
+   * @endpoint GET /v1/disputes/{id}
+   * @param id - The dispute ID to retrieve
+   * @returns Promise resolving to the dispute details
+   */
   async getDispute(id: string): Promise<ApiResponse<Dispute>> {
     const token = await this.getToken();
     return getDispute(token.accessToken, id);
   }
 
+  /**
+   * Updates a dispute with new information or evidence.
+   * 
+   * @endpoint PATCH /v1/disputes/{id}
+   * @param id - The dispute ID to update
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @param payload - Dispute update data
+   * @returns Promise resolving to the updated dispute
+   */
   async updateDispute(id: string, idempotencyKey: string, payload: UpdateDispute): Promise<ApiResponse<Dispute>> {
     const token = await this.getToken();
     return updateDispute(token.accessToken, id, idempotencyKey, payload);
   }
+  /**
+   * Lists payouts with optional filtering.
+   * 
+   * @endpoint GET /v1/payouts
+   * @param filters - Optional filters for payout list
+   * @returns Promise resolving to array of payouts
+   */
   async listPayouts(filters?: PayoutFilter): Promise<ApiResponse<Payout[]>> {
     const token = await this.getToken();
     return listPayouts(token.accessToken, filters);
   }
 
+  /**
+   * Retrieves a payout by its ID.
+   * 
+   * @endpoint GET /v1/payouts/{id}
+   * @param id - The payout ID to retrieve
+   * @returns Promise resolving to the payout details
+   */
   async getPayout(id: string): Promise<ApiResponse<Payout>> {
     const token = await this.getToken();
     return getPayout(token.accessToken, id);
   }
 
+  /**
+   * Updates a payout with new information.
+   * 
+   * @endpoint PATCH /v1/payouts/{id}
+   * @param id - The payout ID to update
+   * @param idempotencyKey - Unique key to prevent duplicate updates
+   * @param payload - Payout update data
+   * @returns Promise resolving to the updated payout
+   */
   async updatePayout(
     id: string,
     idempotencyKey: string,
@@ -393,38 +618,88 @@ export class Justifi
     const token = await this.getToken();
     return updatePayout(token.accessToken, id, idempotencyKey, payload);
   }
+  /**
+   * Lists balance transactions with optional payout filtering.
+   * 
+   * @endpoint GET /v1/balance_transactions
+   * @param payoutId - Optional payout ID to filter balance transactions
+   * @returns Promise resolving to array of balance transactions
+   */
   async listBalanceTransactions(payoutId?: string): Promise<ApiResponse<BalanceTransaction[]>> {
     const token = await this.getToken();
     return listBalanceTransactions(token.accessToken, payoutId)
   }
 
+  /**
+   * Retrieves a balance transaction by its ID.
+   * 
+   * @endpoint GET /v1/balance_transactions/{id}
+   * @param id - The balance transaction ID to retrieve
+   * @returns Promise resolving to the balance transaction details
+   */
   async getBalanceTransaction(id: string): Promise<ApiResponse<BalanceTransaction>> {
     const token = await this.getToken();
     return getBalanceTransaction(token.accessToken, id);
   }
 
+  /**
+   * Creates a new checkout session.
+   * 
+   * @endpoint POST /v1/checkout_sessions
+   * @param payload - Checkout session creation data
+   * @returns Promise resolving to the created checkout session
+   */
   async createCheckoutSession(payload: CreateCheckoutSession): Promise<ApiResponse<CreateCheckoutSessionResponse>> {
     const token = await this.getToken();
     return createCheckoutSession(token.accessToken, payload);
   }
 
+  /**
+   * Provisions a product for a business.
+   * 
+   * @endpoint POST /v1/entities/provisioning
+   * @param payload - Product provisioning data
+   * @returns Promise resolving to the provisioning response
+   */
   async provisionProduct(payload: ProvisionProductPayload): Promise<ApiResponse<ProvisionProductResponse>> {
     const token = await this.getToken();
     return provisionProduct(token.accessToken, payload);
   }
 
+  /**
+   * Creates a new business entity.
+   * 
+   * @endpoint POST /v1/entities/business
+   * @param legalName - The legal name of the business
+   * @returns Promise resolving to the created business
+   */
   async createBusiness(legalName: string): Promise<ApiResponse<Business>> {
     const token = await this.getToken();
 
     return createBusiness(token.accessToken, legalName);
   }
 
+  /**
+   * Creates a new checkout.
+   * 
+   * @endpoint POST /v1/checkouts
+   * @param payload - Checkout creation data
+   * @param subAccountId - Optional sub-account to scope the checkout to
+   * @returns Promise resolving to the created checkout
+   */
   async createCheckout(payload: CreateCheckoutPayload, subAccountId?: string): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
 
     return createCheckout(token.accessToken, payload, subAccountId);
   }
 
+  /**
+   * Lists checkouts with optional sub-account filtering.
+   * 
+   * @endpoint GET /v1/checkouts
+   * @param subAccountId - Optional sub-account to scope the checkouts to
+   * @returns Promise resolving to array of checkouts
+   */
   async listCheckouts(
     subAccountId?: string | undefined
   ): Promise<ApiResponse<Checkout[]>> {
@@ -432,11 +707,27 @@ export class Justifi
     return listCheckouts(token.accessToken, subAccountId);
   }
 
+  /**
+   * Retrieves a checkout by its ID.
+   * 
+   * @endpoint GET /v1/checkouts/{id}
+   * @param id - The checkout ID to retrieve
+   * @returns Promise resolving to the checkout details
+   */
   async getCheckout(id: string): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
     return getCheckout(token.accessToken, id);
   }
 
+  /**
+   * Updates a checkout with new information.
+   * 
+   * @endpoint PATCH /v1/checkouts/{id}
+   * @param id - The checkout ID to update
+   * @param amount - Optional new amount
+   * @param description - Optional new description
+   * @returns Promise resolving to the updated checkout
+   */
   async updateCheckout(
     id: string,
     amount?: number,
@@ -446,6 +737,15 @@ export class Justifi
     return updateCheckout(token.accessToken, id, amount, description);
   }
 
+  /**
+   * Completes a checkout by processing the payment.
+   * 
+   * @endpoint POST /v1/checkouts/{id}/complete
+   * @param id - The checkout ID to complete
+   * @param idempotencyKey - Unique key to prevent duplicate completions
+   * @param payload - Checkout completion data
+   * @returns Promise resolving to the completed checkout
+   */
   async completeCheckout(
     id: string,
     idempotencyKey: string,

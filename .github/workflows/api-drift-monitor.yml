@@ -1,0 +1,49 @@
+name: API Drift Monitor
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        default: 'false'
+
+jobs:
+  check-api-drift:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run API drift check
+        id: drift-check
+        run: node scripts/check-api-drift.js
+        env:
+          FORCE_UPDATE: ${{ github.event.inputs.force_update || 'false' }}
+          
+      - name: Create GitHub issue if drift detected
+        if: steps.drift-check.outputs.drift_detected == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "API Drift Detected - $(date +'%Y-%m-%d')" \
+            --label "api-drift" \
+            --body-file drift-report.md
+            
+      - name: Clean up temporary files
+        if: always()
+        run: rm -f drift-report.md
