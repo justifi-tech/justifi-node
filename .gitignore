@@ -43,3 +43,8 @@ typings/
 
 # Jest coverage
 coverage
+
+# API drift checker temporary files
+drift-report.md
+openapi-spec.json
+sdk-endpoints.json
