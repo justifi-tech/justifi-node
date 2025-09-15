@@ -87,6 +87,8 @@ export enum RequestMethod {
   Get = "GET",
   Post = "POST",
   Patch = "PATCH",
+  Put = "PUT",
+  Delete = "DELETE",
 }
 
 export type RequestHeaders = { [key: string]: string };

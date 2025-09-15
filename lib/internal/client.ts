@@ -67,7 +67,16 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 import { Business, BusinessApi, createBusiness } from "./business";
-import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout"
+import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout";
+import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
+import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
+import { EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
+import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
+import { EntityIdentity, CreateEntityIdentityPayload, UpdateEntityIdentityPayload, EntityIdentityApi, createEntityIdentity, listEntityIdentities, getEntityIdentity, updateEntityIdentity } from "./identity";
+import { Terminal, UpdateTerminalPayload, TerminalOrder, CreateTerminalOrderPayload, TerminalPayPayload, TerminalApi, listTerminals, getTerminal, updateTerminal, identifyTerminal, getTerminalStatus, listTerminalOrders, createTerminalOrder, getTerminalOrder, payViaTerminal } from "./terminal";
+import { PaymentMethodGroup, CreatePaymentMethodGroupPayload, UpdatePaymentMethodGroupPayload, PaymentMethodGroupApi, createPaymentMethodGroup, listPaymentMethodGroups, getPaymentMethodGroup, updatePaymentMethodGroup, removePaymentMethodFromGroup } from "./payment_method_group";
+import { Report, CreateReportPayload, ReportApi, createReport, listReports, getReport, getPayoutReport, getProceedsReport } from "./report";
+import { DisputeEvidence, DisputeResponse, UpdateDisputeResponsePayload, createDisputeEvidence, submitDisputeResponse, updateDisputeResponse } from "./disputes"
 export class Justifi
   implements
   Authenticator,
@@ -86,7 +95,15 @@ export class Justifi
   WebhookVerifier,
   ProvisioningApi,
   CheckoutApi,
-  BusinessApi {
+  BusinessApi,
+  EntityAddressApi,
+  EntityBankAccountApi,
+  EntityBusinessApi,
+  EntityDocumentApi,
+  EntityIdentityApi,
+  TerminalApi,
+  PaymentMethodGroupApi,
+  ReportApi {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -758,6 +775,504 @@ export class Justifi
       idempotencyKey,
       payload
     );
+  }
+
+  // Entity Address Methods
+  
+  /**
+   * Creates a new address.
+   * 
+   * @endpoint POST /v1/entities/address
+   * @param payload - Address creation data
+   * @returns Promise resolving to the created address
+   */
+  async createEntityAddress(payload: CreateEntityAddressPayload): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return createEntityAddress(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all addresses.
+   * 
+   * @endpoint GET /v1/entities/address
+   * @returns Promise resolving to array of addresses
+   */
+  async listEntityAddresses(): Promise<ApiResponse<EntityAddress[]>> {
+    const token = await this.getToken();
+    return listEntityAddresses(token.accessToken);
+  }
+
+  /**
+   * Retrieves an address by its ID.
+   * 
+   * @endpoint GET /v1/entities/address/{id}
+   * @param id - The address ID to retrieve
+   * @returns Promise resolving to the address details
+   */
+  async getEntityAddress(id: string): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return getEntityAddress(token.accessToken, id);
+  }
+
+  /**
+   * Updates an address with new information.
+   * 
+   * @endpoint PATCH /v1/entities/address/{id}
+   * @param id - The address ID to update
+   * @param payload - Address update data
+   * @returns Promise resolving to the updated address
+   */
+  async updateEntityAddress(id: string, payload: UpdateEntityAddressPayload): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return updateEntityAddress(token.accessToken, id, payload);
+  }
+
+  // Entity Bank Account Methods
+
+  /**
+   * Creates a new bank account.
+   * 
+   * @endpoint POST /v1/entities/bank_accounts
+   * @param payload - Bank account creation data
+   * @returns Promise resolving to the created bank account
+   */
+  async createEntityBankAccount(payload: CreateEntityBankAccountPayload): Promise<ApiResponse<EntityBankAccount>> {
+    const token = await this.getToken();
+    return createEntityBankAccount(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all bank accounts.
+   * 
+   * @endpoint GET /v1/entities/bank_accounts
+   * @returns Promise resolving to array of bank accounts
+   */
+  async listEntityBankAccounts(): Promise<ApiResponse<EntityBankAccount[]>> {
+    const token = await this.getToken();
+    return listEntityBankAccounts(token.accessToken);
+  }
+
+  /**
+   * Retrieves a bank account by its ID.
+   * 
+   * @endpoint GET /v1/entities/bank_accounts/{id}
+   * @param id - The bank account ID to retrieve
+   * @returns Promise resolving to the bank account details
+   */
+  async getEntityBankAccount(id: string): Promise<ApiResponse<EntityBankAccount>> {
+    const token = await this.getToken();
+    return getEntityBankAccount(token.accessToken, id);
+  }
+
+  // Entity Business Methods
+
+  /**
+   * Creates a new business entity with full payload support.
+   * 
+   * @endpoint POST /v1/entities/business
+   * @param payload - Business creation data
+   * @returns Promise resolving to the created business
+   */
+  async createEntityBusiness(payload: CreateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return createEntityBusiness(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all businesses.
+   * 
+   * @endpoint GET /v1/entities/business
+   * @returns Promise resolving to array of businesses
+   */
+  async listEntityBusinesses(): Promise<ApiResponse<EntityBusiness[]>> {
+    const token = await this.getToken();
+    return listEntityBusinesses(token.accessToken);
+  }
+
+  /**
+   * Retrieves a business by its ID.
+   * 
+   * @endpoint GET /v1/entities/business/{id}
+   * @param id - The business ID to retrieve
+   * @returns Promise resolving to the business details
+   */
+  async getEntityBusiness(id: string): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return getEntityBusiness(token.accessToken, id);
+  }
+
+  /**
+   * Updates a business with new information.
+   * 
+   * @endpoint PATCH /v1/entities/business/{id}
+   * @param id - The business ID to update
+   * @param payload - Business update data
+   * @returns Promise resolving to the updated business
+   */
+  async updateEntityBusiness(id: string, payload: UpdateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return updateEntityBusiness(token.accessToken, id, payload);
+  }
+
+  // Entity Document Methods
+
+  /**
+   * Creates a new document.
+   * 
+   * @endpoint POST /v1/entities/document
+   * @param payload - Document creation data
+   * @returns Promise resolving to the created document
+   */
+  async createEntityDocument(payload: CreateEntityDocumentPayload): Promise<ApiResponse<EntityDocument>> {
+    const token = await this.getToken();
+    return createEntityDocument(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all documents.
+   * 
+   * @endpoint GET /v1/entities/document
+   * @returns Promise resolving to array of documents
+   */
+  async listEntityDocuments(): Promise<ApiResponse<EntityDocument[]>> {
+    const token = await this.getToken();
+    return listEntityDocuments(token.accessToken);
+  }
+
+  /**
+   * Retrieves a document by its ID.
+   * 
+   * @endpoint GET /v1/entities/document/{id}
+   * @param id - The document ID to retrieve
+   * @returns Promise resolving to the document details
+   */
+  async getEntityDocument(id: string): Promise<ApiResponse<EntityDocument>> {
+    const token = await this.getToken();
+    return getEntityDocument(token.accessToken, id);
+  }
+
+  // Entity Identity Methods
+
+  /**
+   * Creates a new identity.
+   * 
+   * @endpoint POST /v1/entities/identity
+   * @param payload - Identity creation data
+   * @returns Promise resolving to the created identity
+   */
+  async createEntityIdentity(payload: CreateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return createEntityIdentity(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all identities.
+   * 
+   * @endpoint GET /v1/entities/identity
+   * @returns Promise resolving to array of identities
+   */
+  async listEntityIdentities(): Promise<ApiResponse<EntityIdentity[]>> {
+    const token = await this.getToken();
+    return listEntityIdentities(token.accessToken);
+  }
+
+  /**
+   * Retrieves an identity by its ID.
+   * 
+   * @endpoint GET /v1/entities/identity/{id}
+   * @param id - The identity ID to retrieve
+   * @returns Promise resolving to the identity details
+   */
+  async getEntityIdentity(id: string): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return getEntityIdentity(token.accessToken, id);
+  }
+
+  /**
+   * Updates an identity with new information.
+   * 
+   * @endpoint PATCH /v1/entities/identity/{id}
+   * @param id - The identity ID to update
+   * @param payload - Identity update data
+   * @returns Promise resolving to the updated identity
+   */
+  async updateEntityIdentity(id: string, payload: UpdateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return updateEntityIdentity(token.accessToken, id, payload);
+  }
+
+  // Terminal Methods
+
+  /**
+   * Lists all terminals.
+   * 
+   * @endpoint GET /v1/terminals
+   * @returns Promise resolving to array of terminals
+   */
+  async listTerminals(): Promise<ApiResponse<Terminal[]>> {
+    const token = await this.getToken();
+    return listTerminals(token.accessToken);
+  }
+
+  /**
+   * Retrieves a terminal by its ID.
+   * 
+   * @endpoint GET /v1/terminals/{id}
+   * @param id - The terminal ID to retrieve
+   * @returns Promise resolving to the terminal details
+   */
+  async getTerminal(id: string): Promise<ApiResponse<Terminal>> {
+    const token = await this.getToken();
+    return getTerminal(token.accessToken, id);
+  }
+
+  /**
+   * Updates a terminal with new information.
+   * 
+   * @endpoint PATCH /v1/terminals/{id}
+   * @param id - The terminal ID to update
+   * @param payload - Terminal update data
+   * @returns Promise resolving to the updated terminal
+   */
+  async updateTerminal(id: string, payload: UpdateTerminalPayload): Promise<ApiResponse<Terminal>> {
+    const token = await this.getToken();
+    return updateTerminal(token.accessToken, id, payload);
+  }
+
+  /**
+   * Identifies a terminal.
+   * 
+   * @endpoint POST /v1/terminals/{id}/identify
+   * @param id - The terminal ID to identify
+   * @returns Promise resolving to void
+   */
+  async identifyTerminal(id: string): Promise<ApiResponse<void>> {
+    const token = await this.getToken();
+    return identifyTerminal(token.accessToken, id);
+  }
+
+  /**
+   * Gets the status of a terminal.
+   * 
+   * @endpoint GET /v1/terminals/{id}/status
+   * @param id - The terminal ID to get status for
+   * @returns Promise resolving to the terminal status
+   */
+  async getTerminalStatus(id: string): Promise<ApiResponse<{ status: any }>> {
+    const token = await this.getToken();
+    return getTerminalStatus(token.accessToken, id);
+  }
+
+  /**
+   * Lists all terminal orders.
+   * 
+   * @endpoint GET /v1/terminals/orders
+   * @returns Promise resolving to array of terminal orders
+   */
+  async listTerminalOrders(): Promise<ApiResponse<TerminalOrder[]>> {
+    const token = await this.getToken();
+    return listTerminalOrders(token.accessToken);
+  }
+
+  /**
+   * Creates a new terminal order.
+   * 
+   * @endpoint POST /v1/terminals/orders
+   * @param payload - Terminal order creation data
+   * @returns Promise resolving to the created terminal order
+   */
+  async createTerminalOrder(payload: CreateTerminalOrderPayload): Promise<ApiResponse<TerminalOrder>> {
+    const token = await this.getToken();
+    return createTerminalOrder(token.accessToken, payload);
+  }
+
+  /**
+   * Retrieves a terminal order by its ID.
+   * 
+   * @endpoint GET /v1/terminals/orders/{id}
+   * @param id - The terminal order ID to retrieve
+   * @returns Promise resolving to the terminal order details
+   */
+  async getTerminalOrder(id: string): Promise<ApiResponse<TerminalOrder>> {
+    const token = await this.getToken();
+    return getTerminalOrder(token.accessToken, id);
+  }
+
+  /**
+   * Processes a payment via terminal.
+   * 
+   * @endpoint POST /v1/terminals/pay
+   * @param payload - Terminal payment data
+   * @returns Promise resolving to the payment result
+   */
+  async payViaTerminal(payload: TerminalPayPayload): Promise<ApiResponse<any>> {
+    const token = await this.getToken();
+    return payViaTerminal(token.accessToken, payload);
+  }
+
+  // Payment Method Group Methods
+
+  /**
+   * Creates a new payment method group.
+   * 
+   * @endpoint POST /v1/payment_method_groups
+   * @param payload - Payment method group creation data
+   * @returns Promise resolving to the created payment method group
+   */
+  async createPaymentMethodGroup(payload: CreatePaymentMethodGroupPayload): Promise<ApiResponse<PaymentMethodGroup>> {
+    const token = await this.getToken();
+    return createPaymentMethodGroup(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all payment method groups.
+   * 
+   * @endpoint GET /v1/payment_method_groups
+   * @returns Promise resolving to array of payment method groups
+   */
+  async listPaymentMethodGroups(): Promise<ApiResponse<PaymentMethodGroup[]>> {
+    const token = await this.getToken();
+    return listPaymentMethodGroups(token.accessToken);
+  }
+
+  /**
+   * Retrieves a payment method group by its ID.
+   * 
+   * @endpoint GET /v1/payment_method_groups/{id}
+   * @param id - The payment method group ID to retrieve
+   * @returns Promise resolving to the payment method group details
+   */
+  async getPaymentMethodGroup(id: string): Promise<ApiResponse<PaymentMethodGroup>> {
+    const token = await this.getToken();
+    return getPaymentMethodGroup(token.accessToken, id);
+  }
+
+  /**
+   * Updates a payment method group with new information.
+   * 
+   * @endpoint PATCH /v1/payment_method_groups/{id}
+   * @param id - The payment method group ID to update
+   * @param payload - Payment method group update data
+   * @returns Promise resolving to the updated payment method group
+   */
+  async updatePaymentMethodGroup(id: string, payload: UpdatePaymentMethodGroupPayload): Promise<ApiResponse<PaymentMethodGroup>> {
+    const token = await this.getToken();
+    return updatePaymentMethodGroup(token.accessToken, id, payload);
+  }
+
+  /**
+   * Removes a payment method from a payment method group.
+   * 
+   * @endpoint DELETE /v1/payment_method_groups/{id}/payment_methods/{payment_method_id}
+   * @param groupId - The payment method group ID
+   * @param paymentMethodId - The payment method ID to remove
+   * @returns Promise resolving to void
+   */
+  async removePaymentMethodFromGroup(groupId: string, paymentMethodId: string): Promise<ApiResponse<void>> {
+    const token = await this.getToken();
+    return removePaymentMethodFromGroup(token.accessToken, groupId, paymentMethodId);
+  }
+
+  // Report Methods
+
+  /**
+   * Creates a new report.
+   * 
+   * @endpoint POST /v1/reports
+   * @param payload - Report creation data
+   * @returns Promise resolving to the created report
+   */
+  async createReport(payload: CreateReportPayload): Promise<ApiResponse<Report>> {
+    const token = await this.getToken();
+    return createReport(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all reports.
+   * 
+   * @endpoint GET /v1/reports
+   * @returns Promise resolving to array of reports
+   */
+  async listReports(): Promise<ApiResponse<Report[]>> {
+    const token = await this.getToken();
+    return listReports(token.accessToken);
+  }
+
+  /**
+   * Retrieves a report by its ID.
+   * 
+   * @endpoint GET /v1/reports/{id}
+   * @param id - The report ID to retrieve
+   * @returns Promise resolving to the report details
+   */
+  async getReport(id: string): Promise<ApiResponse<Report>> {
+    const token = await this.getToken();
+    return getReport(token.accessToken, id);
+  }
+
+  /**
+   * Gets a payout CSV report.
+   * 
+   * @endpoint GET /v1/reports/payouts/{id}
+   * @param id - The payout ID to get report for
+   * @returns Promise resolving to the CSV report data
+   */
+  async getPayoutReport(id: string): Promise<ApiResponse<string>> {
+    const token = await this.getToken();
+    return getPayoutReport(token.accessToken, id);
+  }
+
+  /**
+   * Gets a proceeds report.
+   * 
+   * @endpoint GET /v1/reports/proceeds/{id}
+   * @param id - The proceeds ID to get report for
+   * @returns Promise resolving to the proceeds report data
+   */
+  async getProceedsReport(id: string): Promise<ApiResponse<string>> {
+    const token = await this.getToken();
+    return getProceedsReport(token.accessToken, id);
+  }
+
+  // Additional Dispute Methods
+
+  /**
+   * Creates dispute evidence.
+   * 
+   * @endpoint PUT /v1/disputes/{id}/evidence
+   * @param id - The dispute ID
+   * @param evidence - Evidence data
+   * @returns Promise resolving to the updated dispute
+   */
+  async createDisputeEvidence(id: string, evidence: DisputeEvidence): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return createDisputeEvidence(token.accessToken, id, evidence);
+  }
+
+  /**
+   * Submits a dispute response.
+   * 
+   * @endpoint POST /v1/disputes/{id}/response
+   * @param id - The dispute ID
+   * @param response - Dispute response data
+   * @returns Promise resolving to the updated dispute
+   */
+  async submitDisputeResponse(id: string, response: DisputeResponse): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return submitDisputeResponse(token.accessToken, id, response);
+  }
+
+  /**
+   * Updates a dispute response.
+   * 
+   * @endpoint PATCH /v1/disputes/{id}/response
+   * @param id - The dispute ID
+   * @param payload - Updated dispute response data
+   * @returns Promise resolving to the updated dispute
+   */
+  async updateDisputeResponse(id: string, payload: UpdateDisputeResponsePayload): Promise<ApiResponse<Dispute>> {
+    const token = await this.getToken();
+    return updateDisputeResponse(token.accessToken, id, payload);
   }
 
   verifySignature(
