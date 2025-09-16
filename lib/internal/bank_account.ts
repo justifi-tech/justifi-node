@@ -21,10 +21,10 @@ export interface CreateEntityBankAccountPayload {
 }
 
 export interface EntityBankAccountListFilters {
-  createdBefore?: string;
-  createdAfter?: string;
-  accountType?: string;
-  verified?: boolean;
+  business_id?: string;
+  limit?: number;
+  after_cursor?: string;
+  before_cursor?: string;
 }
 
 export interface EntityBankAccountApi {

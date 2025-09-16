@@ -21,11 +21,9 @@ export interface CreateEntityDocumentPayload {
 }
 
 export interface EntityDocumentListFilters {
-  createdBefore?: string;
-  createdAfter?: string;
-  documentType?: string;
-  fileType?: string;
-  status?: string;
+  limit?: number;
+  after_cursor?: string;
+  before_cursor?: string;
 }
 
 export interface EntityDocumentApi {

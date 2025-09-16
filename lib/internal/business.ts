@@ -74,12 +74,9 @@ export interface UpdateEntityBusinessPayload {
 }
 
 export interface EntityBusinessListFilters {
-  createdBefore?: string;
-  createdAfter?: string;
-  businessType?: string;
-  businessStructure?: string;
-  industry?: string;
-  classification?: string;
+  limit?: number;
+  after_cursor?: string;
+  before_cursor?: string;
 }
 
 export interface BusinessApi {
@@ -116,7 +113,7 @@ export async function createEntityBusiness(
  * 
  * @endpoint GET /v1/entities/business
  * @param token - Access token for authentication
- * @param filters - Optional filters for pagination and search
+ * @param filters - Optional filters for pagination
  * @returns Promise resolving to array of businesses
  */
 export async function listEntityBusinesses(

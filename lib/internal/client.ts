@@ -875,8 +875,7 @@ export class Justifi
   /**
    * Lists all businesses with optional filtering.
    * 
-   * @endpoint GET /v1/entities/business
-   * @param filters - Optional filters for pagination and search
+   * @param filters - Optional filters for pagination
    * @returns Promise resolving to array of businesses
    */
   async listEntityBusinesses(filters?: EntityBusinessListFilters): Promise<ApiResponse<EntityBusiness[]>> {

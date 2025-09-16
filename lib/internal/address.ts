@@ -31,11 +31,9 @@ export interface UpdateEntityAddressPayload {
 }
 
 export interface EntityAddressListFilters {
-  createdBefore?: string;
-  createdAfter?: string;
-  city?: string;
-  state?: string;
-  country?: string;
+  limit?: number;
+  after_cursor?: string;
+  before_cursor?: string;
 }
 
 export interface EntityAddressApi {

@@ -39,10 +39,9 @@ export interface UpdateEntityIdentityPayload {
 }
 
 export interface EntityIdentityListFilters {
-  createdBefore?: string;
-  createdAfter?: string;
-  verificationStatus?: string;
-  email?: string;
+  limit?: number;
+  after_cursor?: string;
+  before_cursor?: string;
 }
 
 export interface EntityIdentityApi {
