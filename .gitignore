@@ -48,3 +48,6 @@ coverage
 drift-report.md
 openapi-spec.json
 sdk-endpoints.json
+
+# Claude Code settings
+.claude/
