@@ -20,9 +20,16 @@ export interface CreateEntityBankAccountPayload {
   bankName?: string;
 }
 
+export interface EntityBankAccountListFilters {
+  createdBefore?: string;
+  createdAfter?: string;
+  accountType?: string;
+  verified?: boolean;
+}
+
 export interface EntityBankAccountApi {
   createEntityBankAccount(payload: CreateEntityBankAccountPayload): Promise<ApiResponse<EntityBankAccount>>;
-  listEntityBankAccounts(): Promise<ApiResponse<EntityBankAccount[]>>;
+  listEntityBankAccounts(filters?: EntityBankAccountListFilters): Promise<ApiResponse<EntityBankAccount[]>>;
   getEntityBankAccount(id: string): Promise<ApiResponse<EntityBankAccount>>;
 }
 
@@ -45,17 +52,24 @@ export async function createEntityBankAccount(
 }
 
 /**
- * Lists all bank accounts.
+ * Lists all bank accounts with optional filtering.
  * 
  * @endpoint GET /v1/entities/bank_accounts
  * @param token - Access token for authentication
+ * @param filters - Optional filters for pagination and search
  * @returns Promise resolving to array of bank accounts
  */
 export async function listEntityBankAccounts(
-  token: string
+  token: string,
+  filters?: EntityBankAccountListFilters
 ): Promise<ApiResponse<EntityBankAccount[]>> {
   const request = new JustifiRequest(RequestMethod.Get, "/v1/entities/bank_accounts")
     .withAuth(token);
+  
+  if (filters) {
+    request.withQueryParams(filters);
+  }
+  
   return request.execute<ApiResponse<EntityBankAccount[]>>();
 }
 

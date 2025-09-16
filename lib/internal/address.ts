@@ -30,9 +30,17 @@ export interface UpdateEntityAddressPayload {
   country?: string;
 }
 
+export interface EntityAddressListFilters {
+  createdBefore?: string;
+  createdAfter?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+}
+
 export interface EntityAddressApi {
   createEntityAddress(payload: CreateEntityAddressPayload): Promise<ApiResponse<EntityAddress>>;
-  listEntityAddresses(): Promise<ApiResponse<EntityAddress[]>>;
+  listEntityAddresses(filters?: EntityAddressListFilters): Promise<ApiResponse<EntityAddress[]>>;
   getEntityAddress(id: string): Promise<ApiResponse<EntityAddress>>;
   updateEntityAddress(id: string, payload: UpdateEntityAddressPayload): Promise<ApiResponse<EntityAddress>>;
 }
@@ -56,17 +64,24 @@ export async function createEntityAddress(
 }
 
 /**
- * Lists all addresses.
+ * Lists all addresses with optional filtering.
  * 
  * @endpoint GET /v1/entities/address
  * @param token - Access token for authentication
+ * @param filters - Optional filters for pagination and search
  * @returns Promise resolving to array of addresses
  */
 export async function listEntityAddresses(
-  token: string
+  token: string,
+  filters?: EntityAddressListFilters
 ): Promise<ApiResponse<EntityAddress[]>> {
   const request = new JustifiRequest(RequestMethod.Get, "/v1/entities/address")
     .withAuth(token);
+  
+  if (filters) {
+    request.withQueryParams(filters);
+  }
+  
   return request.execute<ApiResponse<EntityAddress[]>>();
 }
 

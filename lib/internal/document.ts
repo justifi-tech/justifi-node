@@ -20,9 +20,17 @@ export interface CreateEntityDocumentPayload {
   metadata?: Record<string, any>;
 }
 
+export interface EntityDocumentListFilters {
+  createdBefore?: string;
+  createdAfter?: string;
+  documentType?: string;
+  fileType?: string;
+  status?: string;
+}
+
 export interface EntityDocumentApi {
   createEntityDocument(payload: CreateEntityDocumentPayload): Promise<ApiResponse<EntityDocument>>;
-  listEntityDocuments(): Promise<ApiResponse<EntityDocument[]>>;
+  listEntityDocuments(filters?: EntityDocumentListFilters): Promise<ApiResponse<EntityDocument[]>>;
   getEntityDocument(id: string): Promise<ApiResponse<EntityDocument>>;
 }
 
@@ -45,17 +53,24 @@ export async function createEntityDocument(
 }
 
 /**
- * Lists all documents.
+ * Lists all documents with optional filtering.
  * 
  * @endpoint GET /v1/entities/document
  * @param token - Access token for authentication
+ * @param filters - Optional filters for pagination and search
  * @returns Promise resolving to array of documents
  */
 export async function listEntityDocuments(
-  token: string
+  token: string,
+  filters?: EntityDocumentListFilters
 ): Promise<ApiResponse<EntityDocument[]>> {
   const request = new JustifiRequest(RequestMethod.Get, "/v1/entities/document")
     .withAuth(token);
+  
+  if (filters) {
+    request.withQueryParams(filters);
+  }
+  
   return request.execute<ApiResponse<EntityDocument[]>>();
 }
 

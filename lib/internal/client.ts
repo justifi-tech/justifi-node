@@ -66,12 +66,12 @@ import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
-import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
+import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessListFilters, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
 import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout";
-import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
-import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
-import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
-import { EntityIdentity, CreateEntityIdentityPayload, UpdateEntityIdentityPayload, EntityIdentityApi, createEntityIdentity, listEntityIdentities, getEntityIdentity, updateEntityIdentity } from "./identity";
+import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressListFilters, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
+import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
+import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentListFilters, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
+import { EntityIdentity, CreateEntityIdentityPayload, UpdateEntityIdentityPayload, EntityIdentityListFilters, EntityIdentityApi, createEntityIdentity, listEntityIdentities, getEntityIdentity, updateEntityIdentity } from "./identity";
 export class Justifi
   implements
   Authenticator,
@@ -784,14 +784,15 @@ export class Justifi
   }
 
   /**
-   * Lists all addresses.
+   * Lists all addresses with optional filtering.
    * 
    * @endpoint GET /v1/entities/address
+   * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of addresses
    */
-  async listEntityAddresses(): Promise<ApiResponse<EntityAddress[]>> {
+  async listEntityAddresses(filters?: EntityAddressListFilters): Promise<ApiResponse<EntityAddress[]>> {
     const token = await this.getToken();
-    return listEntityAddresses(token.accessToken);
+    return listEntityAddresses(token.accessToken, filters);
   }
 
   /**
@@ -834,14 +835,15 @@ export class Justifi
   }
 
   /**
-   * Lists all bank accounts.
+   * Lists all bank accounts with optional filtering.
    * 
    * @endpoint GET /v1/entities/bank_accounts
+   * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of bank accounts
    */
-  async listEntityBankAccounts(): Promise<ApiResponse<EntityBankAccount[]>> {
+  async listEntityBankAccounts(filters?: EntityBankAccountListFilters): Promise<ApiResponse<EntityBankAccount[]>> {
     const token = await this.getToken();
-    return listEntityBankAccounts(token.accessToken);
+    return listEntityBankAccounts(token.accessToken, filters);
   }
 
   /**
@@ -871,14 +873,15 @@ export class Justifi
   }
 
   /**
-   * Lists all businesses.
+   * Lists all businesses with optional filtering.
    * 
    * @endpoint GET /v1/entities/business
+   * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of businesses
    */
-  async listEntityBusinesses(): Promise<ApiResponse<EntityBusiness[]>> {
+  async listEntityBusinesses(filters?: EntityBusinessListFilters): Promise<ApiResponse<EntityBusiness[]>> {
     const token = await this.getToken();
-    return listEntityBusinesses(token.accessToken);
+    return listEntityBusinesses(token.accessToken, filters);
   }
 
   /**
@@ -921,14 +924,15 @@ export class Justifi
   }
 
   /**
-   * Lists all documents.
+   * Lists all documents with optional filtering.
    * 
    * @endpoint GET /v1/entities/document
+   * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of documents
    */
-  async listEntityDocuments(): Promise<ApiResponse<EntityDocument[]>> {
+  async listEntityDocuments(filters?: EntityDocumentListFilters): Promise<ApiResponse<EntityDocument[]>> {
     const token = await this.getToken();
-    return listEntityDocuments(token.accessToken);
+    return listEntityDocuments(token.accessToken, filters);
   }
 
   /**
@@ -958,14 +962,15 @@ export class Justifi
   }
 
   /**
-   * Lists all identities.
+   * Lists all identities with optional filtering.
    * 
    * @endpoint GET /v1/entities/identity
+   * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of identities
    */
-  async listEntityIdentities(): Promise<ApiResponse<EntityIdentity[]>> {
+  async listEntityIdentities(filters?: EntityIdentityListFilters): Promise<ApiResponse<EntityIdentity[]>> {
     const token = await this.getToken();
-    return listEntityIdentities(token.accessToken);
+    return listEntityIdentities(token.accessToken, filters);
   }
 
   /**

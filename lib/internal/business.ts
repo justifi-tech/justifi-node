@@ -73,13 +73,22 @@ export interface UpdateEntityBusinessPayload {
   owners?: Record<string, any>[];
 }
 
+export interface EntityBusinessListFilters {
+  createdBefore?: string;
+  createdAfter?: string;
+  businessType?: string;
+  businessStructure?: string;
+  industry?: string;
+  classification?: string;
+}
+
 export interface BusinessApi {
   createBusiness(legalName: string): Promise<ApiResponse<Business>>
 }
 
 export interface EntityBusinessApi {
   createEntityBusiness(payload: CreateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>>;
-  listEntityBusinesses(): Promise<ApiResponse<EntityBusiness[]>>;
+  listEntityBusinesses(filters?: EntityBusinessListFilters): Promise<ApiResponse<EntityBusiness[]>>;
   getEntityBusiness(id: string): Promise<ApiResponse<EntityBusiness>>;
   updateEntityBusiness(id: string, payload: UpdateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>>;
 }
@@ -103,17 +112,24 @@ export async function createEntityBusiness(
 }
 
 /**
- * Lists all businesses.
+ * Lists all businesses with optional filtering.
  * 
  * @endpoint GET /v1/entities/business
  * @param token - Access token for authentication
+ * @param filters - Optional filters for pagination and search
  * @returns Promise resolving to array of businesses
  */
 export async function listEntityBusinesses(
-  token: string
+  token: string,
+  filters?: EntityBusinessListFilters
 ): Promise<ApiResponse<EntityBusiness[]>> {
   const request = new JustifiRequest(RequestMethod.Get, "/v1/entities/business")
     .withAuth(token);
+  
+  if (filters) {
+    request.withQueryParams(filters);
+  }
+  
   return request.execute<ApiResponse<EntityBusiness[]>>();
 }
 

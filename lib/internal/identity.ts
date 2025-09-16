@@ -38,9 +38,16 @@ export interface UpdateEntityIdentityPayload {
   metadata?: Record<string, any>;
 }
 
+export interface EntityIdentityListFilters {
+  createdBefore?: string;
+  createdAfter?: string;
+  verificationStatus?: string;
+  email?: string;
+}
+
 export interface EntityIdentityApi {
   createEntityIdentity(payload: CreateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>>;
-  listEntityIdentities(): Promise<ApiResponse<EntityIdentity[]>>;
+  listEntityIdentities(filters?: EntityIdentityListFilters): Promise<ApiResponse<EntityIdentity[]>>;
   getEntityIdentity(id: string): Promise<ApiResponse<EntityIdentity>>;
   updateEntityIdentity(id: string, payload: UpdateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>>;
 }
@@ -64,17 +71,24 @@ export async function createEntityIdentity(
 }
 
 /**
- * Lists all identities.
+ * Lists all identities with optional filtering.
  * 
  * @endpoint GET /v1/entities/identity
  * @param token - Access token for authentication
+ * @param filters - Optional filters for pagination and search
  * @returns Promise resolving to array of identities
  */
 export async function listEntityIdentities(
-  token: string
+  token: string,
+  filters?: EntityIdentityListFilters
 ): Promise<ApiResponse<EntityIdentity[]>> {
   const request = new JustifiRequest(RequestMethod.Get, "/v1/entities/identity")
     .withAuth(token);
+  
+  if (filters) {
+    request.withQueryParams(filters);
+  }
+  
   return request.execute<ApiResponse<EntityIdentity[]>>();
 }
 
