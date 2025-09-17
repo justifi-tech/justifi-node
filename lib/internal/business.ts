@@ -34,6 +34,11 @@ export enum BusinessClassification {
   SoleProprietor = "sole_proprietor"
 }
 
+export enum CountryOfEstablishment {
+  USA = "USA",
+  CAN = "CAN"
+}
+
 export interface Business {
   id: string,
   legalName: string
@@ -54,7 +59,7 @@ export interface EntityBusiness {
   mcc?: string;
   taxId?: string;
   dateOfIncorporation?: string;
-  countryOfEstablishment?: 'USA' | 'CAN';
+  countryOfEstablishment?: CountryOfEstablishment;
   platformAccountId: string;
   createdAt: string;
   updatedAt: string;
@@ -78,7 +83,7 @@ export interface CreateEntityBusinessPayload {
   mcc?: string;
   taxId?: string;
   dateOfIncorporation?: string;
-  countryOfEstablishment?: 'USA' | 'CAN';
+  countryOfEstablishment?: CountryOfEstablishment;
   metadata?: Record<string, string>;
   additionalQuestions?: Record<string, any>;
   legalAddress?: Record<string, any>;

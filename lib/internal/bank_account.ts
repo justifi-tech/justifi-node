@@ -5,15 +5,19 @@ export enum AccountType {
   Savings = "savings"
 }
 
+export enum Currency {
+  USD = "usd"
+}
+
 export interface EntityBankAccount {
   id: string;
   accountOwnerName: string;
   accountNumber: string;
   routingNumber: string;
-  accountType: 'checking' | 'savings';
+  accountType: AccountType;
   bankName: string;
   country: string;
-  currency: 'usd';
+  currency: Currency;
   nickname?: string;
   metadata?: Record<string, string>;
   business_id?: string;
