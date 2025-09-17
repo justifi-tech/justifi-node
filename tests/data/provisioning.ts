@@ -10,7 +10,6 @@ export const provisionProduct: ProvisionProductResponse = {
 }
 
 export const provisionProductPayload: ProvisionProductPayload = {
-  newAccountName: "acc_123",
   productCategory: ProductCategory.Payment,
   businessId: "biz_123"
 }
