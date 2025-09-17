@@ -86,6 +86,14 @@ function extractTypesFromFile(filePath) {
       }
     }
 
+    // Look for method declarations with @endpoint comments (class methods)
+    if (ts.isMethodDeclaration(node) && node.name) {
+      const methodInfo = extractFunctionInfo(node, sourceCode);
+      if (methodInfo) {
+        extractedFunctions.push(methodInfo);
+      }
+    }
+
     // Continue traversing child nodes
     ts.forEachChild(node, visit);
   }
@@ -170,14 +178,11 @@ function extractEndpointComment(node, sourceCode) {
   const functionPos = node.getStart();
   
   // Look for the immediate JSDoc comment block before this function
-  // We'll search backwards until we find /** and then look for @endpoint within it
-  let searchStart = Math.max(0, functionStart - 500);
-  let commentBlockStart = -1;
-  let commentBlockEnd = -1;
+  // Extract the leading trivia (comments/whitespace) before the function
+  const leadingTrivia = fullText.substring(functionStart, functionPos);
   
-  // Find the last /** */ block before the function
-  const beforeFunction = fullText.substring(searchStart, functionPos);
-  const commentMatch = beforeFunction.match(/\/\*\*([\s\S]*?)\*\/(?:\s*(?:\/\/.*\n|\s))*$/);
+  // Find the last /** */ block in the leading trivia
+  const commentMatch = leadingTrivia.match(/\/\*\*([\s\S]*?)\*\/(?:\s*)$/);
   
   if (commentMatch) {
     const commentContent = commentMatch[1];
