@@ -8,7 +8,6 @@ export enum ProductCategory {
 }
 
 export interface ProvisionProductPayload {
-  newAccountName: string,
   businessId: string,
   productCategory: ProductCategory
 }
@@ -26,10 +25,18 @@ export interface ProvisioningApi {
   ): Promise<ApiResponse<ProvisionProductResponse>>;
 }
 
-export const provisionProduct = (
+/**
+ * Provisions a product for a business entity.
+ * 
+ * @endpoint POST /v1/entities/provisioning
+ * @param token - Access token for authentication
+ * @param payload - Product provisioning data
+ * @returns Promise resolving to the provisioning response
+ */
+export async function provisionProduct(
   token: string,
   payload: ProvisionProductPayload
-): Promise<ApiResponse<ProvisionProductResponse>> => {
+): Promise<ApiResponse<ProvisionProductResponse>> {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/entities/provisioning")
     .withAuth(token)
     .withBody(payload);

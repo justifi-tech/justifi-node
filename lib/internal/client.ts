@@ -66,8 +66,12 @@ import { InMemoryStore } from "./store";
 import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
-import { Business, BusinessApi, createBusiness } from "./business";
-import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout"
+import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessListFilters, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
+import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout";
+import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressListFilters, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
+import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
+import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentListFilters, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
+import { EntityIdentity, CreateEntityIdentityPayload, UpdateEntityIdentityPayload, EntityIdentityListFilters, EntityIdentityApi, createEntityIdentity, listEntityIdentities, getEntityIdentity, updateEntityIdentity } from "./identity";
 export class Justifi
   implements
   Authenticator,
@@ -86,7 +90,12 @@ export class Justifi
   WebhookVerifier,
   ProvisioningApi,
   CheckoutApi,
-  BusinessApi {
+  BusinessApi,
+  EntityAddressApi,
+  EntityBankAccountApi,
+  EntityBusinessApi,
+  EntityDocumentApi,
+  EntityIdentityApi {
   private static instance: Justifi;
 
   private credential: Credential;
@@ -758,6 +767,236 @@ export class Justifi
       idempotencyKey,
       payload
     );
+  }
+
+  // Entity Address Methods
+  
+  /**
+   * Creates a new address.
+   * 
+   * @endpoint POST /v1/entities/address
+   * @param payload - Address creation data
+   * @returns Promise resolving to the created address
+   */
+  async createEntityAddress(payload: CreateEntityAddressPayload): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return createEntityAddress(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all addresses with optional filtering.
+   * 
+   * @endpoint GET /v1/entities/address
+   * @param filters - Optional filters for pagination and search
+   * @returns Promise resolving to array of addresses
+   */
+  async listEntityAddresses(filters?: EntityAddressListFilters): Promise<ApiResponse<EntityAddress[]>> {
+    const token = await this.getToken();
+    return listEntityAddresses(token.accessToken, filters);
+  }
+
+  /**
+   * Retrieves an address by its ID.
+   * 
+   * @endpoint GET /v1/entities/address/{id}
+   * @param id - The address ID to retrieve
+   * @returns Promise resolving to the address details
+   */
+  async getEntityAddress(id: string): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return getEntityAddress(token.accessToken, id);
+  }
+
+  /**
+   * Updates an address with new information.
+   * 
+   * @endpoint PATCH /v1/entities/address/{id}
+   * @param id - The address ID to update
+   * @param payload - Address update data
+   * @returns Promise resolving to the updated address
+   */
+  async updateEntityAddress(id: string, payload: UpdateEntityAddressPayload): Promise<ApiResponse<EntityAddress>> {
+    const token = await this.getToken();
+    return updateEntityAddress(token.accessToken, id, payload);
+  }
+
+  // Entity Bank Account Methods
+
+  /**
+   * Creates a new bank account.
+   * 
+   * @endpoint POST /v1/entities/bank_accounts
+   * @param payload - Bank account creation data
+   * @returns Promise resolving to the created bank account
+   */
+  async createEntityBankAccount(
+    payload: CreateEntityBankAccountPayload
+  ): Promise<ApiResponse<EntityBankAccount>> {
+    const token = await this.getToken();
+    return createEntityBankAccount(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all bank accounts with optional filtering.
+   * 
+   * @endpoint GET /v1/entities/bank_accounts
+   * @param filters - Optional filters for pagination and search
+   * @returns Promise resolving to array of bank accounts
+   */
+  async listEntityBankAccounts(filters?: EntityBankAccountListFilters): Promise<ApiResponse<EntityBankAccount[]>> {
+    const token = await this.getToken();
+    return listEntityBankAccounts(token.accessToken, filters);
+  }
+
+  /**
+   * Retrieves a bank account by its ID.
+   * 
+   * @endpoint GET /v1/entities/bank_accounts/{id}
+   * @param id - The bank account ID to retrieve
+   * @returns Promise resolving to the bank account details
+   */
+  async getEntityBankAccount(id: string): Promise<ApiResponse<EntityBankAccount>> {
+    const token = await this.getToken();
+    return getEntityBankAccount(token.accessToken, id);
+  }
+
+  // Entity Business Methods
+
+  /**
+   * Creates a new business entity with full payload support.
+   * 
+   * @endpoint POST /v1/entities/business
+   * @param payload - Business creation data
+   * @returns Promise resolving to the created business
+   */
+  async createEntityBusiness(payload: CreateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return createEntityBusiness(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all businesses with optional filtering.
+   * 
+   * @param filters - Optional filters for pagination
+   * @returns Promise resolving to array of businesses
+   */
+  async listEntityBusinesses(filters?: EntityBusinessListFilters): Promise<ApiResponse<EntityBusiness[]>> {
+    const token = await this.getToken();
+    return listEntityBusinesses(token.accessToken, filters);
+  }
+
+  /**
+   * Retrieves a business by its ID.
+   * 
+   * @endpoint GET /v1/entities/business/{id}
+   * @param id - The business ID to retrieve
+   * @returns Promise resolving to the business details
+   */
+  async getEntityBusiness(id: string): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return getEntityBusiness(token.accessToken, id);
+  }
+
+  /**
+   * Updates a business with new information.
+   * 
+   * @endpoint PATCH /v1/entities/business/{id}
+   * @param id - The business ID to update
+   * @param payload - Business update data
+   * @returns Promise resolving to the updated business
+   */
+  async updateEntityBusiness(id: string, payload: UpdateEntityBusinessPayload): Promise<ApiResponse<EntityBusiness>> {
+    const token = await this.getToken();
+    return updateEntityBusiness(token.accessToken, id, payload);
+  }
+
+  // Entity Document Methods
+
+  /**
+   * Creates a new document.
+   * 
+   * @endpoint POST /v1/entities/document
+   * @param payload - Document creation data
+   * @returns Promise resolving to the created document
+   */
+  async createEntityDocument(payload: CreateEntityDocumentPayload): Promise<ApiResponse<EntityDocument>> {
+    const token = await this.getToken();
+    return createEntityDocument(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all documents with optional filtering.
+   * 
+   * @endpoint GET /v1/entities/document
+   * @param filters - Optional filters for pagination and search
+   * @returns Promise resolving to array of documents
+   */
+  async listEntityDocuments(filters?: EntityDocumentListFilters): Promise<ApiResponse<EntityDocument[]>> {
+    const token = await this.getToken();
+    return listEntityDocuments(token.accessToken, filters);
+  }
+
+  /**
+   * Retrieves a document by its ID.
+   * 
+   * @endpoint GET /v1/entities/document/{id}
+   * @param id - The document ID to retrieve
+   * @returns Promise resolving to the document details
+   */
+  async getEntityDocument(id: string): Promise<ApiResponse<EntityDocument>> {
+    const token = await this.getToken();
+    return getEntityDocument(token.accessToken, id);
+  }
+
+  // Entity Identity Methods
+
+  /**
+   * Creates a new identity.
+   * 
+   * @endpoint POST /v1/entities/identity
+   * @param payload - Identity creation data
+   * @returns Promise resolving to the created identity
+   */
+  async createEntityIdentity(payload: CreateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return createEntityIdentity(token.accessToken, payload);
+  }
+
+  /**
+   * Lists all identities with optional filtering.
+   * 
+   * @endpoint GET /v1/entities/identity
+   * @param filters - Optional filters for pagination and search
+   * @returns Promise resolving to array of identities
+   */
+  async listEntityIdentities(filters?: EntityIdentityListFilters): Promise<ApiResponse<EntityIdentity[]>> {
+    const token = await this.getToken();
+    return listEntityIdentities(token.accessToken, filters);
+  }
+
+  /**
+   * Retrieves an identity by its ID.
+   * 
+   * @endpoint GET /v1/entities/identity/{id}
+   * @param id - The identity ID to retrieve
+   * @returns Promise resolving to the identity details
+   */
+  async getEntityIdentity(id: string): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return getEntityIdentity(token.accessToken, id);
+  }
+
+  /**
+   * Updates an identity with new information.
+   * 
+   * @endpoint PATCH /v1/entities/identity/{id}
+   * @param id - The identity ID to update
+   * @param payload - Identity update data
+   * @returns Promise resolving to the updated identity
+   */
+  async updateEntityIdentity(id: string, payload: UpdateEntityIdentityPayload): Promise<ApiResponse<EntityIdentity>> {
+    const token = await this.getToken();
+    return updateEntityIdentity(token.accessToken, id, payload);
   }
 
   verifySignature(

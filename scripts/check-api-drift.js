@@ -29,14 +29,20 @@ async function main() {
     
     // Step 2: Extract SDK endpoints
     console.log('🔎 Extracting SDK endpoints...');
-    const sdkEndpoints = extractSdkEndpoints();
-    console.log(`✅ Found ${sdkEndpoints.length} SDK endpoints with @endpoint comments`);
+    const { implementationEndpoints, clientEndpoints } = extractSdkEndpoints();
+    console.log(`✅ Found ${implementationEndpoints.length} SDK implementation endpoints with @endpoint comments`);
+    console.log(`✅ Found ${clientEndpoints.length} client interface endpoints`);
     
-    // Step 3: Compare and generate report
-    console.log('⚖️  Comparing SDK vs API...');
-    const drift = compareEndpoints(apiEndpoints, sdkEndpoints);
+    // Step 3: Compare implementations vs API
+    console.log('⚖️  Comparing SDK implementations vs API...');
+    const drift = compareEndpoints(apiEndpoints, implementationEndpoints);
     
-    const totalDrift = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length;
+    // Step 4: Check client exposure
+    console.log('🔍 Checking client interface exposure...');
+    const exposureIssues = checkClientExposure(implementationEndpoints, clientEndpoints);
+    drift.exposureIssues = exposureIssues;
+    
+    const totalDrift = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length + drift.enumMismatches.length + drift.exposureIssues.length;
     const forceUpdate = process.env.FORCE_UPDATE === 'true';
     
     if (totalDrift > 0 || forceUpdate) {
@@ -44,8 +50,10 @@ async function main() {
       console.log(`   • ${drift.newInApi.length} new endpoints in API`);
       console.log(`   • ${drift.missingFromApi.length} SDK endpoints not in API`);
       console.log(`   • ${drift.parameterMismatches.length} parameter mismatches`);
+      console.log(`   • ${drift.enumMismatches.length} enum mismatches`);
+      console.log(`   • ${drift.exposureIssues.length} endpoints not exposed in client`);
       
-      const report = generateDriftReport(drift, apiEndpoints.length, sdkEndpoints.length);
+      const report = generateDriftReport(drift, apiEndpoints.length, implementationEndpoints.length);
       fs.writeFileSync('drift-report.md', report);
       
       console.log('::set-output name=drift_detected::true');
@@ -153,43 +161,56 @@ function extractApiEndpoints(spec) {
 
 function extractSdkEndpoints() {
   const endpoints = [];
+  const clientEndpoints = [];
   
-  // Read all TypeScript files in lib/internal
+  // Use the type extractor to get reliable type information
   const libDir = path.join(SDK_ROOT, 'lib');
   const files = getAllTsFiles(libDir);
   
   for (const file of files) {
-    const content = fs.readFileSync(file, 'utf8');
-    
-    // Extract @endpoint comments and associated function signatures
-    const endpointRegex = /\/\*\*[\s\S]*?@endpoint\s+(\w+)\s+([^\s\*\r\n]+)[\s\S]*?\*\/\s*(?:export\s+const\s+(\w+)|async\s+(\w+))\s*[=:]?\s*(?:\(([^)]*)\)|.*?\(([^)]*)\))/g;
-    let match;
-    
-    while ((match = endpointRegex.exec(content)) !== null) {
-      const method = match[1].toUpperCase();
-      const path = match[2];
-      const functionName = match[3] || match[4];
-      const params = match[5] || match[6] || '';
+    try {
+      // Skip client.ts for main drift checking - it's just a facade
+      const isClientFile = file.endsWith('/client.ts');
       
-      if (functionName) {
-        // Parse function parameters
-        const parameters = parseTypeScriptParameters(params);
+      // Run the type extractor on this file
+      const { execSync } = require('child_process');
+      const extractorPath = path.join(__dirname, 'extract-types.js');
+      const output = execSync(`node "${extractorPath}" "${file}"`, { encoding: 'utf8' });
+      const extracted = JSON.parse(output);
+      
+      // Process the extracted functions
+      for (const func of extracted.functions || []) {
+        // Expand parameters using interface definitions
+        const expandedParameters = expandFunctionParameters(func.parameters, extracted.interfaces);
         
-        endpoints.push({
-          method,
-          path,
-          functionName,
+        const endpoint = {
+          method: func.endpoint.method,
+          path: func.endpoint.path,
+          functionName: func.functionName,
           file: file.replace(SDK_ROOT + '/', ''),
-          parameters: parameters
-        });
+          parameters: expandedParameters
+        };
+        
+        if (isClientFile) {
+          clientEndpoints.push(endpoint);
+        } else {
+          endpoints.push(endpoint);
+        }
       }
+    } catch (error) {
+      console.error(`Error extracting types from ${file}:`, error.message);
+      // Fall back to old regex method for this file if type extraction fails
+      continue;
     }
   }
   
-  return endpoints.sort((a, b) => a.path.localeCompare(b.path));
+  return { 
+    implementationEndpoints: endpoints.sort((a, b) => a.path.localeCompare(b.path)),
+    clientEndpoints: clientEndpoints.sort((a, b) => a.path.localeCompare(b.path))
+  };
 }
 
-function parseTypeScriptParameters(paramString) {
+function parseTypeScriptParameters(paramString, fileContent) {
   const parameters = [];
   
   if (!paramString || paramString.trim() === '') {
@@ -338,27 +359,182 @@ function compareEndpoints(apiEndpoints, sdkEndpoints) {
     }
   }
   
-  return { newInApi, missingFromApi, parameterMismatches };
+  // Find enum mismatches for matching endpoints
+  const enumMismatches = compareEnums(apiEndpoints, sdkEndpoints, sdkLookup);
+  
+  return { newInApi, missingFromApi, parameterMismatches, enumMismatches };
+}
+
+function checkClientExposure(implementationEndpoints, clientEndpoints) {
+  const exposureIssues = [];
+  
+  // Create lookup map for client endpoints using method:path as key
+  const clientLookup = new Map();
+  for (const endpoint of clientEndpoints) {
+    const key = `${endpoint.method}:${normalizePath(endpoint.path)}`;
+    clientLookup.set(key, endpoint);
+  }
+  
+  // Check if each implementation endpoint is exposed in client
+  for (const implEndpoint of implementationEndpoints) {
+    const key = `${implEndpoint.method}:${normalizePath(implEndpoint.path)}`;
+    
+    if (!clientLookup.has(key)) {
+      exposureIssues.push({
+        method: implEndpoint.method,
+        path: implEndpoint.path,
+        functionName: implEndpoint.functionName,
+        file: implEndpoint.file
+      });
+    }
+  }
+  
+  return exposureIssues;
+}
+
+function compareEnums(apiEndpoints, sdkEndpoints, sdkLookup) {
+  const enumMismatches = [];
+  
+  // Build global enum lookup from all SDK files
+  const enumLookup = buildGlobalEnumLookup();
+  
+  for (const apiEndpoint of apiEndpoints) {
+    const key = `${apiEndpoint.method}:${normalizePath(apiEndpoint.path)}`;
+    const sdkEndpoint = sdkLookup.get(key);
+    
+    if (sdkEndpoint) {
+      // Check for enum mismatches in parameters
+      for (const apiParam of apiEndpoint.parameters) {
+        if (apiParam.schema && apiParam.schema.enum) {
+          // Find corresponding SDK parameter
+          const camelCaseParamName = snakeToCamel(apiParam.name);
+          const sdkParam = sdkEndpoint.parameters.find(p => 
+            p.name === camelCaseParamName || p.name === apiParam.name
+          );
+          
+          if (sdkParam) {
+            const enumMismatch = compareEnumValues(apiParam.schema.enum, sdkParam.tsType, apiEndpoint, apiParam.name, enumLookup);
+            if (enumMismatch) {
+              enumMismatches.push(enumMismatch);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return enumMismatches;
+}
+
+function buildGlobalEnumLookup() {
+  const enumLookup = {};
+  
+  // Extract enums from all entity files
+  const libDir = path.join(SDK_ROOT, 'lib');
+  const files = getAllTsFiles(libDir);
+  
+  for (const file of files) {
+    try {
+      const { execSync } = require('child_process');
+      const extractorPath = path.join(__dirname, 'extract-types.js');
+      const output = execSync(`node "${extractorPath}" "${file}"`, { encoding: 'utf8' });
+      const extracted = JSON.parse(output);
+      
+      // Collect enums from this file
+      for (const [enumName, enumValues] of Object.entries(extracted.enums || {})) {
+        enumLookup[enumName] = enumValues.map(e => e.value);
+      }
+    } catch (error) {
+      // Skip files that can't be processed
+      continue;
+    }
+  }
+  
+  return enumLookup;
+}
+
+function compareEnumValues(apiEnumValues, sdkType, endpoint, paramName, enumLookup = {}) {
+  let sdkEnumValues = [];
+  
+  // Extract values from SDK type - handle both enum references and inline unions
+  if (sdkType.includes('|')) {
+    // Parse inline union type like "'checking' | 'savings'"
+    const matches = sdkType.match(/'([^']+)'/g);
+    if (matches) {
+      sdkEnumValues = matches.map(match => match.slice(1, -1)); // Remove quotes
+    }
+  } else if (sdkType.match(/^[A-Z]/)) {
+    // This is an enum reference - look it up in the enumLookup
+    if (enumLookup[sdkType]) {
+      sdkEnumValues = enumLookup[sdkType];
+    } else {
+      // Enum reference not found in lookup
+      return null;
+    }
+  }
+  
+  // Compare arrays
+  const apiSet = new Set(apiEnumValues);
+  const sdkSet = new Set(sdkEnumValues);
+  
+  const missingInSdk = apiEnumValues.filter(val => !sdkSet.has(val));
+  const extraInSdk = sdkEnumValues.filter(val => !apiSet.has(val));
+  
+  if (missingInSdk.length > 0 || extraInSdk.length > 0) {
+    return {
+      endpoint: `${endpoint.method} ${endpoint.path}`,
+      parameter: paramName,
+      apiValues: apiEnumValues,
+      sdkValues: sdkEnumValues,
+      missingInSdk,
+      extraInSdk
+    };
+  }
+  
+  return null;
+}
+
+function snakeToCamel(str) {
+  return str.split('_').map((word, index) => 
+    index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+  ).join('');
 }
 
 function compareParameters(apiEndpoint, sdkEndpoint) {
   const apiParams = apiEndpoint.parameters || [];
-  const sdkParams = sdkEndpoint.parameters || [];
+  // Extract path parameters from the original SDK path - these should never be flagged as extra
+  const pathParams = extractPathParameters(sdkEndpoint.path);
+  
+  const sdkParams = (sdkEndpoint.parameters || []).filter(param => 
+    !pathParams.includes(param.name) && // Remove path parameters completely
+    !['token', 'idempotencyKey', 'subAccountId', 'payload', 'filters',
+      'limit', 'after_cursor', 'before_cursor', 'page', 'per_page'].includes(param.name)
+  );
   
   const missingInSdk = [];
   const extraInSdk = [];
   const typeMismatches = [];
   
-  // Create lookup maps for parameters
+  // Create lookup maps for parameters with name normalization
   const apiParamMap = new Map();
   const sdkParamMap = new Map();
   
   for (const param of apiParams) {
     apiParamMap.set(param.name, param);
+    // Also map camelCase version of snake_case names
+    const camelName = snakeToCamel(param.name);
+    if (camelName !== param.name) {
+      apiParamMap.set(camelName, { ...param, originalName: param.name });
+    }
   }
   
   for (const param of sdkParams) {
     sdkParamMap.set(param.name, param);
+    // Also map snake_case version of camelCase names  
+    const snakeName = param.name.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    if (snakeName !== param.name) {
+      sdkParamMap.set(snakeName, { ...param, originalName: param.name });
+    }
   }
   
   // Find missing parameters in SDK
@@ -418,14 +594,14 @@ function generateDriftReport(drift, apiCount, sdkCount) {
 
 `;
 
-  if (drift.newInApi.length === 0 && drift.missingFromApi.length === 0 && drift.parameterMismatches.length === 0) {
+  if (drift.newInApi.length === 0 && drift.missingFromApi.length === 0 && drift.parameterMismatches.length === 0 && drift.enumMismatches.length === 0 && (drift.exposureIssues || []).length === 0) {
     report += `## ✅ No Drift Detected
 
 The JustiFi Node.js SDK is up-to-date with the latest API specification.
 
 `;
   } else {
-    const total = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length;
+    const total = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length + drift.enumMismatches.length + (drift.exposureIssues || []).length;
     report += `## ⚠️ API Drift Detected
 
 Found ${total} differences between the SDK and API specification:
@@ -511,6 +687,56 @@ The following endpoints have parameter differences between the API and SDK:
 `;
   }
 
+  // Enum mismatches section
+  if (drift.enumMismatches.length > 0) {
+    report += `## 🎯 Enum Mismatches
+
+The following endpoints have enum value differences between the API and SDK:
+
+| Endpoint | Parameter | Issue | API Values | SDK Values |
+|----------|-----------|-------|------------|------------|
+`;
+    
+    for (const mismatch of drift.enumMismatches) {
+      let issues = [];
+      if (mismatch.missingInSdk.length > 0) {
+        issues.push(`Missing: ${mismatch.missingInSdk.join(', ')}`);
+      }
+      if (mismatch.extraInSdk.length > 0) {
+        issues.push(`Extra: ${mismatch.extraInSdk.join(', ')}`);
+      }
+      
+      report += `| \`${mismatch.endpoint}\` | \`${mismatch.parameter}\` | ${issues.join('; ')} | ${mismatch.apiValues.join(', ')} | ${mismatch.sdkValues.join(', ')} |\n`;
+    }
+    
+    report += `
+
+**Action Required:** Update SDK enum values to match API enum definitions.
+
+`;
+  }
+
+  // Client exposure issues section
+  if (drift.exposureIssues && drift.exposureIssues.length > 0) {
+    report += `## 🚫 Endpoints Not Exposed in Client Interface
+
+The following implementation endpoints are not exposed through the client interface:
+
+| Method | Path | Implementation Function | File |
+|--------|------|------------------------|------|
+`;
+    
+    for (const issue of drift.exposureIssues) {
+      report += `| ${issue.method} | \`${issue.path}\` | \`${issue.functionName}\` | ${issue.file} |\n`;
+    }
+    
+    report += `
+
+**Action Required:** Add these endpoints to client.ts or remove them from implementation files.
+
+`;
+  }
+
   // Footer
   report += `---
 
@@ -530,6 +756,62 @@ The following endpoints have parameter differences between the API and SDK:
 // Check if fetch is available (Node 18+)
 if (typeof fetch === 'undefined') {
   global.fetch = require('node-fetch');
+}
+
+function extractPathParameters(path) {
+  // Extract parameters from path like /entities/bank_accounts/{id}
+  const pathParams = [];
+  const matches = path.matchAll(/\{([^}]+)\}/g);
+  for (const match of matches) {
+    pathParams.push(match[1]);
+  }
+  return pathParams;
+}
+
+
+function expandFunctionParameters(parameters, interfaces) {
+  const expandedParams = [];
+  
+  for (const param of parameters) {
+    // Skip auth tokens
+    if (param.name === 'token') {
+      continue;
+    }
+    
+    // Check if this parameter is a filter interface that should be expanded
+    if (param.type && interfaces[param.type]) {
+      // This is an interface type - expand its properties
+      const interfaceProps = interfaces[param.type];
+      for (const prop of interfaceProps) {
+        expandedParams.push({
+          name: prop.name,
+          type: param.name.toLowerCase().includes('payload') ? 'body' : 'query',
+          required: !prop.optional,
+          tsType: prop.type,
+          expandedFrom: param.type
+        });
+      }
+    } else {
+      // Regular parameter - determine its type
+      let paramType = 'unknown';
+      if (param.name === 'id' || param.name.endsWith('Id')) {
+        paramType = 'path';
+      } else if (param.name.toLowerCase().includes('payload')) {
+        paramType = 'body';
+      } else {
+        paramType = 'query';
+      }
+      
+      expandedParams.push({
+        name: param.name,
+        type: paramType,
+        required: !param.optional,
+        tsType: param.type
+      });
+    }
+  }
+  
+  return expandedParams;
 }
 
 main();
