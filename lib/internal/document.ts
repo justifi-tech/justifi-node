@@ -9,15 +9,17 @@ export interface EntityDocument {
   status: string;
   uploadedAt: string;
   url?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
 }
 
 export interface CreateEntityDocumentPayload {
-  fileName: string;
-  fileType: string;
-  documentType: string;
-  fileData: string; // Base64 encoded file data
-  metadata?: Record<string, any>;
+  description?: string;
+  file_name: string;
+  file_type: string;
+  document_type: string;
+  business_id?: string;
+  identity_id?: string;
+  metadata?: Record<string, string>;
 }
 
 export interface EntityDocumentListFilters {

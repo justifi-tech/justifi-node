@@ -1,4 +1,5 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
+import { EntityAddress } from "./address";
 
 export interface EntityIdentity {
   id: string;
@@ -12,30 +13,35 @@ export interface EntityIdentity {
   verificationStatus: string;
   createdAt: string;
   updatedAt: string;
-  address?: Record<string, any>;
-  metadata?: Record<string, any>;
+  address?: EntityAddress;
+  metadata?: Record<string, string>;
 }
 
 export interface CreateEntityIdentityPayload {
-  firstName: string;
-  lastName: string;
+  name?: string;
+  title?: string;
   email?: string;
   phone?: string;
-  dateOfBirth?: string;
-  ssn?: string;
-  taxId?: string;
-  address?: Record<string, any>;
-  metadata?: Record<string, any>;
+  dob_day?: number;
+  dob_month?: number;
+  dob_year?: number;
+  identification_number?: string;
+  is_owner?: boolean;
+  address?: EntityAddress;
+  metadata?: Record<string, string>;
 }
 
 export interface UpdateEntityIdentityPayload {
-  firstName?: string;
-  lastName?: string;
+  name?: string;
+  title?: string;
   email?: string;
   phone?: string;
-  dateOfBirth?: string;
-  address?: Record<string, any>;
-  metadata?: Record<string, any>;
+  dob_day?: number;
+  dob_month?: number;
+  dob_year?: number;
+  identification_number?: string;
+  is_owner?: boolean;
+  metadata?: Record<string, string>;
 }
 
 export interface EntityIdentityListFilters {
@@ -63,9 +69,18 @@ export async function createEntityIdentity(
   token: string,
   payload: CreateEntityIdentityPayload
 ): Promise<ApiResponse<EntityIdentity>> {
+  // Process address: if it has an ID, send only the ID; otherwise send full object
+  const processedPayload = { ...payload };
+  
+  if (processedPayload.address) {
+    if (processedPayload.address.id) {
+      processedPayload.address = { id: processedPayload.address.id } as any;
+    }
+  }
+
   const request = new JustifiRequest(RequestMethod.Post, "/v1/entities/identity")
     .withAuth(token)
-    .withBody(payload);
+    .withBody(processedPayload);
   return request.execute<ApiResponse<EntityIdentity>>();
 }
 
@@ -122,8 +137,17 @@ export async function updateEntityIdentity(
   id: string,
   payload: UpdateEntityIdentityPayload
 ): Promise<ApiResponse<EntityIdentity>> {
+  // Process address: if it has an ID, send only the ID; otherwise send full object
+  const processedPayload = { ...payload };
+  
+  if (processedPayload.address) {
+    if (processedPayload.address.id) {
+      processedPayload.address = { id: processedPayload.address.id } as any;
+    }
+  }
+
   const request = new JustifiRequest(RequestMethod.Patch, `/v1/entities/identity/${id}`)
     .withAuth(token)
-    .withBody(payload);
+    .withBody(processedPayload);
   return request.execute<ApiResponse<EntityIdentity>>();
 }

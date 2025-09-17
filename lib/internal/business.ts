@@ -1,4 +1,5 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
+import { EntityIdentity } from "./identity";
 
 export interface Business {
   id: string,
@@ -24,10 +25,10 @@ export interface EntityBusiness {
   platformAccountId: string;
   createdAt: string;
   updatedAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
   additionalQuestions?: Record<string, any>;
   legalAddress?: Record<string, any>;
-  representative?: Record<string, any>;
+  representative?: EntityIdentity;
   owners?: Record<string, any>[];
 }
 
@@ -45,10 +46,10 @@ export interface CreateEntityBusinessPayload {
   taxId?: string;
   dateOfIncorporation?: string;
   countryOfEstablishment?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
   additionalQuestions?: Record<string, any>;
   legalAddress?: Record<string, any>;
-  representative?: Record<string, any>;
+  representative?: EntityIdentity;
   owners?: Record<string, any>[];
 }
 
@@ -60,20 +61,18 @@ export interface UpdateEntityBusinessPayload {
   doingBusinessAs?: string;
   businessType?: string;
   businessStructure?: string;
-  classification?: string;
   industry?: string;
   mcc?: string;
   taxId?: string;
   dateOfIncorporation?: string;
-  countryOfEstablishment?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
   additionalQuestions?: Record<string, any>;
   legalAddress?: Record<string, any>;
-  representative?: Record<string, any>;
-  owners?: Record<string, any>[];
+  representative?: EntityIdentity;
 }
 
 export interface EntityBusinessListFilters {
+  business_name?: string;
   limit?: number;
   after_cursor?: string;
   before_cursor?: string;
@@ -102,9 +101,32 @@ export async function createEntityBusiness(
   token: string,
   payload: CreateEntityBusinessPayload
 ): Promise<ApiResponse<EntityBusiness>> {
+  // Process legal_address: if it has an ID, send only the ID; otherwise send full object
+  const processedPayload = { ...payload };
+  
+  if (processedPayload.legalAddress) {
+    if (processedPayload.legalAddress.id) {
+      processedPayload.legalAddress = { id: processedPayload.legalAddress.id } as any;
+    }
+  }
+  
+  // Process representative: if it has an ID, send only the ID; otherwise send full object
+  if (processedPayload.representative) {
+    if (processedPayload.representative.id) {
+      processedPayload.representative = { id: processedPayload.representative.id } as any;
+    }
+  }
+
+  // Process owners array: for each owner, if it has an ID, send only the ID; otherwise send full object
+  if (processedPayload.owners && Array.isArray(processedPayload.owners)) {
+    processedPayload.owners = processedPayload.owners.map(owner => 
+      owner.id ? { id: owner.id } : owner
+    ) as any;
+  }
+
   const request = new JustifiRequest(RequestMethod.Post, "/v1/entities/business")
     .withAuth(token)
-    .withBody(payload);
+    .withBody(processedPayload);
   return request.execute<ApiResponse<EntityBusiness>>();
 }
 
@@ -161,9 +183,25 @@ export async function updateEntityBusiness(
   id: string,
   payload: UpdateEntityBusinessPayload
 ): Promise<ApiResponse<EntityBusiness>> {
+  // Process legal_address: if it has an ID, send only the ID; otherwise send full object
+  const processedPayload = { ...payload };
+  
+  if (processedPayload.legalAddress) {
+    if (processedPayload.legalAddress.id) {
+      processedPayload.legalAddress = { id: processedPayload.legalAddress.id } as any;
+    }
+  }
+  
+  // Process representative: if it has an ID, send only the ID; otherwise send full object
+  if (processedPayload.representative) {
+    if (processedPayload.representative.id) {
+      processedPayload.representative = { id: processedPayload.representative.id } as any;
+    }
+  }
+
   const request = new JustifiRequest(RequestMethod.Patch, `/v1/entities/business/${id}`)
     .withAuth(token)
-    .withBody(payload);
+    .withBody(processedPayload);
   return request.execute<ApiResponse<EntityBusiness>>();
 }
 

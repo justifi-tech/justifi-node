@@ -6,19 +6,19 @@ export interface EntityAddress {
   line2?: string;
   city: string;
   state: string;
-  postalCode: string;
+  postal_code: string;
   country: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateEntityAddressPayload {
-  line1: string;
+  line1?: string;
   line2?: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
 }
 
 export interface UpdateEntityAddressPayload {
@@ -26,7 +26,7 @@ export interface UpdateEntityAddressPayload {
   line2?: string;
   city?: string;
   state?: string;
-  postalCode?: string;
+  postal_code?: string;
   country?: string;
 }
 

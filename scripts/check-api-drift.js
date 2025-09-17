@@ -355,7 +355,7 @@ function compareParameters(apiEndpoint, sdkEndpoint) {
   const sdkParams = (sdkEndpoint.parameters || []).filter(param => 
     !pathParams.includes(param.name) && // Remove path parameters completely
     !['token', 'idempotencyKey', 'subAccountId', 'payload', 'filters',
-      'limit', 'after_cursor', 'before_cursor', 'page', 'per_page', 'business_id'].includes(param.name)
+      'limit', 'after_cursor', 'before_cursor', 'page', 'per_page'].includes(param.name)
   );
   
   const missingInSdk = [];

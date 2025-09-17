@@ -10,7 +10,7 @@ export interface EntityBankAccount {
   country: string;
   currency: string;
   nickname?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
   business_id?: string;
   platform_account_id?: string;
   verified: boolean;
@@ -26,7 +26,7 @@ export interface CreateEntityBankAccountPayload {
   bank_name: string;
   business_id: string;
   nickname?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string>;
 }
 
 export interface EntityBankAccountListFilters {
@@ -45,7 +45,7 @@ export interface EntityBankAccountApi {
     bank_name: string,
     business_id: string,
     nickname?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, string>
   ): Promise<ApiResponse<EntityBankAccount>>;
   listEntityBankAccounts(filters?: EntityBankAccountListFilters): Promise<ApiResponse<EntityBankAccount[]>>;
   getEntityBankAccount(id: string): Promise<ApiResponse<EntityBankAccount>>;
@@ -75,7 +75,7 @@ export async function createEntityBankAccount(
   bank_name: string,
   business_id: string,
   nickname?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, string>
 ): Promise<ApiResponse<EntityBankAccount>> {
   const request = new JustifiRequest(RequestMethod.Post, "/v1/entities/bank_accounts")
     .withAuth(token)

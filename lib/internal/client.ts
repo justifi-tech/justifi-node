@@ -837,7 +837,7 @@ export class Justifi
     bank_name: string,
     business_id: string,
     nickname?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, string>
   ): Promise<ApiResponse<EntityBankAccount>> {
     const token = await this.getToken();
     return createEntityBankAccount(
