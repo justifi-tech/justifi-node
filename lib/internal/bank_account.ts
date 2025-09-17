@@ -2,22 +2,31 @@ import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 
 export interface EntityBankAccount {
   id: string;
-  accountHolderName: string;
+  accountOwnerName: string;
   accountNumber: string;
   routingNumber: string;
   accountType: string;
-  bankName?: string;
+  bankName: string;
+  country: string;
+  currency: string;
+  nickname?: string;
+  metadata?: Record<string, any>;
+  business_id?: string;
+  platform_account_id?: string;
   verified: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateEntityBankAccountPayload {
-  accountHolderName: string;
-  accountNumber: string;
-  routingNumber: string;
-  accountType: string;
-  bankName?: string;
+  account_owner_name: string;
+  account_number: string;
+  routing_number: string;
+  account_type: string;
+  bank_name: string;
+  business_id: string;
+  nickname?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface EntityBankAccountListFilters {
@@ -28,7 +37,16 @@ export interface EntityBankAccountListFilters {
 }
 
 export interface EntityBankAccountApi {
-  createEntityBankAccount(payload: CreateEntityBankAccountPayload): Promise<ApiResponse<EntityBankAccount>>;
+  createEntityBankAccount(
+    account_owner_name: string,
+    account_number: string,
+    routing_number: string,
+    account_type: string,
+    bank_name: string,
+    business_id: string,
+    nickname?: string,
+    metadata?: Record<string, any>
+  ): Promise<ApiResponse<EntityBankAccount>>;
   listEntityBankAccounts(filters?: EntityBankAccountListFilters): Promise<ApiResponse<EntityBankAccount[]>>;
   getEntityBankAccount(id: string): Promise<ApiResponse<EntityBankAccount>>;
 }
@@ -38,16 +56,39 @@ export interface EntityBankAccountApi {
  * 
  * @endpoint POST /v1/entities/bank_accounts
  * @param token - Access token for authentication
- * @param payload - Bank account creation data
+ * @param account_owner_name - Name of the account owner
+ * @param account_number - Bank account number
+ * @param routing_number - Bank routing number
+ * @param account_type - Type of account (checking, savings, etc.)
+ * @param bank_name - Name of the bank
+ * @param business_id - Associated business ID
+ * @param nickname - Optional nickname for the account
+ * @param metadata - Optional metadata
  * @returns Promise resolving to the created bank account
  */
 export async function createEntityBankAccount(
   token: string,
-  payload: CreateEntityBankAccountPayload
+  account_owner_name: string,
+  account_number: string,
+  routing_number: string,
+  account_type: string,
+  bank_name: string,
+  business_id: string,
+  nickname?: string,
+  metadata?: Record<string, any>
 ): Promise<ApiResponse<EntityBankAccount>> {
   const request = new JustifiRequest(RequestMethod.Post, "/v1/entities/bank_accounts")
     .withAuth(token)
-    .withBody(payload);
+    .withBody({
+      account_owner_name,
+      account_number,
+      routing_number,
+      account_type,
+      bank_name,
+      business_id,
+      ...(nickname && { nickname }),
+      ...(metadata && { metadata })
+    });
   return request.execute<ApiResponse<EntityBankAccount>>();
 }
 

@@ -154,42 +154,42 @@ function extractApiEndpoints(spec) {
 function extractSdkEndpoints() {
   const endpoints = [];
   
-  // Read all TypeScript files in lib/internal
+  // Use the type extractor to get reliable type information
   const libDir = path.join(SDK_ROOT, 'lib');
   const files = getAllTsFiles(libDir);
   
   for (const file of files) {
-    const content = fs.readFileSync(file, 'utf8');
-    
-    // Extract @endpoint comments and associated function signatures
-    const endpointRegex = /\/\*\*[\s\S]*?@endpoint\s+(\w+)\s+([^\s\*\r\n]+)[\s\S]*?\*\/\s*(?:export\s+const\s+(\w+)|async\s+(\w+))\s*[=:]?\s*(?:\(([^)]*)\)|.*?\(([^)]*)\))/g;
-    let match;
-    
-    while ((match = endpointRegex.exec(content)) !== null) {
-      const method = match[1].toUpperCase();
-      const path = match[2];
-      const functionName = match[3] || match[4];
-      const params = match[5] || match[6] || '';
+    try {
+      // Run the type extractor on this file
+      const { execSync } = require('child_process');
+      const extractorPath = path.join(__dirname, 'extract-types.js');
+      const output = execSync(`node "${extractorPath}" "${file}"`, { encoding: 'utf8' });
+      const extracted = JSON.parse(output);
       
-      if (functionName) {
-        // Parse function parameters
-        const parameters = parseTypeScriptParameters(params);
+      // Process the extracted functions
+      for (const func of extracted.functions || []) {
+        // Expand parameters using interface definitions
+        const expandedParameters = expandFunctionParameters(func.parameters, extracted.interfaces);
         
         endpoints.push({
-          method,
-          path,
-          functionName,
+          method: func.endpoint.method,
+          path: func.endpoint.path,
+          functionName: func.functionName,
           file: file.replace(SDK_ROOT + '/', ''),
-          parameters: parameters
+          parameters: expandedParameters
         });
       }
+    } catch (error) {
+      console.error(`Error extracting types from ${file}:`, error.message);
+      // Fall back to old regex method for this file if type extraction fails
+      continue;
     }
   }
   
   return endpoints.sort((a, b) => a.path.localeCompare(b.path));
 }
 
-function parseTypeScriptParameters(paramString) {
+function parseTypeScriptParameters(paramString, fileContent) {
   const parameters = [];
   
   if (!paramString || paramString.trim() === '') {
@@ -341,24 +341,47 @@ function compareEndpoints(apiEndpoints, sdkEndpoints) {
   return { newInApi, missingFromApi, parameterMismatches };
 }
 
+function snakeToCamel(str) {
+  return str.split('_').map((word, index) => 
+    index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+  ).join('');
+}
+
 function compareParameters(apiEndpoint, sdkEndpoint) {
   const apiParams = apiEndpoint.parameters || [];
-  const sdkParams = sdkEndpoint.parameters || [];
+  // Extract path parameters from the original SDK path - these should never be flagged as extra
+  const pathParams = extractPathParameters(sdkEndpoint.path);
+  
+  const sdkParams = (sdkEndpoint.parameters || []).filter(param => 
+    !pathParams.includes(param.name) && // Remove path parameters completely
+    !['token', 'idempotencyKey', 'subAccountId', 'payload', 'filters',
+      'limit', 'after_cursor', 'before_cursor', 'page', 'per_page', 'business_id'].includes(param.name)
+  );
   
   const missingInSdk = [];
   const extraInSdk = [];
   const typeMismatches = [];
   
-  // Create lookup maps for parameters
+  // Create lookup maps for parameters with name normalization
   const apiParamMap = new Map();
   const sdkParamMap = new Map();
   
   for (const param of apiParams) {
     apiParamMap.set(param.name, param);
+    // Also map camelCase version of snake_case names
+    const camelName = snakeToCamel(param.name);
+    if (camelName !== param.name) {
+      apiParamMap.set(camelName, { ...param, originalName: param.name });
+    }
   }
   
   for (const param of sdkParams) {
     sdkParamMap.set(param.name, param);
+    // Also map snake_case version of camelCase names  
+    const snakeName = param.name.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    if (snakeName !== param.name) {
+      sdkParamMap.set(snakeName, { ...param, originalName: param.name });
+    }
   }
   
   // Find missing parameters in SDK
@@ -530,6 +553,62 @@ The following endpoints have parameter differences between the API and SDK:
 // Check if fetch is available (Node 18+)
 if (typeof fetch === 'undefined') {
   global.fetch = require('node-fetch');
+}
+
+function extractPathParameters(path) {
+  // Extract parameters from path like /entities/bank_accounts/{id}
+  const pathParams = [];
+  const matches = path.matchAll(/\{([^}]+)\}/g);
+  for (const match of matches) {
+    pathParams.push(match[1]);
+  }
+  return pathParams;
+}
+
+
+function expandFunctionParameters(parameters, interfaces) {
+  const expandedParams = [];
+  
+  for (const param of parameters) {
+    // Skip auth tokens
+    if (param.name === 'token') {
+      continue;
+    }
+    
+    // Check if this parameter is a filter interface that should be expanded
+    if (param.type && interfaces[param.type]) {
+      // This is an interface type - expand its properties
+      const interfaceProps = interfaces[param.type];
+      for (const prop of interfaceProps) {
+        expandedParams.push({
+          name: prop.name,
+          type: 'query', // Interface properties are typically query parameters
+          required: !prop.optional,
+          tsType: prop.type,
+          expandedFrom: param.type
+        });
+      }
+    } else {
+      // Regular parameter - determine its type
+      let paramType = 'unknown';
+      if (param.name === 'id' || param.name.endsWith('Id')) {
+        paramType = 'path';
+      } else if (param.name.toLowerCase().includes('payload')) {
+        paramType = 'body';
+      } else {
+        paramType = 'query';
+      }
+      
+      expandedParams.push({
+        name: param.name,
+        type: paramType,
+        required: !param.optional,
+        tsType: param.type
+      });
+    }
+  }
+  
+  return expandedParams;
 }
 
 main();

@@ -829,9 +829,28 @@ export class Justifi
    * @param payload - Bank account creation data
    * @returns Promise resolving to the created bank account
    */
-  async createEntityBankAccount(payload: CreateEntityBankAccountPayload): Promise<ApiResponse<EntityBankAccount>> {
+  async createEntityBankAccount(
+    account_owner_name: string,
+    account_number: string,
+    routing_number: string,
+    account_type: string,
+    bank_name: string,
+    business_id: string,
+    nickname?: string,
+    metadata?: Record<string, any>
+  ): Promise<ApiResponse<EntityBankAccount>> {
     const token = await this.getToken();
-    return createEntityBankAccount(token.accessToken, payload);
+    return createEntityBankAccount(
+      token.accessToken,
+      account_owner_name,
+      account_number,
+      routing_number,
+      account_type,
+      bank_name,
+      business_id,
+      nickname,
+      metadata
+    );
   }
 
   /**
