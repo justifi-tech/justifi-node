@@ -69,7 +69,7 @@ import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionPr
 import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessListFilters, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
 import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout";
 import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressListFilters, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
-import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
+import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, AccountType, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
 import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentListFilters, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
 import { EntityIdentity, CreateEntityIdentityPayload, UpdateEntityIdentityPayload, EntityIdentityListFilters, EntityIdentityApi, createEntityIdentity, listEntityIdentities, getEntityIdentity, updateEntityIdentity } from "./identity";
 export class Justifi
@@ -833,7 +833,7 @@ export class Justifi
     account_owner_name: string,
     account_number: string,
     routing_number: string,
-    account_type: string,
+    account_type: AccountType,
     bank_name: string,
     business_id: string,
     nickname?: string,

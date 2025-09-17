@@ -1,5 +1,14 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 
+export enum DocumentType {
+  BalanceSheet = "balance_sheet",
+  BankStatement = "bank_statement",
+  GovernmentId = "government_id",
+  ProfitAndLossStatement = "profit_and_loss_statement",
+  TaxReturn = "tax_return",
+  Other = "other"
+}
+
 export interface EntityDocument {
   id: string;
   fileName: string;
@@ -16,7 +25,7 @@ export interface CreateEntityDocumentPayload {
   description?: string;
   file_name: string;
   file_type: string;
-  document_type: string;
+  document_type: DocumentType;
   business_id?: string;
   identity_id?: string;
   metadata?: Record<string, string>;

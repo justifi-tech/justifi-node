@@ -137,17 +137,8 @@ export async function updateEntityIdentity(
   id: string,
   payload: UpdateEntityIdentityPayload
 ): Promise<ApiResponse<EntityIdentity>> {
-  // Process address: if it has an ID, send only the ID; otherwise send full object
-  const processedPayload = { ...payload };
-  
-  if (processedPayload.address) {
-    if (processedPayload.address.id) {
-      processedPayload.address = { id: processedPayload.address.id } as any;
-    }
-  }
-
   const request = new JustifiRequest(RequestMethod.Patch, `/v1/entities/identity/${id}`)
     .withAuth(token)
-    .withBody(processedPayload);
+    .withBody(payload);
   return request.execute<ApiResponse<EntityIdentity>>();
 }

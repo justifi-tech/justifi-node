@@ -25,6 +25,7 @@ function extractTypesFromFile(filePath) {
 
   const extractedTypes = {};
   const extractedFunctions = [];
+  const extractedEnums = {};
 
   function visit(node) {
     // Look for interface declarations
@@ -52,6 +53,31 @@ function extractTypesFromFile(filePath) {
       extractedTypes[interfaceName] = properties;
     }
 
+    // Look for enum declarations
+    if (ts.isEnumDeclaration(node)) {
+      const enumName = node.name.text;
+      const enumValues = [];
+
+      for (const member of node.members) {
+        if (member.name) {
+          const memberName = member.name.text;
+          let memberValue = memberName; // Default to member name
+          
+          // Check if there's an initializer (e.g., Checking = "checking")
+          if (member.initializer && ts.isStringLiteral(member.initializer)) {
+            memberValue = member.initializer.text;
+          }
+          
+          enumValues.push({
+            name: memberName,
+            value: memberValue
+          });
+        }
+      }
+
+      extractedEnums[enumName] = enumValues;
+    }
+
     // Look for function declarations with @endpoint comments (including exported functions)
     if (ts.isFunctionDeclaration(node) && node.name) {
       const functionInfo = extractFunctionInfo(node, sourceCode);
@@ -66,7 +92,7 @@ function extractTypesFromFile(filePath) {
 
   // Start the traversal
   visit(sourceFile);
-  return { interfaces: extractedTypes, functions: extractedFunctions };
+  return { interfaces: extractedTypes, functions: extractedFunctions, enums: extractedEnums };
 }
 
 function getTypeText(typeNode) {
@@ -84,6 +110,16 @@ function getTypeText(typeNode) {
       return 'unknown';
     case ts.SyntaxKind.TypeLiteral:
       return 'object';
+    case ts.SyntaxKind.UnionType:
+      // Handle union types like 'checking' | 'savings'
+      const unionTypes = typeNode.types.map(t => getTypeText(t));
+      return unionTypes.join(' | ');
+    case ts.SyntaxKind.LiteralType:
+      // Handle literal types like 'checking'
+      if (typeNode.literal && ts.isStringLiteral(typeNode.literal)) {
+        return `'${typeNode.literal.text}'`;
+      }
+      return typeNode.getText ? typeNode.getText() : 'unknown';
     default:
       // For other types, try to get text representation
       return typeNode.getText ? typeNode.getText().replace(/\s+/g, ' ') : 'unknown';
@@ -178,7 +214,8 @@ function main() {
       timestamp: new Date().toISOString(),
       filterInterfaces: filterTypes,
       interfaces: extracted.interfaces,
-      functions: extracted.functions
+      functions: extracted.functions,
+      enums: extracted.enums
     };
 
     console.log(JSON.stringify(result, null, 2));

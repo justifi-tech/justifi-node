@@ -1,6 +1,39 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 import { EntityIdentity } from "./identity";
 
+export enum BusinessType {
+  ForProfit = "for_profit",
+  NonProfit = "non_profit",
+  GovernmentEntity = "government_entity",
+  Individual = "individual"
+}
+
+export enum BusinessStructure {
+  SoleProprietorship = "sole_proprietorship",
+  SingleLlc = "single_llc",
+  MultiLlc = "multi_llc",
+  PrivatePartnership = "private_partnership",
+  PrivateCorporation = "private_corporation",
+  UnincorporatedAssociation = "unincorporated_association",
+  PublicPartnership = "public_partnership",
+  PublicCorporation = "public_corporation",
+  Incorporated = "incorporated",
+  Unincorporated = "unincorporated",
+  GovernmentUnit = "government_unit",
+  GovernmentInstrumentality = "government_instrumentality",
+  TaxExemptGovernmentInstrumentality = "tax_exempt_government_instrumentality"
+}
+
+export enum BusinessClassification {
+  Government = "government",
+  Limited = "limited",
+  NonProfit = "non_profit",
+  Partnership = "partnership",
+  Corporation = "corporation",
+  PublicCompany = "public_company",
+  SoleProprietor = "sole_proprietor"
+}
+
 export interface Business {
   id: string,
   legalName: string
@@ -14,14 +47,14 @@ export interface EntityBusiness {
   email?: string;
   phone?: string;
   doingBusinessAs?: string;
-  businessType?: string;
-  businessStructure?: string;
-  classification?: string;
+  businessType?: BusinessType;
+  businessStructure?: BusinessStructure;
+  classification?: BusinessClassification;
   industry?: string;
   mcc?: string;
   taxId?: string;
   dateOfIncorporation?: string;
-  countryOfEstablishment?: string;
+  countryOfEstablishment?: 'USA' | 'CAN';
   platformAccountId: string;
   createdAt: string;
   updatedAt: string;
@@ -38,14 +71,14 @@ export interface CreateEntityBusinessPayload {
   email?: string;
   phone?: string;
   doingBusinessAs?: string;
-  businessType?: string;
-  businessStructure?: string;
-  classification?: string;
+  businessType?: BusinessType;
+  businessStructure?: BusinessStructure;
+  classification?: BusinessClassification;
   industry?: string;
   mcc?: string;
   taxId?: string;
   dateOfIncorporation?: string;
-  countryOfEstablishment?: string;
+  countryOfEstablishment?: 'USA' | 'CAN';
   metadata?: Record<string, string>;
   additionalQuestions?: Record<string, any>;
   legalAddress?: Record<string, any>;
@@ -59,8 +92,8 @@ export interface UpdateEntityBusinessPayload {
   email?: string;
   phone?: string;
   doingBusinessAs?: string;
-  businessType?: string;
-  businessStructure?: string;
+  businessType?: BusinessType;
+  businessStructure?: BusinessStructure;
   industry?: string;
   mcc?: string;
   taxId?: string;

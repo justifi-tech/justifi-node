@@ -36,7 +36,7 @@ async function main() {
     console.log('⚖️  Comparing SDK vs API...');
     const drift = compareEndpoints(apiEndpoints, sdkEndpoints);
     
-    const totalDrift = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length;
+    const totalDrift = drift.newInApi.length + drift.missingFromApi.length + drift.parameterMismatches.length + drift.enumMismatches.length;
     const forceUpdate = process.env.FORCE_UPDATE === 'true';
     
     if (totalDrift > 0 || forceUpdate) {
@@ -44,6 +44,7 @@ async function main() {
       console.log(`   • ${drift.newInApi.length} new endpoints in API`);
       console.log(`   • ${drift.missingFromApi.length} SDK endpoints not in API`);
       console.log(`   • ${drift.parameterMismatches.length} parameter mismatches`);
+      console.log(`   • ${drift.enumMismatches.length} enum mismatches`);
       
       const report = generateDriftReport(drift, apiEndpoints.length, sdkEndpoints.length);
       fs.writeFileSync('drift-report.md', report);
@@ -338,7 +339,112 @@ function compareEndpoints(apiEndpoints, sdkEndpoints) {
     }
   }
   
-  return { newInApi, missingFromApi, parameterMismatches };
+  // Find enum mismatches for matching endpoints
+  const enumMismatches = compareEnums(apiEndpoints, sdkEndpoints, sdkLookup);
+  
+  return { newInApi, missingFromApi, parameterMismatches, enumMismatches };
+}
+
+function compareEnums(apiEndpoints, sdkEndpoints, sdkLookup) {
+  const enumMismatches = [];
+  
+  // Build global enum lookup from all SDK files
+  const enumLookup = buildGlobalEnumLookup();
+  
+  for (const apiEndpoint of apiEndpoints) {
+    const key = `${apiEndpoint.method}:${normalizePath(apiEndpoint.path)}`;
+    const sdkEndpoint = sdkLookup.get(key);
+    
+    if (sdkEndpoint) {
+      // Check for enum mismatches in parameters
+      for (const apiParam of apiEndpoint.parameters) {
+        if (apiParam.schema && apiParam.schema.enum) {
+          // Find corresponding SDK parameter
+          const camelCaseParamName = snakeToCamel(apiParam.name);
+          const sdkParam = sdkEndpoint.parameters.find(p => 
+            p.name === camelCaseParamName || p.name === apiParam.name
+          );
+          
+          if (sdkParam) {
+            const enumMismatch = compareEnumValues(apiParam.schema.enum, sdkParam.tsType, apiEndpoint, apiParam.name, enumLookup);
+            if (enumMismatch) {
+              enumMismatches.push(enumMismatch);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return enumMismatches;
+}
+
+function buildGlobalEnumLookup() {
+  const enumLookup = {};
+  
+  // Extract enums from all entity files
+  const libDir = path.join(SDK_ROOT, 'lib');
+  const files = getAllTsFiles(libDir);
+  
+  for (const file of files) {
+    try {
+      const { execSync } = require('child_process');
+      const extractorPath = path.join(__dirname, 'extract-types.js');
+      const output = execSync(`node "${extractorPath}" "${file}"`, { encoding: 'utf8' });
+      const extracted = JSON.parse(output);
+      
+      // Collect enums from this file
+      for (const [enumName, enumValues] of Object.entries(extracted.enums || {})) {
+        enumLookup[enumName] = enumValues.map(e => e.value);
+      }
+    } catch (error) {
+      // Skip files that can't be processed
+      continue;
+    }
+  }
+  
+  return enumLookup;
+}
+
+function compareEnumValues(apiEnumValues, sdkType, endpoint, paramName, enumLookup = {}) {
+  let sdkEnumValues = [];
+  
+  // Extract values from SDK type - handle both enum references and inline unions
+  if (sdkType.includes('|')) {
+    // Parse inline union type like "'checking' | 'savings'"
+    const matches = sdkType.match(/'([^']+)'/g);
+    if (matches) {
+      sdkEnumValues = matches.map(match => match.slice(1, -1)); // Remove quotes
+    }
+  } else if (sdkType.match(/^[A-Z]/)) {
+    // This is an enum reference - look it up in the enumLookup
+    if (enumLookup[sdkType]) {
+      sdkEnumValues = enumLookup[sdkType];
+    } else {
+      // Enum reference not found in lookup
+      return null;
+    }
+  }
+  
+  // Compare arrays
+  const apiSet = new Set(apiEnumValues);
+  const sdkSet = new Set(sdkEnumValues);
+  
+  const missingInSdk = apiEnumValues.filter(val => !sdkSet.has(val));
+  const extraInSdk = sdkEnumValues.filter(val => !apiSet.has(val));
+  
+  if (missingInSdk.length > 0 || extraInSdk.length > 0) {
+    return {
+      endpoint: `${endpoint.method} ${endpoint.path}`,
+      parameter: paramName,
+      apiValues: apiEnumValues,
+      sdkValues: sdkEnumValues,
+      missingInSdk,
+      extraInSdk
+    };
+  }
+  
+  return null;
 }
 
 function snakeToCamel(str) {
@@ -534,6 +640,35 @@ The following endpoints have parameter differences between the API and SDK:
 `;
   }
 
+  // Enum mismatches section
+  if (drift.enumMismatches.length > 0) {
+    report += `## 🎯 Enum Mismatches
+
+The following endpoints have enum value differences between the API and SDK:
+
+| Endpoint | Parameter | Issue | API Values | SDK Values |
+|----------|-----------|-------|------------|------------|
+`;
+    
+    for (const mismatch of drift.enumMismatches) {
+      let issues = [];
+      if (mismatch.missingInSdk.length > 0) {
+        issues.push(`Missing: ${mismatch.missingInSdk.join(', ')}`);
+      }
+      if (mismatch.extraInSdk.length > 0) {
+        issues.push(`Extra: ${mismatch.extraInSdk.join(', ')}`);
+      }
+      
+      report += `| \`${mismatch.endpoint}\` | \`${mismatch.parameter}\` | ${issues.join('; ')} | ${mismatch.apiValues.join(', ')} | ${mismatch.sdkValues.join(', ')} |\n`;
+    }
+    
+    report += `
+
+**Action Required:** Update SDK enum values to match API enum definitions.
+
+`;
+  }
+
   // Footer
   report += `---
 
@@ -582,7 +717,7 @@ function expandFunctionParameters(parameters, interfaces) {
       for (const prop of interfaceProps) {
         expandedParams.push({
           name: prop.name,
-          type: 'query', // Interface properties are typically query parameters
+          type: param.name.toLowerCase().includes('payload') ? 'body' : 'query',
           required: !prop.optional,
           tsType: prop.type,
           expandedFrom: param.type

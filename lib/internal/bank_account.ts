@@ -1,14 +1,19 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
 
+export enum AccountType {
+  Checking = "checking",
+  Savings = "savings"
+}
+
 export interface EntityBankAccount {
   id: string;
   accountOwnerName: string;
   accountNumber: string;
   routingNumber: string;
-  accountType: string;
+  accountType: 'checking' | 'savings';
   bankName: string;
   country: string;
-  currency: string;
+  currency: 'usd';
   nickname?: string;
   metadata?: Record<string, string>;
   business_id?: string;
@@ -22,7 +27,7 @@ export interface CreateEntityBankAccountPayload {
   account_owner_name: string;
   account_number: string;
   routing_number: string;
-  account_type: string;
+  account_type: AccountType;
   bank_name: string;
   business_id: string;
   nickname?: string;
@@ -41,7 +46,7 @@ export interface EntityBankAccountApi {
     account_owner_name: string,
     account_number: string,
     routing_number: string,
-    account_type: string,
+    account_type: AccountType,
     bank_name: string,
     business_id: string,
     nickname?: string,
@@ -71,7 +76,7 @@ export async function createEntityBankAccount(
   account_owner_name: string,
   account_number: string,
   routing_number: string,
-  account_type: string,
+  account_type: AccountType,
   bank_name: string,
   business_id: string,
   nickname?: string,
