@@ -33,6 +33,25 @@ export interface CompleteCheckoutPayload {
   paymentToken: string;
 }
 
+export interface RefundCheckoutPayload {
+  amount?: number;
+  currency?: string;
+}
+
+export enum CheckoutRefundStatus {
+  Succeeded = "succeeded",
+  Failed = "failed",
+}
+
+export interface CheckoutRefund {
+  id: string;
+  checkoutId: string;
+  status: CheckoutRefundStatus;
+  refundResponse: string;
+  refundAmount: number;
+  createdAt: string;
+}
+
 export interface CheckoutApi {
   listCheckouts(subAccountId?: string): Promise<ApiResponse<Checkout[]>>;
   getCheckout(id: string): Promise<ApiResponse<Checkout>>;
@@ -50,12 +69,25 @@ export interface CheckoutApi {
     idempotencyKey: string,
     payload: CompleteCheckoutPayload
   ): Promise<ApiResponse<Checkout>>;
+  refundCheckout(
+    id: string,
+    idempotencyKey: string,
+    payload?: RefundCheckoutPayload
+  ): Promise<ApiResponse<CheckoutRefund>>;
 }
 
-export const listCheckouts = (
+/**
+ * Lists all checkouts.
+ * 
+ * @endpoint GET /checkouts
+ * @param token - Access token for authentication
+ * @param subAccountId - Optional sub-account to scope the checkouts to
+ * @returns Promise resolving to array of checkouts
+ */
+export function listCheckouts(
   token: string,
   subAccountId?: string
-): Promise<ApiResponse<Checkout[]>> => {
+): Promise<ApiResponse<Checkout[]>> {
   const req = new JustifiRequest(RequestMethod.Get, "/v1/checkouts").withAuth(
     token
   );
@@ -65,34 +97,61 @@ export const listCheckouts = (
   }
 
   return req.execute<ApiResponse<Checkout[]>>();
-};
+}
 
-export const getCheckout = (
+/**
+ * Retrieves a checkout by its ID.
+ * 
+ * @endpoint GET /checkouts/{id}
+ * @param token - Access token for authentication
+ * @param id - The checkout ID to retrieve
+ * @returns Promise resolving to the checkout details
+ */
+export function getCheckout(
   token: string,
   id: string
-): Promise<ApiResponse<Checkout>> => {
+): Promise<ApiResponse<Checkout>> {
   return new JustifiRequest(RequestMethod.Get, `/v1/checkouts/${id}`)
     .withAuth(token)
     .execute<ApiResponse<Checkout>>();
-};
+}
 
-export const updateCheckout = (
+/**
+ * Updates a checkout with new information.
+ * 
+ * @endpoint PATCH /checkouts/{id}
+ * @param token - Access token for authentication
+ * @param id - The checkout ID to update
+ * @param amount - Optional new amount
+ * @param description - Optional new description
+ * @returns Promise resolving to the updated checkout
+ */
+export function updateCheckout(
   token: string,
   id: string,
   amount?: number,
   description?: string
-): Promise<ApiResponse<Checkout>> => {
+): Promise<ApiResponse<Checkout>> {
   return new JustifiRequest(RequestMethod.Patch, `/v1/checkouts/${id}`)
     .withAuth(token)
     .withBody({ amount, description })
     .execute<ApiResponse<Checkout>>();
-};
+}
 
-export const createCheckout = (
+/**
+ * Creates a new checkout.
+ * 
+ * @endpoint POST /checkouts
+ * @param token - Access token for authentication
+ * @param payload - Checkout creation data
+ * @param subAccountId - Optional sub-account to scope the checkout to
+ * @returns Promise resolving to the created checkout
+ */
+export function createCheckout(
   token: string,
   payload: CreateCheckoutPayload,
   subAccountId?: string
-): Promise<ApiResponse<Checkout>> => {
+): Promise<ApiResponse<Checkout>> {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/checkouts")
     .withAuth(token)
     .withBody(payload);
@@ -102,19 +161,56 @@ export const createCheckout = (
   }
 
   return req.execute<ApiResponse<Checkout>>();
-};
+}
 
-export const completeCheckout = (
+/**
+ * Completes a checkout by processing the payment.
+ * 
+ * @endpoint POST /checkouts/{id}/complete
+ * @param token - Access token for authentication
+ * @param id - The checkout ID to complete
+ * @param idempotencyKey - Unique key to prevent duplicate completions
+ * @param payload - Checkout completion data
+ * @returns Promise resolving to the completed checkout
+ */
+export function completeCheckout(
   token: string,
   id: string,
   idempotencyKey: string,
   payload: CompleteCheckoutPayload
-): Promise<ApiResponse<Checkout>> => {
+): Promise<ApiResponse<Checkout>> {
   const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/complete`)
                                  .withAuth(token)
                                  .withIdempotencyKey(idempotencyKey)
                                  .withBody(payload);
 
   return req.execute<ApiResponse<Checkout>>();
-};
+}
+
+/**
+ * Refunds a checkout.
+ * 
+ * @endpoint POST /checkouts/{id}/refunds
+ * @param token - Access token for authentication
+ * @param id - The checkout ID to refund
+ * @param idempotencyKey - Unique key to prevent duplicate refunds
+ * @param payload - Optional refund data (amount and currency)
+ * @returns Promise resolving to the checkout refund
+ */
+export async function refundCheckout(
+  token: string,
+  id: string,
+  idempotencyKey: string,
+  payload?: RefundCheckoutPayload
+): Promise<ApiResponse<CheckoutRefund>> {
+  const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/refunds`)
+    .withAuth(token)
+    .withIdempotencyKey(idempotencyKey);
+
+  if (payload) {
+    req.withBody(payload);
+  }
+
+  return req.execute<ApiResponse<CheckoutRefund>>();
+}
 
