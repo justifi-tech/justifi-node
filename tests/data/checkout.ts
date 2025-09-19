@@ -34,9 +34,8 @@ export const checkout2: Checkout = {
 
 export const createCheckoutPayload: CreateCheckoutPayload = {
   amount: 1000,
-  currency: "usd",
   description: "ORDER 1235ABC: Charging $10 to the test card",
-  paymentMethodGroupId: "pmg_xyz" 
+  payment_method_group_id: "pmg_xyz" 
 };
 
 export const completeCheckoutPayload: CompleteCheckoutPayload = {
