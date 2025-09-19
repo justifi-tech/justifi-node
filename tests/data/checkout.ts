@@ -1,4 +1,4 @@
-import { Checkout, CheckoutStatus, CompleteCheckoutPayload, CreateCheckoutPayload } from "../../lib/internal/checkout";
+import { Checkout, CheckoutStatus, CompleteCheckoutPayload, CreateCheckoutPayload, RefundCheckoutPayload, CheckoutRefund, CheckoutRefundStatus } from "../../lib/internal/checkout";
 
 export const checkout1: Checkout = {
   id: "cho_xyz",
@@ -34,12 +34,25 @@ export const checkout2: Checkout = {
 
 export const createCheckoutPayload: CreateCheckoutPayload = {
   amount: 1000,
-  currency: "usd",
   description: "ORDER 1235ABC: Charging $10 to the test card",
-  paymentMethodGroupId: "pmg_xyz" 
+  payment_method_group_id: "pmg_xyz" 
 };
 
 export const completeCheckoutPayload: CompleteCheckoutPayload = {
   paymentToken: "pm_asdfakjsd23"
+};
+
+export const refundCheckoutPayload: RefundCheckoutPayload = {
+  amount: 5000,
+  currency: "usd"
+};
+
+export const checkoutRefund: CheckoutRefund = {
+  id: "chr_abc123",
+  checkoutId: "cho_xyz",
+  status: CheckoutRefundStatus.Succeeded,
+  refundResponse: "Refund processed successfully",
+  refundAmount: 5000,
+  createdAt: "2024-01-01T12:00:00Z"
 };
 

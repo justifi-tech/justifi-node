@@ -3,7 +3,7 @@ import nock from "nock";
 import { Scope } from "nock/types";
 import { toSnakeCase } from "../../lib/internal/converter";
 import { withApiResponse } from "../data/http";
-import { completeCheckoutPayload, createCheckoutPayload, checkout1, checkout2 } from "../data/checkout";
+import { completeCheckoutPayload, createCheckoutPayload, checkout1, checkout2, refundCheckoutPayload, checkoutRefund } from "../data/checkout";
 import { getTestSetupData } from "../setup";
 
 describe("Checkout", () => {
@@ -162,6 +162,49 @@ describe("Checkout", () => {
         completeCheckoutPayload
       );
       expect(checkout.data).toEqual(checkout1);
+      expect(serverMock.isDone()).toEqual(true);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+  });
+
+  describe("refund checkout", () => {
+    it("refunds checkout with payload", async () => {
+      serverMock
+        .post(`/v1/checkouts/${checkout1.id}/refunds`, toSnakeCase(refundCheckoutPayload), {
+          reqheaders: {
+            ...authHeaders,
+            "Idempotency-Key": idempotencyKey
+          },
+        })
+        .once()
+        .reply(200, withApiResponse(checkoutRefund));
+
+      const refund = await client.refundCheckout(
+        checkout1.id,
+        idempotencyKey,
+        refundCheckoutPayload
+      );
+      expect(refund.data).toEqual(checkoutRefund);
+      expect(serverMock.isDone()).toEqual(true);
+      expect(serverMock.pendingMocks()).toHaveLength(0);
+    });
+
+    it("refunds checkout without payload (full refund)", async () => {
+      serverMock
+        .post(`/v1/checkouts/${checkout1.id}/refunds`, undefined, {
+          reqheaders: {
+            ...authHeaders,
+            "Idempotency-Key": idempotencyKey
+          },
+        })
+        .once()
+        .reply(200, withApiResponse(checkoutRefund));
+
+      const refund = await client.refundCheckout(
+        checkout1.id,
+        idempotencyKey
+      );
+      expect(refund.data).toEqual(checkoutRefund);
       expect(serverMock.isDone()).toEqual(true);
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });

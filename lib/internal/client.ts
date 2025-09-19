@@ -67,7 +67,7 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessListFilters, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
-import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout } from "./checkout";
+import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, RefundCheckoutPayload, CheckoutRefund, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout, refundCheckout } from "./checkout";
 import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressListFilters, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
 import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
 import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentListFilters, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
@@ -762,6 +762,29 @@ export class Justifi
   ): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
     return completeCheckout(
+      token.accessToken,
+      id,
+      idempotencyKey,
+      payload
+    );
+  }
+
+  /**
+   * Refunds a checkout.
+   * 
+   * @endpoint POST /v1/checkouts/{id}/refunds
+   * @param id - The checkout ID to refund
+   * @param idempotencyKey - Unique key to prevent duplicate refunds
+   * @param payload - Optional refund data (amount and currency)
+   * @returns Promise resolving to the checkout refund
+   */
+  async refundCheckout(
+    id: string,
+    idempotencyKey: string,
+    payload?: RefundCheckoutPayload
+  ): Promise<ApiResponse<CheckoutRefund>> {
+    const token = await this.getToken();
+    return refundCheckout(
       token.accessToken,
       id,
       idempotencyKey,
