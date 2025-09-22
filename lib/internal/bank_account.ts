@@ -1,13 +1,11 @@
 import { ApiResponse, JustifiRequest, RequestMethod } from "./http";
+import { Currency } from "./types";
 
 export enum AccountType {
   Checking = "checking",
   Savings = "savings"
 }
 
-export enum Currency {
-  USD = "usd"
-}
 
 export interface EntityBankAccount {
   id: string;

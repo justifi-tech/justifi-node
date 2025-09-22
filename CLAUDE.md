@@ -10,17 +10,26 @@ The SDK includes an automated API drift checker that monitors differences betwee
 node scripts/check-api-drift.js
 ```
 
-This will:
-- Fetch the latest OpenAPI specification from JustiFi
-- Extract SDK endpoints from `@endpoint` JSDoc comments
-- Compare and generate a drift report (`drift-report.md`)
+### How the Drift Checker Works
+
+The drift checker has a two-step process:
+
+1. **Primary Drift Detection**: 
+   - Extracts endpoints from implementation files (`checkout.ts`, `payment.ts`, etc.) using `@endpoint` JSDoc comments
+   - Compares these against the OpenAPI specification
+   - **Does NOT** look at `client.ts` for this comparison
+
+2. **Client Exposure Check**:
+   - Separately verifies that implementation endpoints are properly exposed in `client.ts`
+   - Reports any implementation functions not accessible through the client interface
 
 ### Understanding Drift Results
 
-- **New Endpoints in API**: API endpoints missing from SDK
-- **SDK Endpoints Not in API**: SDK methods that don't match API endpoints  
+- **New Endpoints in API**: API endpoints missing from SDK implementation files
+- **SDK Endpoints Not in API**: Implementation methods that don't match API endpoints  
 - **Parameter Mismatches**: Differences in function parameters vs API parameters
 - **Enum Mismatches**: Enum value differences between API and SDK
+- **Endpoints Not Exposed in Client**: Implementation functions not exposed in `client.ts`
 
 ## Function Patterns and Annotations
 
@@ -80,7 +89,7 @@ export const createPayment = (
 When adding `@endpoint` annotations to existing functions:
 
 1. **Use the correct HTTP method and path from the OpenAPI spec**
-2. **Omit the `/v1` prefix** (drift checker normalizes this)
+2. **Include or omit the `/v1` prefix** (drift checker normalizes paths automatically)
 3. **Add comprehensive JSDoc comments** (description + @param + @returns)
 4. **Convert to `function` declarations** if using const arrow functions
 
@@ -98,7 +107,7 @@ export const getCheckout = (token: string, id: string): Promise<ApiResponse<Chec
 /**
  * Retrieves a checkout by its ID.
  * 
- * @endpoint GET /checkouts/{id}
+ * @endpoint GET /v1/checkouts/{id}
  * @param token - Access token for authentication
  * @param id - The checkout ID to retrieve
  * @returns Promise resolving to the checkout details
