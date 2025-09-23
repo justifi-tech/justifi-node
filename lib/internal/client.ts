@@ -67,7 +67,7 @@ import { verifySignature, WebhookVerifier } from "./webhook";
 import { CheckoutSessionApi, createCheckoutSession, CreateCheckoutSession, CreateCheckoutSessionResponse } from "./checkout_session"
 import { ProvisioningApi, ProvisionProductPayload, provisionProduct, ProvisionProductResponse } from "./provisioning";
 import { Business, BusinessApi, createBusiness, EntityBusiness, CreateEntityBusinessPayload, UpdateEntityBusinessPayload, EntityBusinessListFilters, EntityBusinessApi, createEntityBusiness, listEntityBusinesses, getEntityBusiness, updateEntityBusiness } from "./business";
-import { CheckoutApi, Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, RefundCheckoutPayload, CheckoutRefund, CheckoutListParams, CreateCheckoutParams, UpdateCheckoutParams, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout, refundCheckout } from "./checkout";
+import { Checkout, CreateCheckoutPayload, CompleteCheckoutPayload, RefundCheckoutPayload, CheckoutRefund, CheckoutListParams, CreateCheckoutParams, UpdateCheckoutParams, completeCheckout, createCheckout, getCheckout, listCheckouts, updateCheckout, refundCheckout } from "./checkout";
 import { EntityAddress, CreateEntityAddressPayload, UpdateEntityAddressPayload, EntityAddressListFilters, EntityAddressApi, createEntityAddress, listEntityAddresses, getEntityAddress, updateEntityAddress } from "./address";
 import { EntityBankAccount, CreateEntityBankAccountPayload, EntityBankAccountListFilters, EntityBankAccountApi, createEntityBankAccount, listEntityBankAccounts, getEntityBankAccount } from "./bank_account";
 import { EntityDocument, CreateEntityDocumentPayload, EntityDocumentListFilters, EntityDocumentApi, createEntityDocument, listEntityDocuments, getEntityDocument } from "./document";
@@ -89,7 +89,6 @@ export class Justifi
   CheckoutSessionApi,
   WebhookVerifier,
   ProvisioningApi,
-  CheckoutApi,
   BusinessApi,
   EntityAddressApi,
   EntityBankAccountApi,
@@ -718,11 +717,12 @@ export class Justifi
    * 
    * @endpoint GET /v1/checkouts/{id}
    * @param id - The checkout ID to retrieve
+   * @param subAccountId - Optional sub-account ID to scope the operation
    * @returns Promise resolving to the checkout details
    */
-  async getCheckout(id: string): Promise<ApiResponse<Checkout>> {
+  async getCheckout(id: string, subAccountId?: string): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
-    return getCheckout(token.accessToken, id);
+    return getCheckout(token.accessToken, id, subAccountId);
   }
 
   /**
@@ -730,12 +730,12 @@ export class Justifi
    * 
    * @endpoint PATCH /v1/checkouts/{id}
    * @param id - The checkout ID to update
-   * @param params - Update parameters containing payload
+   * @param params - Update parameters
    * @returns Promise resolving to the updated checkout
    */
-  async updateCheckout(id: string, params: UpdateCheckoutParams): Promise<ApiResponse<Checkout>> {
+  async updateCheckout(id: string, idempotencyKey: string, params: UpdateCheckoutParams): Promise<ApiResponse<Checkout>> {
     const token = await this.getToken();
-    return updateCheckout(token.accessToken, id, params);
+    return updateCheckout(token.accessToken, id, idempotencyKey, params);
   }
 
   /**

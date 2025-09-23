@@ -59,12 +59,6 @@ export interface CreateCheckoutPayload {
   payment?: CheckoutPayment;
 }
 
-export interface UpdateCheckoutPayload {
-  amount?: number;
-  description?: string;
-  statement_descriptor?: string;
-  application_fees?: CheckoutApplicationFees;
-}
 
 export interface CheckoutListParams extends BaseListOptions {
   filters?: {
@@ -74,12 +68,27 @@ export interface CheckoutListParams extends BaseListOptions {
   };
 }
 
-export interface CreateCheckoutParams extends BaseOperationOptions {
-  payload: CreateCheckoutPayload;
+export interface CreateCheckoutParams {
+  // Required request context
+  subAccountId: string;
+  
+  // Required API parameters
+  amount: number;
+  description: string;
+  
+  // Optional API parameters
+  origin_url?: string;
+  payment_method_group_id?: string;
+  statement_descriptor?: string;
+  application_fees?: CheckoutApplicationFees;
+  payment?: CheckoutPayment;
 }
 
 export interface UpdateCheckoutParams {
-  payload: UpdateCheckoutPayload;
+  amount?: number;
+  description?: string;
+  statement_descriptor?: string;
+  application_fees?: CheckoutApplicationFees;
 }
 
 export interface CompleteCheckoutPayload {
@@ -105,22 +114,6 @@ export interface CheckoutRefund {
   createdAt: string;
 }
 
-export interface CheckoutApi {
-  listCheckouts(params?: CheckoutListParams): Promise<ApiResponse<Checkout[]>>;
-  getCheckout(id: string): Promise<ApiResponse<Checkout>>;
-  updateCheckout(id: string, params: UpdateCheckoutParams): Promise<ApiResponse<Checkout>>;
-  createCheckout(params: CreateCheckoutParams): Promise<ApiResponse<Checkout>>;
-  completeCheckout(
-    id: string,
-    idempotencyKey: string,
-    payload: CompleteCheckoutPayload
-  ): Promise<ApiResponse<Checkout>>;
-  refundCheckout(
-    id: string,
-    idempotencyKey: string,
-    payload?: RefundCheckoutPayload
-  ): Promise<ApiResponse<CheckoutRefund>>;
-}
 
 /**
  * Lists all checkouts.
@@ -164,15 +157,22 @@ export function listCheckouts(
  * @endpoint GET /v1/checkouts/{id}
  * @param token - Access token for authentication
  * @param id - The checkout ID to retrieve
+ * @param subAccountId - Optional sub-account ID to scope the operation
  * @returns Promise resolving to the checkout details
  */
 export function getCheckout(
   token: string,
-  id: string
+  id: string,
+  subAccountId?: string
 ): Promise<ApiResponse<Checkout>> {
-  return new JustifiRequest(RequestMethod.Get, `/v1/checkouts/${id}`)
-    .withAuth(token)
-    .execute<ApiResponse<Checkout>>();
+  const req = new JustifiRequest(RequestMethod.Get, `/v1/checkouts/${id}`)
+    .withAuth(token);
+  
+  if (subAccountId) {
+    req.withHeader("Sub-Account", subAccountId);
+  }
+  
+  return req.execute<ApiResponse<Checkout>>();
 }
 
 /**
@@ -181,17 +181,20 @@ export function getCheckout(
  * @endpoint PATCH /v1/checkouts/{id}
  * @param token - Access token for authentication
  * @param id - The checkout ID to update
- * @param params - Update parameters containing payload
+ * @param idempotencyKey - Unique key to prevent duplicate checkout updates
+ * @param params - Update parameters
  * @returns Promise resolving to the updated checkout
  */
 export function updateCheckout(
   token: string,
   id: string,
+  idempotencyKey: string,
   params: UpdateCheckoutParams
 ): Promise<ApiResponse<Checkout>> {
   return new JustifiRequest(RequestMethod.Patch, `/v1/checkouts/${id}`)
     .withAuth(token)
-    .withBody(params.payload)
+    .withIdempotencyKey(idempotencyKey)
+    .withBody(params)
     .execute<ApiResponse<Checkout>>();
 }
 
@@ -199,21 +202,20 @@ export function updateCheckout(
  * Creates a new checkout.
  * 
  * @endpoint POST /v1/checkouts
- * @param token - Access token for authentication
- * @param params - Checkout creation parameters including payload and sub-account
+ * @param authorizationToken - Access token for authentication
+ * @param params - Checkout creation parameters
  * @returns Promise resolving to the created checkout
  */
 export function createCheckout(
-  token: string,
+  authorizationToken: string,
   params: CreateCheckoutParams
 ): Promise<ApiResponse<Checkout>> {
+  const { subAccountId, ...payload } = params;
+  
   const req = new JustifiRequest(RequestMethod.Post, "/v1/checkouts")
-    .withAuth(token)
-    .withBody(params.payload);
-
-  if (params.subAccount?.subAccountId) {
-    req.withHeader("Sub-Account", params.subAccount.subAccountId);
-  }
+    .withAuth(authorizationToken)
+    .withBody(payload)
+    .withHeader("Sub-Account", subAccountId);
 
   return req.execute<ApiResponse<Checkout>>();
 }
