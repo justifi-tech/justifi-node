@@ -783,13 +783,28 @@ function expandFunctionParameters(parameters, interfaces) {
       // This is an interface type - expand its properties
       const interfaceProps = interfaces[param.type];
       for (const prop of interfaceProps) {
-        expandedParams.push({
-          name: prop.name,
-          type: param.name.toLowerCase().includes('payload') ? 'body' : 'query',
-          required: !prop.optional,
-          tsType: prop.type,
-          expandedFrom: param.type
-        });
+        // Check if this property has nested type literal properties
+        if (Array.isArray(prop.type)) {
+          // This is a nested object type - expand its properties
+          for (const nestedProp of prop.type) {
+            expandedParams.push({
+              name: nestedProp.name,
+              type: 'query', // Filter properties are typically query params
+              required: !nestedProp.optional,
+              tsType: nestedProp.type,
+              expandedFrom: `${param.type}.${prop.name}`
+            });
+          }
+        } else {
+          // Regular property
+          expandedParams.push({
+            name: prop.name,
+            type: param.name.toLowerCase().includes('payload') ? 'body' : 'query',
+            required: !prop.optional,
+            tsType: prop.type,
+            expandedFrom: param.type
+          });
+        }
       }
     } else {
       // Regular parameter - determine its type

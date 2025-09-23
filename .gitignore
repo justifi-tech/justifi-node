@@ -47,6 +47,7 @@ coverage
 # API drift checker temporary files
 drift-report.md
 openapi-spec.json
+openapi-spec.yaml
 sdk-endpoints.json
 
 # Claude Code settings

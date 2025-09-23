@@ -38,13 +38,13 @@ function extractTypesFromFile(filePath) {
         if (ts.isPropertySignature(member)) {
           const propertyName = member.name?.text;
           const isOptional = !!member.questionToken;
-          const typeText = member.type ? getTypeText(member.type) : 'unknown';
+          const typeInfo = member.type ? getTypeText(member.type, extractedTypes) : 'unknown';
 
           if (propertyName) {
             properties.push({
               name: propertyName,
               optional: isOptional,
-              type: typeText
+              type: typeInfo
             });
           }
         }
@@ -103,7 +103,7 @@ function extractTypesFromFile(filePath) {
   return { interfaces: extractedTypes, functions: extractedFunctions, enums: extractedEnums };
 }
 
-function getTypeText(typeNode) {
+function getTypeText(typeNode, extractedTypes = {}) {
   // Simple type text extraction using TypeScript compiler API
   switch (typeNode.kind) {
     case ts.SyntaxKind.StringKeyword: return 'string';
@@ -117,10 +117,11 @@ function getTypeText(typeNode) {
       }
       return 'unknown';
     case ts.SyntaxKind.TypeLiteral:
-      return 'object';
+      // Extract properties from nested object types
+      return extractTypeLiteralProperties(typeNode);
     case ts.SyntaxKind.UnionType:
       // Handle union types like 'checking' | 'savings'
-      const unionTypes = typeNode.types.map(t => getTypeText(t));
+      const unionTypes = typeNode.types.map(t => getTypeText(t, extractedTypes));
       return unionTypes.join(' | ');
     case ts.SyntaxKind.LiteralType:
       // Handle literal types like 'checking'
@@ -132,6 +133,30 @@ function getTypeText(typeNode) {
       // For other types, try to get text representation
       return typeNode.getText ? typeNode.getText().replace(/\s+/g, ' ') : 'unknown';
   }
+}
+
+function extractTypeLiteralProperties(typeLiteralNode) {
+  const properties = [];
+  
+  if (typeLiteralNode.members) {
+    for (const member of typeLiteralNode.members) {
+      if (ts.isPropertySignature(member)) {
+        const propertyName = member.name?.text;
+        const isOptional = !!member.questionToken;
+        const typeText = member.type ? getTypeText(member.type) : 'unknown';
+
+        if (propertyName) {
+          properties.push({
+            name: propertyName,
+            optional: isOptional,
+            type: typeText
+          });
+        }
+      }
+    }
+  }
+  
+  return properties;
 }
 
 function extractFunctionInfo(node, sourceCode) {
