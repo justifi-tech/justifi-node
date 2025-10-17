@@ -160,6 +160,16 @@ describe("http", () => {
     })
   });
 
+  describe("with excluding camel case keys", () => {
+    it("sets the excludingCamelCaseKeys property", () => {
+      const keys = ["firstKey", "secondKey"];
+      const req = new JustifiRequest(RequestMethod.Get, "/")
+        .withExcludingCamelCaseKeys(keys);
+
+      expect(req['excludingCamelCaseKeys']).toEqual(keys);
+    });
+  });
+
   describe("execute with retry", () => {
     describe("when using default retries", () => {
       it("retries 3 times", async () => {
