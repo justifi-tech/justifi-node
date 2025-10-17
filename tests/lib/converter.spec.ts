@@ -34,6 +34,23 @@ describe("Converters", () => {
     it("should convert deep nested object array snake cased to camel case", () => {
       expect(toCamelCase(deepSnakeCase)).toEqual(deepCamelCase);
     });
+
+    it("should convert snake cased to camel case excluding specified keys", () => {
+      expect(toCamelCase(simpleSnakeCase, ["this"])).toEqual({
+        this: { is_a: "test" },
+        snakeCaseKey: "snake_case_value",
+      });
+    });
+
+    it("should convert deep nested object array snake cased to camel case excluding specified keys", () => {
+      expect(toCamelCase(deepSnakeCase, ["with"])).toEqual([
+        { thisIs: "the first object", with: { another_key: "nested" } },
+        {
+          thisIs: "the_second_object",
+          with: { another_array_key_nested: [{ some_thing: "here" }] },
+        },
+      ]);
+    });
   });
 
   describe("toSnakeCase", () => {

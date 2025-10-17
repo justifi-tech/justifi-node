@@ -1,14 +1,18 @@
-export const toCamelCase = (obj: any): any => {
+export const toCamelCase = (obj: any, excluding_keys: string[] = []): any => {
   if (obj === Object(obj) && !Array.isArray(obj) && typeof obj !== "function") {
     const converted: any = {};
     Object.keys(obj).forEach((k) => {
-      converted[convertCamelCase(k)] = toCamelCase(obj[k]);
+      if(excluding_keys.includes(k)) {
+        converted[convertCamelCase(k)] = obj[k];
+      } else {
+        converted[convertCamelCase(k)] = toCamelCase(obj[k], excluding_keys);
+      }
     });
 
     return converted;
   } else if (Array.isArray(obj)) {
     return obj.map((i) => {
-      return toCamelCase(i);
+      return toCamelCase(i, excluding_keys);
     });
   }
 
