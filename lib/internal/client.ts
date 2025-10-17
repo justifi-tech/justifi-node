@@ -147,7 +147,7 @@ export class Justifi
 
   /**
    * Generates a web component token for client-side operations.
-   * 
+   *
    * @endpoint POST /v1/web_component_tokens
    * @param resources - List of resources the token should have access to
    * @returns Promise resolving to the web component token
@@ -191,7 +191,7 @@ export class Justifi
 
   /**
    * Lists sub-accounts with optional status filtering.
-   * 
+   *
    * @endpoint GET /v1/sub_accounts
    * @param status - Optional status filter: "created", "submitted", "information_needed", "enabled", "rejected", "disabled", "archived"
    * @returns Promise resolving to array of sub-accounts
@@ -213,7 +213,7 @@ export class Justifi
 
   /**
    * Retrieves a sub-account by its ID.
-   * 
+   *
    * @endpoint GET /v1/sub_accounts/{id}
    * @param id - The sub-account ID to retrieve
    * @returns Promise resolving to the sub-account details
@@ -225,7 +225,7 @@ export class Justifi
 
   /**
    * Lists refunds with optional sub-account filtering.
-   * 
+   *
    * @endpoint GET /v1/refunds
    * @param subAccountId - Optional sub-account to scope the refunds to
    * @returns Promise resolving to array of refunds
@@ -239,7 +239,7 @@ export class Justifi
 
   /**
    * Retrieves a refund by its ID.
-   * 
+   *
    * @endpoint GET /v1/refunds/{id}
    * @param id - The refund ID to retrieve
    * @returns Promise resolving to the refund details
@@ -251,7 +251,7 @@ export class Justifi
 
   /**
    * Updates a refund with metadata.
-   * 
+   *
    * @endpoint PATCH /v1/refunds/{id}
    * @param id - The refund ID to update
    * @param metadata - Metadata to attach to the refund
@@ -269,7 +269,7 @@ export class Justifi
 
   /**
    * Creates a payment intent for deferred payment processing.
-   * 
+   *
    * @endpoint POST /v1/payment_intents
    * @param idempotencyKey - Unique key to prevent duplicate payment intents
    * @param payload - Payment intent creation data
@@ -292,7 +292,7 @@ export class Justifi
 
   /**
    * Lists payment intents with optional sub-account filtering.
-   * 
+   *
    * @endpoint GET /v1/payment_intents
    * @param subAccountId - Optional sub-account to scope the payment intents to
    * @returns Promise resolving to array of payment intents
@@ -306,7 +306,7 @@ export class Justifi
 
   /**
    * Retrieves a payment intent by its ID.
-   * 
+   *
    * @endpoint GET /v1/payment_intents/{id}
    * @param id - The payment intent ID to retrieve
    * @returns Promise resolving to the payment intent details
@@ -318,7 +318,7 @@ export class Justifi
 
   /**
    * Updates a payment intent with new information.
-   * 
+   *
    * @endpoint PATCH /v1/payment_intents/{id}
    * @param id - The payment intent ID to update
    * @param idempotencyKey - Unique key to prevent duplicate updates
@@ -336,7 +336,7 @@ export class Justifi
 
   /**
    * Captures a payment intent to complete the payment.
-   * 
+   *
    * @endpoint POST /v1/payment_intents/{id}/capture
    * @param id - The payment intent ID to capture
    * @param idempotencyKey - Unique key to prevent duplicate captures
@@ -354,7 +354,7 @@ export class Justifi
 
   /**
    * Lists payments associated with a payment intent.
-   * 
+   *
    * @endpoint GET /v1/payment_intents/{id}/payments
    * @param id - The payment intent ID to get payments for
    * @returns Promise resolving to array of payments
@@ -368,7 +368,7 @@ export class Justifi
 
   /**
    * Creates a new payment with the specified amount and payment method.
-   * 
+   *
    * @endpoint POST /v1/payments
    * @param idempotencyKey - Unique key to prevent duplicate payments
    * @param payload - Payment details including amount and payment method
@@ -391,7 +391,7 @@ export class Justifi
 
   /**
    * Lists payments with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/payments
    * @param filters - Optional filters for payment list
    * @param subAccountId - Optional sub-account to scope the payments to
@@ -407,7 +407,7 @@ export class Justifi
 
   /**
    * Retrieves a payment by its ID.
-   * 
+   *
    * @endpoint GET /v1/payments/{id}
    * @param id - The payment ID to retrieve
    * @returns Promise resolving to the payment details
@@ -419,7 +419,7 @@ export class Justifi
 
   /**
    * Updates a payment with new information.
-   * 
+   *
    * @endpoint PATCH /v1/payments/{id}
    * @param idempotencyKey - Unique key to prevent duplicate updates
    * @param id - The payment ID to update
@@ -437,7 +437,7 @@ export class Justifi
 
   /**
    * Captures an authorized payment.
-   * 
+   *
    * @endpoint POST /v1/payments/{id}/capture
    * @param idempotencyKey - Unique key to prevent duplicate captures
    * @param id - The payment ID to capture
@@ -453,7 +453,7 @@ export class Justifi
 
   /**
    * Creates a refund for a payment.
-   * 
+   *
    * @endpoint POST /v1/payments/{id}/refunds
    * @param idempotencyKey - Unique key to prevent duplicate refunds
    * @param id - The payment ID to refund
@@ -471,7 +471,7 @@ export class Justifi
 
   /**
    * Retrieves balance transactions for a specific payment.
-   * 
+   *
    * @endpoint GET /v1/payments/{payment_id}/payment_balance_transactions
    * @param paymentId - The payment ID to get balance transactions for
    * @returns Promise resolving to array of balance transactions
@@ -485,7 +485,7 @@ export class Justifi
 
   /**
    * Creates a new payment method for storing customer payment information.
-   * 
+   *
    * @endpoint POST /v1/payment_methods
    * @param payload - Payment method details (card, bank account, etc.)
    * @param idempotencyKey - Unique key to prevent duplicate payment methods
@@ -503,7 +503,7 @@ export class Justifi
 
   /**
    * Lists payment methods with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/payment_methods
    * @param subAccountId - Optional sub-account to scope the payment methods to
    * @param customerId - Optional customer ID to filter payment methods
@@ -519,7 +519,7 @@ export class Justifi
 
   /**
    * Retrieves a payment method by its token.
-   * 
+   *
    * @endpoint GET /v1/payment_methods/{token}
    * @param paymentMethodToken - The payment method token to retrieve
    * @returns Promise resolving to the payment method details
@@ -533,7 +533,7 @@ export class Justifi
 
   /**
    * Updates a payment method with new information.
-   * 
+   *
    * @endpoint PATCH /v1/payment_methods/{token}
    * @param payload - Updated payment method data
    * @param paymentMethodToken - The payment method token to update
@@ -551,7 +551,7 @@ export class Justifi
 
   /**
    * Lists disputes with optional sub-account filtering.
-   * 
+   *
    * @endpoint GET /v1/disputes
    * @param subAccountId - Optional sub-account to scope the disputes to
    * @returns Promise resolving to array of disputes
@@ -563,7 +563,7 @@ export class Justifi
 
   /**
    * Retrieves a dispute by its ID.
-   * 
+   *
    * @endpoint GET /v1/disputes/{id}
    * @param id - The dispute ID to retrieve
    * @returns Promise resolving to the dispute details
@@ -575,7 +575,7 @@ export class Justifi
 
   /**
    * Updates a dispute with new information or evidence.
-   * 
+   *
    * @endpoint PATCH /v1/disputes/{id}
    * @param id - The dispute ID to update
    * @param idempotencyKey - Unique key to prevent duplicate updates
@@ -588,7 +588,7 @@ export class Justifi
   }
   /**
    * Lists payouts with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/payouts
    * @param filters - Optional filters for payout list
    * @returns Promise resolving to array of payouts
@@ -600,7 +600,7 @@ export class Justifi
 
   /**
    * Retrieves a payout by its ID.
-   * 
+   *
    * @endpoint GET /v1/payouts/{id}
    * @param id - The payout ID to retrieve
    * @returns Promise resolving to the payout details
@@ -612,7 +612,7 @@ export class Justifi
 
   /**
    * Updates a payout with new information.
-   * 
+   *
    * @endpoint PATCH /v1/payouts/{id}
    * @param id - The payout ID to update
    * @param idempotencyKey - Unique key to prevent duplicate updates
@@ -629,7 +629,7 @@ export class Justifi
   }
   /**
    * Lists balance transactions with optional payout filtering.
-   * 
+   *
    * @endpoint GET /v1/balance_transactions
    * @param payoutId - Optional payout ID to filter balance transactions
    * @returns Promise resolving to array of balance transactions
@@ -641,7 +641,7 @@ export class Justifi
 
   /**
    * Retrieves a balance transaction by its ID.
-   * 
+   *
    * @endpoint GET /v1/balance_transactions/{id}
    * @param id - The balance transaction ID to retrieve
    * @returns Promise resolving to the balance transaction details
@@ -653,7 +653,7 @@ export class Justifi
 
   /**
    * Creates a new checkout session.
-   * 
+   *
    * @endpoint POST /v1/checkout_sessions
    * @param payload - Checkout session creation data
    * @returns Promise resolving to the created checkout session
@@ -665,7 +665,7 @@ export class Justifi
 
   /**
    * Provisions a product for a business.
-   * 
+   *
    * @endpoint POST /v1/entities/provisioning
    * @param payload - Product provisioning data
    * @returns Promise resolving to the provisioning response
@@ -677,7 +677,7 @@ export class Justifi
 
   /**
    * Creates a new business entity.
-   * 
+   *
    * @endpoint POST /v1/entities/business
    * @param legalName - The legal name of the business
    * @returns Promise resolving to the created business
@@ -690,7 +690,7 @@ export class Justifi
 
   /**
    * Creates a new checkout.
-   * 
+   *
    * @endpoint POST /v1/checkouts
    * @param payload - Checkout creation data
    * @param subAccountId - Optional sub-account to scope the checkout to
@@ -704,7 +704,7 @@ export class Justifi
 
   /**
    * Lists checkouts with optional sub-account filtering.
-   * 
+   *
    * @endpoint GET /v1/checkouts
    * @param subAccountId - Optional sub-account to scope the checkouts to
    * @returns Promise resolving to array of checkouts
@@ -718,7 +718,7 @@ export class Justifi
 
   /**
    * Retrieves a checkout by its ID.
-   * 
+   *
    * @endpoint GET /v1/checkouts/{id}
    * @param id - The checkout ID to retrieve
    * @returns Promise resolving to the checkout details
@@ -730,7 +730,7 @@ export class Justifi
 
   /**
    * Updates a checkout with new information.
-   * 
+   *
    * @endpoint PATCH /v1/checkouts/{id}
    * @param id - The checkout ID to update
    * @param amount - Optional new amount
@@ -748,7 +748,7 @@ export class Justifi
 
   /**
    * Completes a checkout by processing the payment.
-   * 
+   *
    * @endpoint POST /v1/checkouts/{id}/complete
    * @param id - The checkout ID to complete
    * @param idempotencyKey - Unique key to prevent duplicate completions
@@ -770,10 +770,10 @@ export class Justifi
   }
 
   // Entity Address Methods
-  
+
   /**
    * Creates a new address.
-   * 
+   *
    * @endpoint POST /v1/entities/address
    * @param payload - Address creation data
    * @returns Promise resolving to the created address
@@ -785,7 +785,7 @@ export class Justifi
 
   /**
    * Lists all addresses with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/entities/address
    * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of addresses
@@ -797,7 +797,7 @@ export class Justifi
 
   /**
    * Retrieves an address by its ID.
-   * 
+   *
    * @endpoint GET /v1/entities/address/{id}
    * @param id - The address ID to retrieve
    * @returns Promise resolving to the address details
@@ -809,7 +809,7 @@ export class Justifi
 
   /**
    * Updates an address with new information.
-   * 
+   *
    * @endpoint PATCH /v1/entities/address/{id}
    * @param id - The address ID to update
    * @param payload - Address update data
@@ -824,7 +824,7 @@ export class Justifi
 
   /**
    * Creates a new bank account.
-   * 
+   *
    * @endpoint POST /v1/entities/bank_accounts
    * @param payload - Bank account creation data
    * @returns Promise resolving to the created bank account
@@ -838,7 +838,7 @@ export class Justifi
 
   /**
    * Lists all bank accounts with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/entities/bank_accounts
    * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of bank accounts
@@ -850,7 +850,7 @@ export class Justifi
 
   /**
    * Retrieves a bank account by its ID.
-   * 
+   *
    * @endpoint GET /v1/entities/bank_accounts/{id}
    * @param id - The bank account ID to retrieve
    * @returns Promise resolving to the bank account details
@@ -864,7 +864,7 @@ export class Justifi
 
   /**
    * Creates a new business entity with full payload support.
-   * 
+   *
    * @endpoint POST /v1/entities/business
    * @param payload - Business creation data
    * @returns Promise resolving to the created business
@@ -876,7 +876,7 @@ export class Justifi
 
   /**
    * Lists all businesses with optional filtering.
-   * 
+   *
    * @param filters - Optional filters for pagination
    * @returns Promise resolving to array of businesses
    */
@@ -887,7 +887,7 @@ export class Justifi
 
   /**
    * Retrieves a business by its ID.
-   * 
+   *
    * @endpoint GET /v1/entities/business/{id}
    * @param id - The business ID to retrieve
    * @returns Promise resolving to the business details
@@ -899,7 +899,7 @@ export class Justifi
 
   /**
    * Updates a business with new information.
-   * 
+   *
    * @endpoint PATCH /v1/entities/business/{id}
    * @param id - The business ID to update
    * @param payload - Business update data
@@ -914,7 +914,7 @@ export class Justifi
 
   /**
    * Creates a new document.
-   * 
+   *
    * @endpoint POST /v1/entities/document
    * @param payload - Document creation data
    * @returns Promise resolving to the created document
@@ -926,7 +926,7 @@ export class Justifi
 
   /**
    * Lists all documents with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/entities/document
    * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of documents
@@ -938,7 +938,7 @@ export class Justifi
 
   /**
    * Retrieves a document by its ID.
-   * 
+   *
    * @endpoint GET /v1/entities/document/{id}
    * @param id - The document ID to retrieve
    * @returns Promise resolving to the document details
@@ -952,7 +952,7 @@ export class Justifi
 
   /**
    * Creates a new identity.
-   * 
+   *
    * @endpoint POST /v1/entities/identity
    * @param payload - Identity creation data
    * @returns Promise resolving to the created identity
@@ -964,7 +964,7 @@ export class Justifi
 
   /**
    * Lists all identities with optional filtering.
-   * 
+   *
    * @endpoint GET /v1/entities/identity
    * @param filters - Optional filters for pagination and search
    * @returns Promise resolving to array of identities
@@ -976,7 +976,7 @@ export class Justifi
 
   /**
    * Retrieves an identity by its ID.
-   * 
+   *
    * @endpoint GET /v1/entities/identity/{id}
    * @param id - The identity ID to retrieve
    * @returns Promise resolving to the identity details
@@ -988,7 +988,7 @@ export class Justifi
 
   /**
    * Updates an identity with new information.
-   * 
+   *
    * @endpoint PATCH /v1/entities/identity/{id}
    * @param id - The identity ID to update
    * @param payload - Identity update data

@@ -50,6 +50,8 @@ describe("Checkout", () => {
           createCheckoutPayload,
           subAccountId
         );
+        console.log(checkout.data)
+        console.log(checkout1)
         expect(checkout.data).toEqual(checkout1);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);

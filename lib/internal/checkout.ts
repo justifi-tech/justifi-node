@@ -15,8 +15,13 @@ export interface Checkout {
   paymentMethods: any;
   paymentMethodGroupId: string;
   status: CheckoutStatus;
-  successfulPaymentId: string,
-  paymentSettings: any,
+  mode: string;
+  successfulPaymentId: string;
+  statementDescriptor?: string;
+  applicationFees?: object;
+  metadata?: object;
+  paymentSettings: object;
+  payment?: object;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,12 +30,17 @@ export interface CreateCheckoutPayload {
   amount: number;
   currency?: string;
   description?: string;
-  origin_url?: string;
+  originUrl?: string;
   paymentMethodGroupId?: string;
+  statementDescriptor?: string;
+  metadata?: object;
+  applicationFees?: object;
+  payment?: object;
 }
 
 export interface CompleteCheckoutPayload {
   paymentToken: string;
+  paymentMode?: string;
 }
 
 export interface CheckoutApi {
@@ -56,9 +66,9 @@ export const listCheckouts = (
   token: string,
   subAccountId?: string
 ): Promise<ApiResponse<Checkout[]>> => {
-  const req = new JustifiRequest(RequestMethod.Get, "/v1/checkouts").withAuth(
-    token
-  );
+  const req = new JustifiRequest(RequestMethod.Get, "/v1/checkouts")
+    .withAuth(token)
+    .withExcludingCamelCaseKeys(["metadata"]);
 
   if (subAccountId) {
     req.withHeader("Sub-Account", subAccountId);
@@ -73,6 +83,7 @@ export const getCheckout = (
 ): Promise<ApiResponse<Checkout>> => {
   return new JustifiRequest(RequestMethod.Get, `/v1/checkouts/${id}`)
     .withAuth(token)
+    .withExcludingCamelCaseKeys(["metadata"])
     .execute<ApiResponse<Checkout>>();
 };
 
@@ -85,6 +96,7 @@ export const updateCheckout = (
   return new JustifiRequest(RequestMethod.Patch, `/v1/checkouts/${id}`)
     .withAuth(token)
     .withBody({ amount, description })
+    .withExcludingCamelCaseKeys(["metadata"])
     .execute<ApiResponse<Checkout>>();
 };
 
@@ -95,7 +107,8 @@ export const createCheckout = (
 ): Promise<ApiResponse<Checkout>> => {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/checkouts")
     .withAuth(token)
-    .withBody(payload);
+    .withBody(payload)
+    .withExcludingCamelCaseKeys(["metadata"]);
 
   if (subAccountId) {
     req.withHeader("Sub-Account", subAccountId);
@@ -111,9 +124,10 @@ export const completeCheckout = (
   payload: CompleteCheckoutPayload
 ): Promise<ApiResponse<Checkout>> => {
   const req = new JustifiRequest(RequestMethod.Post, `/v1/checkouts/${id}/complete`)
-                                 .withAuth(token)
-                                 .withIdempotencyKey(idempotencyKey)
-                                 .withBody(payload);
+    .withAuth(token)
+    .withIdempotencyKey(idempotencyKey)
+    .withBody(payload)
+    .withExcludingCamelCaseKeys(["metadata"]);
 
   return req.execute<ApiResponse<Checkout>>();
 };
