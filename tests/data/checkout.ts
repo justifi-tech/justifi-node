@@ -3,6 +3,7 @@ import { Checkout, CheckoutStatus, CompleteCheckoutPayload, CreateCheckoutPayloa
 export const checkout1: Checkout = {
   id: "cho_xyz",
   accountId: "acc_xyz",
+  mode: "test",
   platformAccountId: "acc_xyz",
   paymentAmount: 10000,
   paymentCurrency: "usd",
@@ -11,6 +12,7 @@ export const checkout1: Checkout = {
   paymentMethodGroupId: "pmg_xyz",
   status: CheckoutStatus.Completed,
   successfulPaymentId: "py_xyz",
+  metadata: { test_value: "example" },
   paymentSettings: {},
   createdAt: "2024-01-01T12:00:00Z",
   updatedAt: "2024-01-01T12:00:00Z"
@@ -19,6 +21,7 @@ export const checkout1: Checkout = {
 export const checkout2: Checkout = {
   id: "cho_xyz",
   accountId: "acc_xyz",
+  mode: "test",
   platformAccountId: "acc_xyz",
   paymentAmount: 10000,
   paymentCurrency: "usd",
@@ -36,7 +39,8 @@ export const createCheckoutPayload: CreateCheckoutPayload = {
   amount: 1000,
   currency: "usd",
   description: "ORDER 1235ABC: Charging $10 to the test card",
-  paymentMethodGroupId: "pmg_xyz" 
+  paymentMethodGroupId: "pmg_xyz",
+  metadata: { test_value: "example" },
 };
 
 export const completeCheckoutPayload: CompleteCheckoutPayload = {

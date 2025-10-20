@@ -106,6 +106,7 @@ export class JustifiRequest {
   private method: RequestMethod;
   private headers: OutgoingHttpHeaders;
   private body?: any;
+  private includingCamelCaseKeys?: Array<string>;
 
   constructor(method: RequestMethod, path: string) {
     this.requestUrl = new URL(this.getApiHost() + path);
@@ -155,6 +156,12 @@ export class JustifiRequest {
     return this.withHeader("Idempotency-Key", idempotencyKey || randomUUID());
   }
 
+  withIncludingCamelCaseKeys(keys: Array<string>): JustifiRequest {
+    this.includingCamelCaseKeys = keys
+
+    return this;
+  }
+
   async execute<T>(isDefaultResponse = true): Promise<T> {
     const protocol = this.requestUrl.protocol.replace(":", "");
     const http = await import(protocol);
@@ -173,7 +180,7 @@ export class JustifiRequest {
             }
 
             try {
-              const result = toCamelCase(JSON.parse(body));
+              const result = toCamelCase(JSON.parse(body), this.includingCamelCaseKeys);
               if (!isDefaultResponse) {
                 return resolve(result as T);
               }
