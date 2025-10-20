@@ -104,7 +104,7 @@ export const createCheckout = (
 ): Promise<ApiResponse<Checkout>> => {
   const req = new JustifiRequest(RequestMethod.Post, "/v1/checkouts")
     .withAuth(token)
-    .withBody(payload)
+    .withBody(payload);
 
   if (subAccountId) {
     req.withHeader("Sub-Account", subAccountId);
