@@ -1,7 +1,7 @@
 import "jest";
 import { toSnakeCase } from "../../lib/internal/converter";
 import nock, { Scope } from "nock";
-import { sellerAccount1, sellerAccount2 } from "../data/account";
+import { subAccount1, subAccount2 } from "../data/account";
 import { AccountStatus } from "../../lib/internal/account";
 import { withApiResponse } from "../data/http";
 import { getTestSetupData } from "../setup";
@@ -31,70 +31,70 @@ describe("Account", () => {
     client.clearCache();
   });
 
-  describe("creating seller account", () => {
-    it("creates the seller account", async () => {
+  describe("creating sub account", () => {
+    it("creates the sub account", async () => {
       serverMock
         .post(
-          "/v1/seller_accounts",
-          toSnakeCase({ name: sellerAccount1.name }),
+          "/v1/sub_accounts",
+          toSnakeCase({ name: subAccount1.name }),
           { reqheaders: authHeaders }
         )
         .once()
-        .reply(201, withApiResponse(sellerAccount1));
-      const sellerAccount = await client.createSellerAccount(
-        sellerAccount1.name
+        .reply(201, withApiResponse(subAccount1));
+      const subAccount = await client.createSubAccount(
+        subAccount1.name
       );
 
-      expect(sellerAccount.data).toEqual(sellerAccount1);
+      expect(subAccount.data).toEqual(subAccount1);
       expect(serverMock.isDone()).toEqual(true);
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });
   });
 
-  describe("list seller accounts", () => {
+  describe("list sub accounts", () => {
     describe("when not filtering by status", () => {
-      it("lists the seller accounts", async () => {
+      it("lists the sub accounts", async () => {
         serverMock
-          .get("/v1/seller_accounts", undefined, { reqheaders: authHeaders })
+          .get("/v1/sub_accounts", undefined, { reqheaders: authHeaders })
           .once()
-          .reply(200, withApiResponse([sellerAccount1, sellerAccount2]));
+          .reply(200, withApiResponse([subAccount1, subAccount2]));
 
-        const sellerAccounts = await client.listSellerAccounts();
-        expect(sellerAccounts.data).toEqual([sellerAccount1, sellerAccount2]);
+        const subAccounts = await client.listSubAccounts();
+        expect(subAccounts.data).toEqual([subAccount1, subAccount2]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
 
     describe("when filtering by status", () => {
-      it("lists the seller accounts filtered by status", async () => {
+      it("lists the sub accounts filtered by status", async () => {
         serverMock
-          .get("/v1/seller_accounts", undefined, { reqheaders: authHeaders })
+          .get("/v1/sub_accounts", undefined, { reqheaders: authHeaders })
           .query({ status: AccountStatus.Enabled })
           .once()
-          .reply(200, withApiResponse([sellerAccount1]));
+          .reply(200, withApiResponse([subAccount1]));
 
-        const sellerAccounts = await client.listSellerAccounts(
+        const subAccounts = await client.listSubAccounts(
           AccountStatus.Enabled
         );
-        expect(sellerAccounts.data).toEqual([sellerAccount1]);
+        expect(subAccounts.data).toEqual([subAccount1]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
       });
     });
   });
 
-  describe("get seller account", () => {
-    it("gets the seller account", async () => {
+  describe("get sub account", () => {
+    it("gets the sub account", async () => {
       serverMock
-        .get(`/v1/seller_accounts/${sellerAccount1.id}`, undefined, {
+        .get(`/v1/sub_accounts/${subAccount1.id}`, undefined, {
           reqheaders: authHeaders,
         })
         .once()
-        .reply(200, withApiResponse(sellerAccount1));
+        .reply(200, withApiResponse(subAccount1));
 
-      const sellerAccount = await client.getSellerAccount(sellerAccount1.id);
-      expect(sellerAccount.data).toEqual(sellerAccount1);
+      const subAccount = await client.getSubAccount(subAccount1.id);
+      expect(subAccount.data).toEqual(subAccount1);
       expect(serverMock.isDone()).toEqual(true);
       expect(serverMock.pendingMocks()).toHaveLength(0);
     });

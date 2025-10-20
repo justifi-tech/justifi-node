@@ -1,7 +1,8 @@
 import Justifi from "../lib";
 import { randomUUID } from "crypto";
-import { SellerAccount } from "../lib/internal/account";
-import { PaymentCaptureStrategy, PaymentMethodCard } from "../lib/internal/payment";
+import { SubAccount } from "../lib/internal/account";
+import { PaymentCaptureStrategy } from "../lib/internal/payment";
+import { PaymentMethodCard } from "../lib/internal/payment_method"
 import { RefundReason } from "../lib/internal/refund";
 
 if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
@@ -13,30 +14,30 @@ const client = Justifi.client().withCredentials({
   clientSecret: process.env.CLIENT_SECRET,
 });
 
-const runSellerAccountTest = async (): Promise<SellerAccount> => {
-  const sellerAccount = await client.createSellerAccount(
+const runSubAccountTest = async (): Promise<SubAccount> => {
+  const subAccount = await client.createSubAccount(
     `justifi-node-test-${new Date().getTime()}`
   );
-  console.log("seller account created");
+  console.log("sub account created");
 
-  const sellerAccountList = await client.listSellerAccounts();
-  if (!sellerAccountList.data.find((acc) => acc.id === sellerAccount.data.id)) {
-    throw new Error("could not find seller account when listing");
+  const subAccountList = await client.listSubAccounts();
+  if (!subAccountList.data.find((acc) => acc.id === subAccount.data.id)) {
+    throw new Error("could not find sub account when listing");
   }
-  console.log("seller list fetched");
+  console.log("sub list fetched");
 
-  await client.getSellerAccount(sellerAccount.data.id);
-  console.log("seller account found");
+  await client.getSubAccount(subAccount.data.id);
+  console.log("sub account found");
 
-  const getEnabledAccount = await client.getSellerAccount(
+  const getEnabledAccount = await client.getSubAccount(
     "<enabled_account_id>"
   );
-  console.log("enabled seller account found");
+  console.log("enabled sub account found");
 
   return Promise.resolve(getEnabledAccount.data);
 };
 
-const runPaymentIntentTest = async (sellerAccount: SellerAccount) => {
+const runPaymentIntentTest = async (subAccount: SubAccount) => {
   const paymentIntent = await client.createPaymentIntent(
     randomUUID(),
     {
@@ -53,11 +54,11 @@ const runPaymentIntentTest = async (sellerAccount: SellerAccount) => {
         },
       },
     },
-    sellerAccount.id
+    subAccount.id
   );
   console.log("payment intent created");
 
-  const paymentIntentList = await client.listPaymentIntents(sellerAccount.id);
+  const paymentIntentList = await client.listPaymentIntents(subAccount.id);
   if (!paymentIntentList.data.find((p) => p.id === paymentIntent.data.id)) {
     throw new Error("could not find payment intent when listing");
   }
@@ -88,7 +89,7 @@ const runPaymentIntentTest = async (sellerAccount: SellerAccount) => {
   console.log("payment intent captured");
 };
 
-const runPaymentTest = async (sellerAccount: SellerAccount) => {
+const runPaymentTest = async (subAccount: SubAccount) => {
   const payment = await client.createPayment(
     randomUUID(),
     {
@@ -106,11 +107,11 @@ const runPaymentTest = async (sellerAccount: SellerAccount) => {
         },
       },
     },
-    sellerAccount.id
+    subAccount.id
   );
   console.log("payment created");
 
-  const paymentList = await client.listPayments(undefined, sellerAccount.id);
+  const paymentList = await client.listPayments(undefined, subAccount.id);
   if (!paymentList.data.find((p) => p.id === payment.data.id)) {
     throw new Error("could not find payment when listing");
   }
@@ -141,8 +142,8 @@ const runPaymentTest = async (sellerAccount: SellerAccount) => {
   console.log("payment refunded");
 };
 
-const runRefundTest = async (sellerAccount: SellerAccount) => {
-  const refunds = await client.listRefunds(sellerAccount.id);
+const runRefundTest = async (subAccount: SubAccount) => {
+  const refunds = await client.listRefunds(subAccount.id);
   if (refunds.data.length === 0) {
     throw new Error("No refunds found");
   }
@@ -162,7 +163,7 @@ const runRefundTest = async (sellerAccount: SellerAccount) => {
   console.log("refund update successfull");
 };
 
-runSellerAccountTest()
+runSubAccountTest()
   .then(async (acc) => {
     await runPaymentIntentTest(acc);
     await runPaymentTest(acc);

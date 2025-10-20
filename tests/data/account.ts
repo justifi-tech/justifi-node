@@ -1,6 +1,6 @@
-import { AccountStatus, AccountType, SellerAccount } from "../../lib/internal/account";
+import { AccountStatus, AccountType, SubAccount } from "../../lib/internal/account";
 
-export const sellerAccount1: SellerAccount = {
+export const subAccount1: SubAccount = {
   id: "acc_abc",
   name: "The Shire ABC",
   accountType: AccountType.Test,
@@ -18,7 +18,7 @@ export const sellerAccount1: SellerAccount = {
   updatedAt: "2021-01-01T12:00:00Z",
 };
 
-export const sellerAccount2: SellerAccount = {
+export const subAccount2: SubAccount = {
   id: "acc_xyz",
   name: "The Shire XYZ",
   accountType: AccountType.Test,

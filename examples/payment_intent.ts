@@ -36,7 +36,7 @@ switch (process.argv[2]) {
             },
           },
         },
-        "<seller_account_id>"
+        "<sub_account_id>"
       )
       .then(console.log)
       .catch(console.log);
@@ -44,7 +44,7 @@ switch (process.argv[2]) {
 
   case "listPaymentIntents":
     client
-      .listPaymentIntents("<seller_account_id>")
+      .listPaymentIntents("<sub_account_id>")
       .then(console.log)
       .catch(console.log);
     break;

@@ -141,6 +141,32 @@ describe("http", () => {
       expect(mockServer.isDone()).toEqual(true);
       expect(mockServer.pendingMocks()).toHaveLength(0);
     });
+
+    it("returns the idempotency key value in the response", async () => {
+      const key = "my_key";
+      const idempotencyHeader = { "Idempotency-Key": key };
+      const mockServer = nock(baseUrl)
+        .get("/", undefined, { reqheaders: idempotencyHeader })
+        .once()
+        .reply(200, withApiResponse({}));
+
+      const res = await new JustifiRequest(RequestMethod.Get, "/")
+        .withIdempotencyKey(key)
+        .execute<ApiResponse<any>>();
+
+      expect(mockServer.isDone()).toEqual(true);
+      expect(mockServer.pendingMocks()).toHaveLength(0);
+      expect(res.idempotencyKey).toEqual(key)
+    })
+  });
+
+  describe("with including camel case keys", () => {
+    it("sets the includingCamelCaseKeys property", () => {
+      const keys = ["firstKey", "secondKey"];
+      const req = new JustifiRequest(RequestMethod.Get, "/").withIncludingCamelCaseKeys(keys);
+
+      expect(req['includingCamelCaseKeys']).toEqual(keys);
+    });
   });
 
   describe("execute with retry", () => {
@@ -347,4 +373,34 @@ describe("http", () => {
       });
     });
   });
+
+  describe("when executing multiple requests", () => {
+    describe("when setting headers", () => {
+      it("execute the requests correctly", async () => {
+        const mockServer = nock(baseUrl)
+          .get("/first", undefined, { reqheaders: { First: "Request" } })
+          .once()
+          .reply(200, { ok: 200 });
+
+        await new JustifiRequest(RequestMethod.Get, "/first")
+          .withHeader("First", "Request")
+          .execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+
+        mockServer
+          .get(`/second`, undefined, { reqheaders: { Second: "Request" } })
+          .once()
+          .reply(200, { ok: 200 }),
+
+          await new JustifiRequest(RequestMethod.Get, "/second")
+            .withHeader("Second", "Request")
+            .execute();
+
+        expect(mockServer.isDone()).toEqual(true);
+        expect(mockServer.pendingMocks()).toHaveLength(0);
+      })
+    })
+  })
 });

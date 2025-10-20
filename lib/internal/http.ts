@@ -1,5 +1,4 @@
-import { OutgoingHttpHeaders } from "http";
-import { request } from "https";
+import { IncomingMessage, OutgoingHttpHeaders } from "http";
 import { toCamelCase, toSnakeCase } from "./converter";
 import {
   errorFromHttpStatus,
@@ -7,6 +6,8 @@ import {
   BaseError,
   PaginationError,
 } from "./error";
+import { version } from "../../package.json";
+import { randomUUID } from "crypto";
 
 export interface PageInfo {
   endCursor: string;
@@ -20,14 +21,22 @@ export class ApiResponse<T> {
   type: string;
   data: T;
   pageInfo: PageInfo;
+  idempotencyKey?: string;
 
   private request?: JustifiRequest;
 
-  constructor(id: number, type: string, data: T, pageInfo: PageInfo) {
+  constructor(
+    id: number,
+    type: string,
+    data: T,
+    pageInfo: PageInfo,
+    idempotencyKey?: string
+  ) {
     this.id = id;
     this.type = type;
     this.data = data;
     this.pageInfo = pageInfo;
+    this.idempotencyKey = idempotencyKey
   }
 
   withRequest(request: JustifiRequest) {
@@ -78,13 +87,16 @@ export enum RequestMethod {
   Get = "GET",
   Post = "POST",
   Patch = "PATCH",
+  Put = "PUT",
+  Delete = "DELETE",
 }
 
 export type RequestHeaders = { [key: string]: string };
 
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
-  Accept: "application/json",
+  "Accept": "application/json",
+  "User-Agent": `justifi-node-${version}`
 };
 
 export class JustifiRequest {
@@ -94,11 +106,12 @@ export class JustifiRequest {
   private method: RequestMethod;
   private headers: OutgoingHttpHeaders;
   private body?: any;
+  private includingCamelCaseKeys?: Array<string>;
 
   constructor(method: RequestMethod, path: string) {
     this.requestUrl = new URL(this.getApiHost() + path);
     this.method = method;
-    this.headers = DEFAULT_HEADERS;
+    this.headers = { ...DEFAULT_HEADERS };
   }
 
   withHeader(key: string, value: string): JustifiRequest {
@@ -140,15 +153,24 @@ export class JustifiRequest {
   }
 
   withIdempotencyKey(idempotencyKey: string): JustifiRequest {
-    return this.withHeader("Idempotency-Key", idempotencyKey);
+    return this.withHeader("Idempotency-Key", idempotencyKey || randomUUID());
+  }
+
+  withIncludingCamelCaseKeys(keys: Array<string>): JustifiRequest {
+    this.includingCamelCaseKeys = keys
+
+    return this;
   }
 
   async execute<T>(isDefaultResponse = true): Promise<T> {
+    const protocol = this.requestUrl.protocol.replace(":", "");
+    const http = await import(protocol);
+
     return new Promise((resolve, reject) => {
-      const req = request(
+      const req = http.request(
         this.requestUrl,
         { method: this.method, headers: this.headers },
-        (res) => {
+        (res: IncomingMessage) => {
           let body = "";
           res.on("data", (chunk) => (body += chunk));
           res.on("end", () => {
@@ -158,7 +180,7 @@ export class JustifiRequest {
             }
 
             try {
-              const result = toCamelCase(JSON.parse(body));
+              const result = toCamelCase(JSON.parse(body), this.includingCamelCaseKeys);
               if (!isDefaultResponse) {
                 return resolve(result as T);
               }
@@ -167,7 +189,8 @@ export class JustifiRequest {
                 result.id,
                 result.type,
                 result.data,
-                result.pageInfo
+                result.pageInfo,
+                this.headers["Idempotency-Key"]?.toString()
               ).withRequest(this);
               return resolve(apiResponse as T);
             } catch (e) {
@@ -182,7 +205,7 @@ export class JustifiRequest {
         }
       );
 
-      req.on("error", (err) =>
+      req.on("error", (err: { message: string }) =>
         reject(new InternalError({ code: 500, message: err.message }))
       );
 

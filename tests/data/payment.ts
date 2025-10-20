@@ -1,5 +1,5 @@
 import {
-  BalanceTransaction,
+  PaymentBalanceTransaction,
   CreatePaymentPayload,
   Payment,
   PaymentBalanceTxnType,
@@ -108,7 +108,7 @@ export const payment2: Payment = {
   updatedAt: "2022-01-01T12:00:00Z",
 };
 
-export const paymentBalanceTransaction1: BalanceTransaction = {
+export const paymentBalanceTransaction1: PaymentBalanceTransaction = {
   id: "pbt_123abc",
   amount: 40145,
   balance: 53550,
@@ -122,7 +122,7 @@ export const paymentBalanceTransaction1: BalanceTransaction = {
   updatedAt: "2021-01-01T12:00:00Z",
 };
 
-export const paymentBalanceTransaction2: BalanceTransaction = {
+export const paymentBalanceTransaction2: PaymentBalanceTransaction = {
   id: "pbt_123xyz",
   amount: 1030,
   balance: 10000,

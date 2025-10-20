@@ -32,8 +32,8 @@ describe("Refund", () => {
   });
 
   describe("list refunds", () => {
-    describe("when seller account id is not provided", () => {
-      it("lists refunds for direct seller", async () => {
+    describe("when sub account id is not provided", () => {
+      it("lists refunds for direct sub", async () => {
         serverMock
           .get("/v1/refunds", undefined, { reqheaders: authHeaders })
           .once()
@@ -46,18 +46,18 @@ describe("Refund", () => {
       });
     });
 
-    describe("when seller account id is provided", () => {
-      const sellerAccountId = "acc_abc";
+    describe("when sub account id is provided", () => {
+      const subAccountId = "acc_abc";
 
-      it("lists refunds for the platform's seller id", async () => {
+      it("lists refunds for the platform's sub id", async () => {
         serverMock
           .get("/v1/refunds", undefined, {
-            reqheaders: { ...authHeaders, "Seller-Account": sellerAccountId },
+            reqheaders: { ...authHeaders, "Sub-Account": subAccountId },
           })
           .once()
           .reply(200, withApiResponse([refund1]));
 
-        const refunds = await client.listRefunds(sellerAccountId);
+        const refunds = await client.listRefunds(subAccountId);
         expect(refunds.data).toEqual([refund1]);
         expect(serverMock.isDone()).toEqual(true);
         expect(serverMock.pendingMocks()).toHaveLength(0);
