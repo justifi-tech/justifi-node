@@ -17,7 +17,7 @@ export const verifySignature = (
   secretKey: string,
   signature: string
 ): boolean => {
-  const payload = `${timestamp}.${JSON.stringify(receivedEvent)}`;
+  const payload = `${timestamp}.${receivedEvent}`;
   const hex = createHmac(ALGORITHM, secretKey).update(payload).digest("hex");
 
   return signature === hex;
