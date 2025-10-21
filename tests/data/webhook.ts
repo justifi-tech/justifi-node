@@ -1,4 +1,4 @@
-export const webhookReceivedEvent = JSON.stringify({
+export const webhookReceivedEvent = {
   id: "evt_123abc",
   account_id: "acc_123abc",
   account_type: "test",
@@ -51,4 +51,4 @@ export const webhookReceivedEvent = JSON.stringify({
     disputes: [],
   },
   event_name: "payment.created",
-});
+};

@@ -7,27 +7,59 @@ describe("Webhook", () => {
 
   describe("verify signature", () => {
     describe("when signature is valid", () => {
-      it("allows", () => {
-        const valid = client.verifySignature(
-          webhookReceivedEvent,
-          "1668122947",
-          "justifi-test-key",
-          "d190761659ee22eb6eab46e23934565c48edd750ce44c939003e6dae070ada19"
-        );
+      describe("when received event is an object", () => {
+        it("allows", () => {
+          const valid = client.verifySignature(
+            webhookReceivedEvent,
+            "1668122947",
+            "justifi-test-key",
+            "d190761659ee22eb6eab46e23934565c48edd750ce44c939003e6dae070ada19"
+          );
 
-        expect(valid).toEqual(true);
+          expect(valid).toEqual(true);
+        });
+      });
+
+      describe("when received event is an object", () => {
+        it("allows", () => {
+          const valid = client.verifySignature(
+            JSON.stringify(webhookReceivedEvent),
+            "1668122947",
+            "justifi-test-key",
+            "d190761659ee22eb6eab46e23934565c48edd750ce44c939003e6dae070ada19"
+          );
+
+          expect(valid).toEqual(true);
+        });
       });
     });
 
     describe("when signature is invalid", () => {
-      const valid = client.verifySignature(
-        webhookReceivedEvent,
-        "1668122947",
-        "justifi-test-key",
-        "invalid_signature"
-      );
+      describe("when received event is an object", () => {
+        it("denies", () => {
+          const valid = client.verifySignature(
+            webhookReceivedEvent,
+            "1668122947",
+            "justifi-test-key",
+            "invalid_signature"
+          );
 
-      expect(valid).toEqual(false);
+          expect(valid).toEqual(false);
+        });
+      });
+
+      describe("when received event is a string", () => {
+        it("denies", () => {
+          const valid = client.verifySignature(
+            JSON.stringify(webhookReceivedEvent),
+            "1668122947",
+            "justifi-test-key",
+            "invalid_signature"
+          );
+
+          expect(valid).toEqual(false);
+        });
+      });
     });
   });
 });
