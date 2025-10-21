@@ -12,7 +12,7 @@ export interface WebhookVerifier {
 }
 
 export const verifySignature = (
-  receivedEvent: string | any,
+  receivedEvent: string | object,
   timestamp: string,
   secretKey: string,
   signature: string
