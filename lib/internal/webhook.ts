@@ -4,7 +4,7 @@ const ALGORITHM = "sha256";
 
 export interface WebhookVerifier {
   verifySignature(
-    receivedEvent: any,
+    receivedEvent: string | object,
     timestamp: string,
     secretKey: string,
     signature: string
@@ -12,12 +12,13 @@ export interface WebhookVerifier {
 }
 
 export const verifySignature = (
-  receivedEvent: any,
+  receivedEvent: string | object,
   timestamp: string,
   secretKey: string,
   signature: string
 ): boolean => {
-  const payload = `${timestamp}.${JSON.stringify(receivedEvent)}`;
+  const receivedEventPayload = typeof receivedEvent === "string" ? receivedEvent : JSON.stringify(receivedEvent);
+  const payload = `${timestamp}.${receivedEventPayload}`;
   const hex = createHmac(ALGORITHM, secretKey).update(payload).digest("hex");
 
   return signature === hex;
