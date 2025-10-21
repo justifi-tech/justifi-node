@@ -4,7 +4,7 @@ const ALGORITHM = "sha256";
 
 export interface WebhookVerifier {
   verifySignature(
-    receivedEvent: string | any,
+    receivedEvent: string | object,
     timestamp: string,
     secretKey: string,
     signature: string
